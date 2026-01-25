@@ -14,16 +14,25 @@ import { relations } from "drizzle-orm";
 // TUTOR = Content Creator
 // LEARNER = Student
 export const roleEnum = pgEnum("role", ["ADMIN", "TUTOR", "LEARNER"]);
+export const statusEnum = pgEnum("status", ["PENDING", "ACTIVE", "REJECTED"]);
 
 // 2. USERS
 export const users = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
   clerkId: text("clerk_id").unique().notNull(),
   email: text("email").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  bio: text("bio"), // The description of the tutor
+  expertise: text("expertise"), // e.g., "Frontend Dev", "Data Science"
 
   // Default is LEARNER. The frontend can send 'TUTOR' if selected.
   // 'ADMIN' can NEVER be set via the public API.
   role: roleEnum("role").default("LEARNER").notNull(),
+
+  // Default to ACTIVE (so learners don't get stuck)
+  // Tutors will be manually set to PENDING in the onboarding action.
+  status: statusEnum("status").default("PENDING").notNull(),
 
   imageUrl: text("image_url"),
 
@@ -163,5 +172,16 @@ export const purchaseRelations = relations(purchases, ({ one }) => ({
   course: one(courses, {
     fields: [purchases.courseId],
     references: [courses.id],
+  }),
+}));
+
+export const userProgressRelations = relations(userProgress, ({ one }) => ({
+  user: one(users, {
+    fields: [userProgress.userId],
+    references: [users.id],
+  }),
+  lesson: one(lessons, {
+    fields: [userProgress.lessonId],
+    references: [lessons.id],
   }),
 }));
