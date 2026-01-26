@@ -18,10 +18,10 @@ function Modal({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md relative animate-in fade-in zoom-in duration-200">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md relative animate-in fade-in zoom-in duration-200 border dark:border-gray-800">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
         >
           <X className="w-5 h-5" />
         </button>
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-gray-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 text-gray-900 dark:text-gray-100">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Welcome to NSKAI EdTech</h1>
         <p className="text-gray-600">How do you want to use the platform?</p>
@@ -96,13 +96,13 @@ export default function OnboardingPage() {
         <button
           disabled={isLoading}
           onClick={handleLearnerSelect}
-          className="group flex flex-col items-center p-8 bg-white rounded-xl shadow-sm border-2 border-transparent hover:border-blue-500 transition-all hover:shadow-md"
+          className="group flex flex-col items-center p-8 bg-white dark:bg-gray-900 rounded-xl shadow-sm border-2 border-transparent hover:border-blue-500 transition-all hover:shadow-md"
         >
-          <div className="p-4 bg-blue-100 rounded-full mb-4 group-hover:bg-blue-200 transition-colors">
-            <BookOpen className="w-8 h-8 text-blue-600" />
+          <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+            <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h2 className="text-xl font-semibold mb-2">I want to Learn</h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Access courses and track progress.
           </p>
         </button>
@@ -111,10 +111,10 @@ export default function OnboardingPage() {
         <button
           disabled={isLoading}
           onClick={() => setShowTutorForm(true)}
-          className="group flex flex-col items-center p-8 bg-white rounded-xl shadow-sm border-2 border-transparent hover:border-purple-500 transition-all hover:shadow-md"
+          className="group flex flex-col items-center p-8 bg-white dark:bg-gray-900 rounded-xl shadow-sm border-2 border-transparent hover:border-purple-500 transition-all hover:shadow-md"
         >
-          <div className="p-4 bg-purple-100 rounded-full mb-4 group-hover:bg-purple-200 transition-colors">
-            <GraduationCap className="w-8 h-8 text-purple-600" />
+          <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+            <GraduationCap className="w-8 h-8 text-purple-600 dark:text-purple-400" />
           </div>
           <h2 className="text-xl font-semibold mb-2">I want to Teach</h2>
           <p className="text-sm text-gray-500">
@@ -134,7 +134,7 @@ export default function OnboardingPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                   First Name
                 </label>
                 <input
@@ -145,7 +145,7 @@ export default function OnboardingPage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                   Last Name
                 </label>
                 <input
@@ -165,17 +165,17 @@ export default function OnboardingPage() {
                 type="text"
                 value={user?.primaryEmailAddress?.emailAddress || ""}
                 disabled
-                className="w-full mt-1 p-2 bg-gray-100 border rounded text-gray-600 cursor-not-allowed"
+                className="w-full mt-1 p-2 bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 rounded text-gray-600 dark:text-gray-300 cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-700 uppercase">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
                 Area of Expertise
               </label>
               <select
                 required
-                className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-full mt-1 p-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded focus:ring-2 focus:ring-purple-500 outline-none text-gray-900 dark:text-gray-100"
                 value={formData.expertise}
                 onChange={(e) =>
                   setFormData({ ...formData, expertise: e.target.value })
@@ -192,13 +192,13 @@ export default function OnboardingPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-700 uppercase">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
                 Bio / Description
               </label>
               <textarea
                 required
                 placeholder="I have 5 years experience in..."
-                className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-purple-500 outline-none h-24 resize-none"
+                className="w-full mt-1 p-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded focus:ring-2 focus:ring-purple-500 outline-none h-24 resize-none text-gray-900 dark:text-gray-100"
                 value={formData.bio}
                 onChange={(e) =>
                   setFormData({ ...formData, bio: e.target.value })

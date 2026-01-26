@@ -7,9 +7,9 @@ export default function TutorDashboard() {
         <h1 className="text-3xl font-bold">Tutor Dashboard</h1>
         <UserButton />
       </div>
-      <div className="p-6 bg-white rounded-lg border shadow-sm">
+      <div className="p-6 bg-surface rounded-lg border shadow-sm dark:border-gray-700">
         <h2 className="text-xl font-semibold mb-2">My Courses</h2>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-400">
           You haven&apos;t created any courses yet.
         </p>
         {/* We will add the "Create Course" button here later */}
