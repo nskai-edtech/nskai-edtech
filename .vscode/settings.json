@@ -1,10 +1,12 @@
 {
   "cSpell.words": [
+    "Bootcamp",
     "edtech",
     "neondatabase",
     "nskai",
     "paystack",
     "svix",
     "vercel"
-  ]
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

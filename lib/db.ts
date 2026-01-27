@@ -1,9 +1,9 @@
 import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle, NeonHttpDatabase } from "drizzle-orm/neon-http";
 import * as schema from "@/drizzle/schema";
 
 declare global {
-  var database: ReturnType<typeof drizzle> | undefined;
+  var database: NeonHttpDatabase<typeof schema> | undefined;
 }
 
 const sql = neon(process.env.DATABASE_URL!);
