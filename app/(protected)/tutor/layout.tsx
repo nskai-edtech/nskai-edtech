@@ -1,5 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { Sidebar } from "@/components/dashboard/sidebar";
+import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 
 export default async function TutorLayout({
   children,
@@ -8,7 +10,6 @@ export default async function TutorLayout({
 }) {
   const { sessionClaims } = await auth();
 
-  // Get metadata from Clerk session
   const status = sessionClaims?.metadata?.status as string;
 
   // IF PENDING: Show the blocking screen
@@ -43,11 +44,22 @@ export default async function TutorLayout({
     );
   }
 
-  // IF ACTIVE: Show the actual dashboard
   return (
-    <div>
-      {/* (Sidebar would go here) */}
-      {children}
+    <div className="h-full bg-surface-muted">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex h-full w-64 flex-col fixed inset-y-0 z-50">
+        <Sidebar role="TUTOR" />
+      </div>
+
+      {/* Main Content Area */}
+      <main className="md:pl-64 h-full flex flex-col">
+        {/* Mobile Header */}
+        <div className="md:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border">
+          <MobileSidebar role="TUTOR" />
+          <div className="font-bold text-xl text-brand ml-4">NSKAI</div>
+        </div>
+        <div className="flex-1 p-8">{children}</div>
+      </main>
     </div>
   );
 }
