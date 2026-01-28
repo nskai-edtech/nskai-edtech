@@ -141,7 +141,7 @@ export default function OnboardingPage() {
                   type="text"
                   value={user?.firstName || ""}
                   disabled
-                  className="w-full mt-1 p-2 bg-gray-100 border rounded text-gray-600 cursor-not-allowed"
+                  className="w-full mt-1 p-2 bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 rounded text-gray-600 dark:text-gray-300 cursor-not-allowed"
                 />
               </div>
               <div>
@@ -152,7 +152,7 @@ export default function OnboardingPage() {
                   type="text"
                   value={user?.lastName || ""}
                   disabled
-                  className="w-full mt-1 p-2 bg-gray-100 border rounded text-gray-600 cursor-not-allowed"
+                  className="w-full mt-1 p-2 bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 rounded text-gray-600 dark:text-gray-300 cursor-not-allowed"
                 />
               </div>
             </div>

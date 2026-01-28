@@ -13,6 +13,7 @@
     "check-all": "pnpm check-format && pnpm lint && pnpm check-types",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "preinstall": "npx only-allow pnpm"
   },

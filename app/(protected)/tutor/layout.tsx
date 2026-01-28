@@ -15,7 +15,10 @@ export default async function TutorLayout({
   // IF PENDING: Show the blocking screen
   if (status === "PENDING") {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-yellow-50 dark:bg-yellow-950/20 text-center p-6">
+      <div
+        className="h-screen flex flex-col items-center justify-center bg-yellow-50 dark:bg-yellow-950/20 text-center p-6"
+        suppressHydrationWarning
+      >
         <div className="bg-surface p-8 rounded-xl shadow-lg max-w-md border dark:border-gray-700">
           <h1 className="text-2xl font-bold text-yellow-600 dark:text-yellow-500 mb-4">
             Application Under Review
@@ -45,20 +48,22 @@ export default async function TutorLayout({
   }
 
   return (
-    <div className="h-full bg-surface-muted">
+    <div className="h-full bg-surface-muted" suppressHydrationWarning>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex h-full w-64 flex-col fixed inset-y-0 z-50">
+      <div className="hidden xl:flex h-full w-64 flex-col fixed inset-y-0 z-50">
         <Sidebar role="TUTOR" />
       </div>
 
       {/* Main Content Area */}
-      <main className="md:pl-64 h-full flex flex-col">
+      <main className="xl:pl-64 h-full flex flex-col">
         {/* Mobile Header */}
-        <div className="md:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border">
+        <div className="xl:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
           <MobileSidebar role="TUTOR" />
           <div className="font-bold text-xl text-brand ml-4">NSKAI</div>
         </div>
-        <div className="flex-1 p-8">{children}</div>
+        <div className="flex-1 p-4" suppressHydrationWarning>
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -99,9 +99,11 @@ export default function TutorsPage() {
             extensive expertise to help your students succeed.
           </p>
         </div>
-        <button className="px-6 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2">
-          <span>Invite New Tutor</span>
-        </button>
+        <div>
+          <button className="px-6 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2">
+            <span>Invite New Tutor</span>
+          </button>
+        </div>
       </div>
 
       {/* Tutors Grid */}

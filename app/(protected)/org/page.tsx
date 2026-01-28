@@ -65,19 +65,34 @@ export default async function OrgDashboard() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  {tutor.status === "ACTIVE" ? (
+                  {tutor.status === "ACTIVE" && (
                     <span className="flex items-center text-green-600 dark:text-green-400 font-medium text-xs gap-1">
                       <BadgeCheck className="w-4 h-4" /> Active
                     </span>
-                  ) : (
+                  )}
+                  {tutor.status === "PENDING" && (
                     <span className="flex items-center text-amber-600 dark:text-amber-500 font-medium text-xs gap-1">
                       <Clock className="w-4 h-4" /> Pending
+                    </span>
+                  )}
+                  {tutor.status === "SUSPENDED" && (
+                    <span className="flex items-center text-amber-600 dark:text-amber-500 font-medium text-xs gap-1">
+                      <Shield className="w-4 h-4" /> Suspended
+                    </span>
+                  )}
+                  {tutor.status === "BANNED" && (
+                    <span className="flex items-center text-red-600 dark:text-red-500 font-medium text-xs gap-1">
+                      <Shield className="w-4 h-4" /> Banned
                     </span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-right">
                   {/* We extract the button to a client component so we can use hooks */}
-                  <TutorActionCell tutorId={tutor.id} status={tutor.status} />
+                  <TutorActionCell
+                    tutorId={tutor.id}
+                    status={tutor.status}
+                    tutor={tutor}
+                  />
                 </td>
               </tr>
             ))}

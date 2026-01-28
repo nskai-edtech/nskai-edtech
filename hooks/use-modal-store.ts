@@ -7,14 +7,33 @@ type User = InferSelectModel<typeof users>;
 interface ModalData {
   tutor?: User;
   tutorId?: string;
+  bio?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string;
+  expertise?: string | null;
 }
 
 interface ModalStore {
-  type: "approveTutor" | "rejectTutor" | null;
+  type:
+    | "approveTutor"
+    | "rejectTutor"
+    | "checkTutor"
+    | "suspendTutor"
+    | "banTutor"
+    | null;
   data: ModalData;
   isOpen: boolean;
 
-  onOpen: (type: "approveTutor" | "rejectTutor", data?: ModalData) => void;
+  onOpen: (
+    type:
+      | "approveTutor"
+      | "rejectTutor"
+      | "checkTutor"
+      | "suspendTutor"
+      | "banTutor",
+    data?: ModalData,
+  ) => void;
   onClose: () => void;
 }
 

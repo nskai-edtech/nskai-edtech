@@ -122,29 +122,34 @@ export default async function LearnersPage({
   return (
     <div className="p-8 max-w-[1600px] mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-primary-text flex items-center gap-3">
-            <Users className="w-8 h-8 text-brand" />
-            Learners
-          </h1>
-          <p className="text-secondary-text mt-2">
-            Manage and track the progress of all students in your organization.
-          </p>
+      <div className="flex flex-col justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-primary-text flex items-center gap-3">
+              <Users className="w-8 h-8 text-brand" />
+              Learners
+            </h1>
+            <p className="text-secondary-text mt-2">
+              Manage and track the progress of all students in your
+              organization.
+            </p>
+          </div>
+          <div>
+            <button className="px-5 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              <span>Export Data</span>
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <div className="flex flex-col md:flex-row items-start gap-3 w-full">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary-text" />
             <input
               type="text"
               placeholder="Search learners..."
-              className="pl-10 pr-4 py-2.5 rounded-xl border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand w-64"
+              className="pl-10 pr-4 py-2.5 rounded-xl border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand w-full"
             />
           </div>
-          <button className="px-5 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            <span>Export Data</span>
-          </button>
         </div>
       </div>
 

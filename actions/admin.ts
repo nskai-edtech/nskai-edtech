@@ -46,3 +46,94 @@ export async function approveTutor(tutorId: string) {
     return { error: "Failed to approve" };
   }
 }
+// Suspend a Tutor
+export async function suspendTutor(tutorId: string) {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({ status: "SUSPENDED" })
+      .where(eq(users.id, tutorId));
+
+    revalidatePath("/org");
+    return { success: true };
+  } catch (error) {
+    console.error("Suspend Error:", error);
+    return { error: "Failed to suspend" };
+  }
+}
+
+// Unsuspend (Reactivate) a Tutor
+export async function unsuspendTutor(tutorId: string) {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({ status: "ACTIVE" })
+      .where(eq(users.id, tutorId));
+
+    revalidatePath("/org");
+    return { success: true };
+  } catch (error) {
+    console.error("Unsuspend Error:", error);
+    return { error: "Failed to unsuspend" };
+  }
+}
+
+// Ban a Tutor
+export async function banTutor(tutorId: string) {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({ status: "BANNED" })
+      .where(eq(users.id, tutorId));
+
+    revalidatePath("/org");
+    return { success: true };
+  } catch (error) {
+    console.error("Ban Error:", error);
+    return { error: "Failed to ban" };
+  }
+}
+
+// Unban a Tutor
+export async function unbanTutor(tutorId: string) {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({ status: "ACTIVE" })
+      .where(eq(users.id, tutorId));
+
+    revalidatePath("/org");
+    return { success: true };
+  } catch (error) {
+    console.error("Unban Error:", error);
+    return { error: "Failed to unban" };
+  }
+}
