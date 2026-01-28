@@ -14,7 +14,13 @@ import { relations } from "drizzle-orm";
 // TUTOR = Content Creator
 // LEARNER = Student
 export const roleEnum = pgEnum("role", ["ADMIN", "TUTOR", "LEARNER"]);
-export const statusEnum = pgEnum("status", ["PENDING", "ACTIVE", "REJECTED"]);
+export const statusEnum = pgEnum("status", [
+  "PENDING",
+  "ACTIVE",
+  "REJECTED",
+  "SUSPENDED",
+  "BANNED",
+]);
 
 // 2. USERS
 export const users = pgTable("user", {
@@ -255,18 +261,21 @@ export const skillRelations = relations(skills, ({ many }) => ({
   assessments: many(assessments),
 }));
 
-export const skillDependencyRelations = relations(skillDependencies, ({ one }) => ({
-  skill: one(skills, {
-    fields: [skillDependencies.skillId],
-    references: [skills.id],
-    relationName: "skillPrerequisites",
+export const skillDependencyRelations = relations(
+  skillDependencies,
+  ({ one }) => ({
+    skill: one(skills, {
+      fields: [skillDependencies.skillId],
+      references: [skills.id],
+      relationName: "skillPrerequisites",
+    }),
+    prerequisite: one(skills, {
+      fields: [skillDependencies.prerequisiteSkillId],
+      references: [skills.id],
+      relationName: "skillDependents",
+    }),
   }),
-  prerequisite: one(skills, {
-    fields: [skillDependencies.prerequisiteSkillId],
-    references: [skills.id],
-    relationName: "skillDependents",
-  }),
-}));
+);
 
 export const userSkillRelations = relations(userSkills, ({ one }) => ({
   user: one(users, {
@@ -300,4 +309,3 @@ export const userAssessmentResultRelations = relations(
     }),
   }),
 );
-

@@ -15,6 +15,13 @@
       "when": 1769536683950,
       "tag": "0001_strange_doctor_octopus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769569723787,
+      "tag": "0002_purple_zemo",
+      "breakpoints": true
     }
   ]
 }

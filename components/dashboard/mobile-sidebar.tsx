@@ -33,7 +33,7 @@ export const MobileSidebar = ({ role }: MobileSidebarProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="md:hidden pr-4 hover:opacity-75 transition text-primary-text"
+        className="xl:hidden pr-4 hover:opacity-75 transition text-primary-text"
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -41,7 +41,7 @@ export const MobileSidebar = ({ role }: MobileSidebarProps) => {
       {/* Overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/50 z-100 md:hidden transition-opacity duration-300",
+          "fixed inset-0 bg-black/50 z-100 xl:hidden transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
         onClick={() => setIsOpen(false)}
@@ -50,11 +50,11 @@ export const MobileSidebar = ({ role }: MobileSidebarProps) => {
       {/* Sidebar Drawer */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-101 w-72 bg-surface transition-transform duration-300 ease-in-out md:hidden flex flex-col h-full border-r border-border",
+          "fixed inset-y-0 left-0 z-101 w-72 bg-surface transition-transform duration-300 ease-in-out xl:hidden flex flex-col h-full border-r border-border",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="absolute right-4 top-4 z-102 md:hidden">
+        <div className="absolute right-4 top-4 z-102 xl:hidden">
           <button
             onClick={() => setIsOpen(false)}
             className="p-2 hover:bg-surface-muted rounded-full text-secondary-text"
