@@ -158,5 +158,5 @@ To ensure quality, we follow this loop:
 4. **Schema Change?** If you changed the database, you run `npx drizzle-kit generate` to create a migration file.
 5. **Push:** You push to GitHub.
 6. **PR:** You open a Pull Request.
-7. **Review:** Another dev (or you, wearing your "Lead Hat") approves it.
+7. **Review:** It gets reviewed by the lead dev and either becomes approved or you are asked to make changes.
 8. **Merge:** It goes into `main`.
