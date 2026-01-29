@@ -55,6 +55,12 @@ export const useSidebarRoutes = (role: "TUTOR" | "ORG_ADMIN") => {
       active: pathname.includes("/org/tutors"),
     },
     {
+      icon: BookOpen,
+      label: "Courses",
+      href: "/org/courses",
+      active: pathname.includes("/org/courses"),
+    },
+    {
       icon: Users,
       label: "Learners",
       href: "/org/learners",

@@ -15,9 +15,15 @@ export default clerkMiddleware(async (auth, req) => {
   // @ts-ignore
   const role = sessionClaims?.metadata?.role;
 
-  // Redirect ORG_ADMIN to /org when visiting the home page
+  // Redirect users to their dashboard when visiting the home page
   if (req.nextUrl.pathname === "/" && role === "ORG_ADMIN") {
     return NextResponse.redirect(new URL("/org", req.url));
+  }
+  if (req.nextUrl.pathname === "/" && role === "TUTOR") {
+    return NextResponse.redirect(new URL("/tutor", req.url));
+  }
+  if (req.nextUrl.pathname === "/" && role === "LEARNER") {
+    return NextResponse.redirect(new URL("/learner", req.url));
   }
 
   if (isProtectedRoute(req) && !userId) {

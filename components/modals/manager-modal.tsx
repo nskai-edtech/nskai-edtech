@@ -8,11 +8,14 @@ import {
   unbanTutor,
 } from "@/actions/admin";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, ShieldAlert, Ban } from "lucide-react";
+import toast from "react-hot-toast";
 
 export const ManagerModal = () => {
   const { isOpen, onClose, type, data } = useModalStore();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const isModalOpen =
     isOpen && (type === "suspendTutor" || type === "banTutor");
@@ -31,23 +34,38 @@ export const ManagerModal = () => {
       if (!tutorId) return;
       setIsLoading(true);
 
+      let result;
+      let successMessage = "";
+
       if (isSuspend) {
         if (isCurrentlySuspended) {
-          await unsuspendTutor(tutorId);
+          result = await unsuspendTutor(tutorId);
+          successMessage = "Tutor account reactivated successfully";
         } else {
-          await suspendTutor(tutorId);
+          result = await suspendTutor(tutorId);
+          successMessage = "Tutor account suspended successfully";
         }
       } else if (isBan) {
         if (isCurrentlyBanned) {
-          await unbanTutor(tutorId);
+          result = await unbanTutor(tutorId);
+          successMessage = "Tutor account unbanned successfully";
         } else {
-          await banTutor(tutorId);
+          result = await banTutor(tutorId);
+          successMessage = "Tutor account banned successfully";
         }
       }
 
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(successMessage);
+      }
+
       onClose();
+      router.refresh();
     } catch (error) {
       console.log(error);
+      toast.error("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
