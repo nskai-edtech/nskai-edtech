@@ -2,9 +2,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users } from "@/drizzle/schema";
-import { eq, desc } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
+import { users, courses } from "@/drizzle/schema";
+import { eq, desc, and, count, sql } from "drizzle-orm";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getTutors() {
@@ -21,6 +21,41 @@ export async function getTutors() {
   });
 
   return tutors;
+}
+
+export async function getTutorsWithCourseCount() {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const tutorsWithCourses = await db
+    .select({
+      id: users.id,
+      clerkId: users.clerkId,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      bio: users.bio,
+      expertise: users.expertise,
+      role: users.role,
+      status: users.status,
+      imageUrl: users.imageUrl,
+      paystackCustomerCode: users.paystackCustomerCode,
+      interests: users.interests,
+      learningGoal: users.learningGoal,
+      createdAt: users.createdAt,
+      courseCount: sql<number>`cast(count(case when ${courses.isPublished} = true then 1 end) as integer)`,
+    })
+    .from(users)
+    .leftJoin(courses, eq(users.id, courses.tutorId))
+    .where(eq(users.role, "TUTOR"))
+    .groupBy(users.id)
+    .orderBy(desc(users.createdAt));
+
+  return tutorsWithCourses;
 }
 
 export async function getTutorById(tutorId: string) {
@@ -48,10 +83,28 @@ export async function approveTutor(tutorId: string) {
   }
 
   try {
+    // Get the tutor to find their clerkId
+    const tutor = await db.query.users.findFirst({
+      where: eq(users.id, tutorId),
+    });
+
+    if (!tutor) {
+      return { error: "Tutor not found" };
+    }
+
+    // Update database status
     await db
       .update(users)
       .set({ status: "ACTIVE" })
       .where(eq(users.id, tutorId));
+
+    // Update Clerk user metadata so session claims reflect the new status
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(tutor.clerkId, {
+      publicMetadata: {
+        status: "ACTIVE",
+      },
+    });
 
     // Refresh dashboard data
     revalidatePath("/org");
@@ -71,10 +124,24 @@ export async function suspendTutor(tutorId: string) {
   }
 
   try {
+    const tutor = await db.query.users.findFirst({
+      where: eq(users.id, tutorId),
+    });
+
+    if (!tutor) {
+      return { error: "Tutor not found" };
+    }
+
     await db
       .update(users)
       .set({ status: "SUSPENDED" })
       .where(eq(users.id, tutorId));
+
+    // Sync with Clerk
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(tutor.clerkId, {
+      publicMetadata: { status: "SUSPENDED" },
+    });
 
     revalidatePath("/org");
     return { success: true };
@@ -94,10 +161,24 @@ export async function unsuspendTutor(tutorId: string) {
   }
 
   try {
+    const tutor = await db.query.users.findFirst({
+      where: eq(users.id, tutorId),
+    });
+
+    if (!tutor) {
+      return { error: "Tutor not found" };
+    }
+
     await db
       .update(users)
       .set({ status: "ACTIVE" })
       .where(eq(users.id, tutorId));
+
+    // Sync with Clerk
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(tutor.clerkId, {
+      publicMetadata: { status: "ACTIVE" },
+    });
 
     revalidatePath("/org");
     return { success: true };
@@ -117,10 +198,24 @@ export async function banTutor(tutorId: string) {
   }
 
   try {
+    const tutor = await db.query.users.findFirst({
+      where: eq(users.id, tutorId),
+    });
+
+    if (!tutor) {
+      return { error: "Tutor not found" };
+    }
+
     await db
       .update(users)
       .set({ status: "BANNED" })
       .where(eq(users.id, tutorId));
+
+    // Sync with Clerk
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(tutor.clerkId, {
+      publicMetadata: { status: "BANNED" },
+    });
 
     revalidatePath("/org");
     return { success: true };
@@ -140,10 +235,24 @@ export async function unbanTutor(tutorId: string) {
   }
 
   try {
+    const tutor = await db.query.users.findFirst({
+      where: eq(users.id, tutorId),
+    });
+
+    if (!tutor) {
+      return { error: "Tutor not found" };
+    }
+
     await db
       .update(users)
       .set({ status: "ACTIVE" })
       .where(eq(users.id, tutorId));
+
+    // Sync with Clerk
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(tutor.clerkId, {
+      publicMetadata: { status: "ACTIVE" },
+    });
 
     revalidatePath("/org");
     return { success: true };

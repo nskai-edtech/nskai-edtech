@@ -3,11 +3,14 @@
 import { useModalStore } from "@/hooks/use-modal-store";
 import { approveTutor } from "@/actions/admin";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, AlertTriangle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export const ApproveModal = () => {
   const { isOpen, onClose, type, data } = useModalStore();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const isModalOpen =
     isOpen && (type === "approveTutor" || type === "checkTutor");
@@ -20,11 +23,19 @@ export const ApproveModal = () => {
       const tutorId = data.tutorId || data.tutor?.id;
       if (!tutorId) return;
       setIsLoading(true);
-      await approveTutor(tutorId);
+      const result = await approveTutor(tutorId);
+
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Tutor approved successfully!");
+      }
+
       onClose();
-      // Optional: Add a toast notification here
+      router.refresh();
     } catch (error) {
       console.log(error);
+      toast.error("Failed to approve tutor. Please try again.");
     } finally {
       setIsLoading(false);
     }

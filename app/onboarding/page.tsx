@@ -52,16 +52,8 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleLearnerSelect = async () => {
-    setIsLoading(true);
-    const res = await completeOnboarding({ role: "LEARNER" });
-
-    if (res?.success) {
-      await handleSuccess("LEARNER");
-    } else {
-      setIsLoading(false);
-      alert("Something went wrong. Please try again.");
-    }
+  const handleLearnerSelect = () => {
+    router.push("/onboarding/learner");
   };
 
   const handleTutorSubmit = async (e: React.FormEvent) => {

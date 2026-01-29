@@ -16,6 +16,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "npx tsx scripts/seed-tutors.ts",
+    "db:seed-courses": "npx tsx scripts/seed-courses.ts",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hot-toast": "^2.6.0",
     "resend": "^6.8.0",
     "svix": "^1.84.1",
     "tailwind-merge": "^3.4.0",
@@ -37,9 +39,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dotenv": "^8.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
@@ -47,8 +51,6 @@
     "eslint-plugin-prettier": "^5.5.5",
     "prettier": "^3.8.1",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "dotenv": "^16.4.5",
-    "@types/dotenv": "^8.2.0"
+    "typescript": "^5"
   }
 }

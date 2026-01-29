@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getTutors } from "@/actions/admin";
+import { getTutorsWithCourseCount } from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
@@ -21,7 +21,7 @@ export default async function TutorsPage() {
     redirect("/");
   }
 
-  const tutors = await getTutors();
+  const tutors = await getTutorsWithCourseCount();
 
   // Filter to only show ACTIVE tutors on this page (the public-facing tutors view)
   const activeTutors = tutors.filter((t) => t.status === "ACTIVE");
@@ -110,7 +110,8 @@ export default async function TutorsPage() {
                   Courses
                 </span>
                 <div className="flex items-center gap-1.5 font-semibold text-primary-text mt-0.5">
-                  <BookOpen className="w-4 h-4 text-brand" />0 Active
+                  <BookOpen className="w-4 h-4 text-brand" />
+                  {tutor.courseCount} Active
                 </div>
               </div>
               <div className="flex flex-col">
