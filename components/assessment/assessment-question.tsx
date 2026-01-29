@@ -20,17 +20,19 @@ export function AssessmentQuestion({
           const isSelected = selectedIndex === index;
 
           return (
-            <li
-                key={index}
+            <li key={index}>
+            <button
+                type="button"
                 onClick={() => onSelect(index)}
                 className={[
-                  "cursor-pointer rounded-md border p-4 transition-colors",
+                  "w-full text-left cursor-pointer rounded-md border p-4 transition-colors",
                   isSelected
                     ? "border-primary bg-primary/15 ring-2 ring-primary font-medium"
                     : "hover:bg-muted",
                 ].join(" ")}
-              >
-                {option}
+                >
+                  {option}
+                </button>
             </li>
 
           );
