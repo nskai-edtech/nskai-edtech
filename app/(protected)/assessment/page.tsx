@@ -63,8 +63,8 @@ export default function DiagnosticAssessmentPage() {
         />
 
         <AssessmentNavigation
-          onPrevious={() => setCurrentIndex((i) => i - 1)}
-          onNext={() => setCurrentIndex((i) => i + 1)}
+          onPrevious={() => setCurrentIndex((i) => Math.max(0, i - 1))}  
+          onNext={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))} 
           isFirst={currentIndex === 0}
           isLast={currentIndex === questions.length - 1}
         />
