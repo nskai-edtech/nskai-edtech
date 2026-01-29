@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { useModalStore } from "@/hooks/use-modal-store";
@@ -21,6 +20,8 @@ interface Props {
 export const TutorActionCell = ({ tutorId, status, tutor }: Props) => {
   const { onOpen } = useModalStore();
   const [isOpen, setIsOpen] = useState(false);
+  // State for dropdown positioning
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
   // If pending, show the review button
   if (status === "PENDING") {
@@ -43,18 +44,16 @@ export const TutorActionCell = ({ tutorId, status, tutor }: Props) => {
     );
   }
 
-  // State for dropdown positioning
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-
   // Otherwise (ACTIVE, SUSPENDED, BANNED), show the dropdown menu
   return (
     <>
       <button
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
+          // Position menu above the button (subtract menu height ~140px + gap)
           setMenuPosition({
-            top: rect.bottom + window.scrollY + 5,
-            left: rect.right - 192, // 192px is w-48
+            top: rect.top + window.scrollY - 125,
+            left: rect.right - 192,
           });
           setIsOpen(!isOpen);
         }}

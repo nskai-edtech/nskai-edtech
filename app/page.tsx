@@ -2,6 +2,7 @@ import FeaturesSection from "@/components/landing-page/features";
 import HeroSection from "@/components/landing-page/hero-section";
 import Navbar from "@/components/landing-page/navbar";
 import TestimonialsSection from "@/components/landing-page/testimonials";
+import FooterSection from "@/components/landing-page/footer";
 
 export default function Home() {
   return (
@@ -12,6 +13,9 @@ export default function Home() {
         <FeaturesSection />
         <TestimonialsSection />
       </main>
+      <footer>
+        <FooterSection />
+      </footer>
     </div>
   );
 }

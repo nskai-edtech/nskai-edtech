@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, ThumbsUp } from "lucide-react";
+import { Star, ThumbsUp, ChevronDown } from "lucide-react";
 
 type Role = "Student" | "Educator";
 
@@ -384,10 +384,31 @@ const TESTIMONIALS: Testimonial[] = [
 function TestimonialsSection() {
   const [activeTab, setActiveTab] = useState<"All" | Role | string>("All");
 
+  // Get initial count based on screen size (client-side only)
+  const getInitialCount = () => {
+    if (typeof window === "undefined") return 3;
+    return window.matchMedia("(min-width: 768px)").matches ? 6 : 3;
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getInitialCount);
+
+  // Reset visible count when tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setVisibleCount(getInitialCount());
+  };
+
   const filteredTestimonials =
     activeTab === "All"
       ? TESTIMONIALS
       : TESTIMONIALS.filter((t) => t.role === activeTab);
+
+  const visibleTestimonials = filteredTestimonials.slice(0, visibleCount);
+  const hasMoreToShow = visibleCount < filteredTestimonials.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 3);
+  };
 
   return (
     <div className="pb-24">
@@ -438,7 +459,7 @@ function TestimonialsSection() {
           {["All", "Student", "Educator"].map((tab) => (
             <span
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabChange(tab)}
               className={
                 activeTab ===
                 (tab === "Student"
@@ -458,7 +479,7 @@ function TestimonialsSection() {
 
       {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTestimonials.map((t) => (
+        {visibleTestimonials.map((t) => (
           <div
             key={t.id}
             className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-4"
@@ -512,6 +533,19 @@ function TestimonialsSection() {
           </div>
         ))}
       </div>
+
+      {/* Load More Button */}
+      {hasMoreToShow && (
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={handleLoadMore}
+            className="flex items-center gap-2 px-6 py-3 bg-brand/10 hover:bg-brand/20 text-brand font-semibold rounded-full transition-all duration-300 hover:shadow-md"
+          >
+            Load more
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

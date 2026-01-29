@@ -14,7 +14,10 @@ export const Sidebar = ({ role }: SidebarProps) => {
   const routes = useSidebarRoutes(role);
 
   return (
-    <div className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm">
+    <div
+      className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm"
+      suppressHydrationWarning
+    >
       {/* Header  */}
       <div className="p-6">
         <div className="flex items-center gap-2 font-bold text-xl text-brand">
@@ -52,7 +55,10 @@ export const Sidebar = ({ role }: SidebarProps) => {
       </div>
 
       {/* Footer (Toggle & User) */}
-      <div className="p-6 mt-auto border-t border-border flex items-center justify-between">
+      <div
+        className="p-6 mt-auto border-t border-border flex items-center justify-between"
+        suppressHydrationWarning
+      >
         <UserButton afterSignOutUrl="/" />
         <ThemeToggle />
       </div>
