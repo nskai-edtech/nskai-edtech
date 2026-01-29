@@ -23,6 +23,21 @@ export async function getTutors() {
   return tutors;
 }
 
+export async function getTutorById(tutorId: string) {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const tutor = await db.query.users.findFirst({
+    where: eq(users.id, tutorId),
+  });
+
+  return tutor;
+}
+
 // Approve a Tutor
 export async function approveTutor(tutorId: string) {
   const { sessionClaims } = await auth();

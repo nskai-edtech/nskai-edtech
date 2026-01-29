@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { getTutors } from "@/actions/admin";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import {
   BadgeCheck,
   BookOpen,
@@ -7,86 +11,23 @@ import {
   Users,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
-// Mock Data for the Demo
-const MOCK_TUTORS = [
-  {
-    id: "1",
-    name: "Dr. Sarah Chen",
-    role: "Mathematics Expert",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    rating: 4.9,
-    students: 1240,
-    courses: 12,
-    status: "Top Rated",
-    bio: "Ph.D. in Mathematics with 10+ years of teaching experience. Specializes in Calculus and Linear Algebra.",
-    tags: ["Calculus", "Algebra", "Statistics"],
-  },
-  {
-    id: "2",
-    name: "Marcus Johnson",
-    role: "Physics Specialist",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus",
-    rating: 4.8,
-    students: 850,
-    courses: 8,
-    status: "Active",
-    bio: "Former NASA engineer turned educator. Making complex physics concepts accessible to everyone.",
-    tags: ["Physics", "Mechanics", "Astrophysics"],
-  },
-  {
-    id: "3",
-    name: "Elena Rodriguez",
-    role: "Language Arts",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena",
-    rating: 4.95,
-    students: 2100,
-    courses: 15,
-    status: "Top Rated",
-    bio: "Published author and linguist. passionate about creative writing and literature analysis.",
-    tags: ["English", "Spanish", "Literature"],
-  },
-  {
-    id: "4",
-    name: "David Kim",
-    role: "Computer Science",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
-    rating: 4.7,
-    students: 920,
-    courses: 10,
-    status: "Active",
-    bio: "Senior Software Engineer. Teaching coding fundamentals, algorithms, and web development.",
-    tags: ["React", "Python", "Algorithms"],
-  },
-  {
-    id: "5",
-    name: "Jessica Wong",
-    role: "Chemistry",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica",
-    rating: 4.85,
-    students: 600,
-    courses: 6,
-    status: "Rising Star",
-    bio: "Interactive chemistry lessons with a focus on real-world applications and experiments.",
-    tags: ["Chemistry", "Biology", "Lab Science"],
-  },
-  {
-    id: "6",
-    name: "Robert Fox",
-    role: "History & Civics",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Robert",
-    rating: 4.6,
-    students: 450,
-    courses: 5,
-    status: "Active",
-    bio: "Bringing history to life through storytelling and critical analysis of historical events.",
-    tags: ["World History", "Civics", "Geography"],
-  },
-];
+export default async function TutorsPage() {
+  const { sessionClaims } = await auth();
 
-export default function TutorsPage() {
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    redirect("/");
+  }
+
+  const tutors = await getTutors();
+
+  // Filter to only show ACTIVE tutors on this page (the public-facing tutors view)
+  const activeTutors = tutors.filter((t) => t.status === "ACTIVE");
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -108,12 +49,12 @@ export default function TutorsPage() {
 
       {/* Tutors Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MOCK_TUTORS.map((tutor) => (
+        {activeTutors.map((tutor) => (
           <div
             key={tutor.id}
             className="group relative bg-surface border border-border rounded-2xl p-6 hover:shadow-xl hover:border-brand/30 transition-all duration-300 flex flex-col"
           >
-            {/* Action Menu (Mock) */}
+            {/* Action Menu */}
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
               <button className="p-2 hover:bg-surface-muted rounded-full">
                 <MoreVertical className="w-4 h-4 text-secondary-text" />
@@ -125,38 +66,41 @@ export default function TutorsPage() {
               <div className="relative">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-surface-muted border-2 border-white dark:border-gray-800 shadow-sm">
                   <Image
-                    src={tutor.avatar}
-                    alt={tutor.name}
+                    src={
+                      tutor.imageUrl ||
+                      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&crop=face"
+                    }
+                    alt={`${tutor.firstName} ${tutor.lastName}`}
                     width={64}
                     height={64}
                     className="object-cover"
                   />
                 </div>
-                {tutor.status === "Top Rated" && (
-                  <div className="absolute -bottom-2 -right-2 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800 flex items-center gap-0.5 shadow-sm">
-                    <BadgeCheck className="w-3 h-3" />
-                    TOP
-                  </div>
-                )}
+                {/* Show badge for active tutors */}
+                <div className="absolute -bottom-2 -right-2 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800 flex items-center gap-0.5 shadow-sm">
+                  <BadgeCheck className="w-3 h-3" />
+                  ACTIVE
+                </div>
               </div>
               <div>
                 <h3 className="font-bold text-lg text-primary-text group-hover:text-brand transition-colors">
-                  {tutor.name}
+                  {tutor.firstName} {tutor.lastName}
                 </h3>
-                <p className="text-sm text-brand font-medium">{tutor.role}</p>
+                <p className="text-sm text-brand font-medium">
+                  {tutor.expertise || "Educator"}
+                </p>
                 <div className="flex items-center gap-1 mt-1 text-sm text-secondary-text">
                   <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-primary-text">
-                    {tutor.rating}
-                  </span>
-                  <span>({tutor.students} students)</span>
+                  <span className="font-semibold text-primary-text">4.8</span>
+                  <span>(New)</span>
                 </div>
               </div>
             </div>
 
             {/* Bio */}
             <p className="text-sm text-secondary-text mb-6 line-clamp-2 grow">
-              {tutor.bio}
+              {tutor.bio ||
+                "Passionate educator ready to help students succeed."}
             </p>
 
             {/* Stats Row */}
@@ -166,8 +110,7 @@ export default function TutorsPage() {
                   Courses
                 </span>
                 <div className="flex items-center gap-1.5 font-semibold text-primary-text mt-0.5">
-                  <BookOpen className="w-4 h-4 text-brand" />
-                  {tutor.courses} Active
+                  <BookOpen className="w-4 h-4 text-brand" />0 Active
                 </div>
               </div>
               <div className="flex flex-col">
@@ -184,19 +127,19 @@ export default function TutorsPage() {
             {/* Tags & Footer */}
             <div className="mt-auto">
               <div className="flex flex-wrap gap-2 mb-4">
-                {tutor.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 rounded-md bg-surface-muted text-xs font-medium text-secondary-text"
-                  >
-                    {tag}
+                {tutor.expertise && (
+                  <span className="px-2.5 py-1 rounded-md bg-surface-muted text-xs font-medium text-secondary-text">
+                    {tutor.expertise}
                   </span>
-                ))}
+                )}
               </div>
 
-              <button className="w-full py-2.5 rounded-xl border border-border hover:border-brand hover:text-brand text-sm font-semibold text-primary-text transition-all duration-200 bg-transparent hover:bg-brand/5">
+              <Link
+                href={`/org/tutors/${tutor.id}`}
+                className="w-full py-2.5 rounded-xl border border-border hover:border-brand hover:text-brand text-sm font-semibold text-primary-text transition-all duration-200 bg-transparent hover:bg-brand/5 block text-center"
+              >
                 View Profile
-              </button>
+              </Link>
             </div>
           </div>
         ))}
@@ -216,6 +159,20 @@ export default function TutorsPage() {
           </div>
         </button>
       </div>
+
+      {/* Empty State */}
+      {activeTutors.length === 0 && (
+        <div className="text-center py-12">
+          <Users className="w-16 h-16 text-secondary-text mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-primary-text mb-2">
+            No Active Tutors Yet
+          </h3>
+          <p className="text-secondary-text max-w-md mx-auto">
+            Your organization doesn&apos;t have any active tutors. Approve
+            pending tutors from the dashboard or invite new ones.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
