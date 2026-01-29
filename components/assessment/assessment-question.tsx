@@ -21,17 +21,18 @@ export function AssessmentQuestion({
 
           return (
             <li
-              key={index}
-              onClick={() => onSelect(index)}
-              className={[
-                "cursor-pointer rounded-md border p-4 transition",
-                isSelected
-                  ? "border-primary bg-primary/10"
-                  : "hover:bg-muted",
-              ].join(" ")}
-            >
-              {option}
+                key={index}
+                onClick={() => onSelect(index)}
+                className={[
+                  "cursor-pointer rounded-md border p-4 transition-colors",
+                  isSelected
+                    ? "border-primary bg-primary/15 ring-2 ring-primary font-medium"
+                    : "hover:bg-muted",
+                ].join(" ")}
+              >
+                {option}
             </li>
+
           );
         })}
       </ul>
