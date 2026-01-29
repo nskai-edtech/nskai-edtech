@@ -29,10 +29,23 @@ const questions = [
 ];
 
 export default function DiagnosticAssessmentPage() {
-  // Track current question index locally for now
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Stores selected option index for each question
+  const [answers, setAnswers] = useState<(number | null)[]>(
+    Array(questions.length).fill(null)
+  );
+
   const currentQuestion = questions[currentIndex];
+  const selectedIndex = answers[currentIndex];
+
+  function handleSelect(index: number) {
+    setAnswers((prev) => {
+      const updated = [...prev];
+      updated[currentIndex] = index;
+      return updated;
+    });
+  }
 
   return (
     <PageShell>
@@ -45,6 +58,8 @@ export default function DiagnosticAssessmentPage() {
         <AssessmentQuestion
           question={currentQuestion.question}
           options={currentQuestion.options}
+          selectedIndex={selectedIndex}
+          onSelect={handleSelect}
         />
 
         <AssessmentNavigation
