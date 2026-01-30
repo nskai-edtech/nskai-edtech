@@ -45,6 +45,10 @@ export const users = pgTable("user", {
   // Paystack: Only needed if they buy something
   paystackCustomerCode: text("paystack_customer_code"),
 
+  // Interests for learners
+  interests: text("interests").array(),
+  learningGoal: text("learning_goal"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

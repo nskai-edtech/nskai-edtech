@@ -16,7 +16,7 @@ export default async function OrgDashboard() {
   const tutors = await getTutors();
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3 text-primary-text">
           <Shield className="w-8 h-8 text-blue-600 dark:text-blue-500" />
@@ -27,7 +27,7 @@ export default async function OrgDashboard() {
         </p>
       </div>
 
-      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-x-scroll">
         <table className="w-full text-left text-sm">
           <thead className="bg-surface-muted border-b border-border">
             <tr>

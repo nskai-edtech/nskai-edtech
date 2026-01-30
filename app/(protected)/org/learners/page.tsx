@@ -95,7 +95,7 @@ const generateLearners = (count: number): Learner[] => {
       joinedDate: new Date(
         Date.now() - Math.floor(Math.random() * 10000000000),
       ).toLocaleDateString(),
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${firstName}${lastName}${i}`,
+      avatar: `https://images.unsplash.com/photo-${["1472099645785-5658abf4ff4e", "1494790108377-be9c29b29330", "1507003211169-0a1dd7228f2d", "1438761681033-6461ffad8d80", "1500648767791-00dcc994a43e", "1534528741775-53994a69daeb", "1506794778202-cad84cf45f1d", "1544005313-94ddf0286df2", "1519345182560-3f2917c472ef", "1517841905240-472988babdf9"][i % 10]}?w=80&h=80&fit=crop&crop=face`,
       course: courses[Math.floor(Math.random() * courses.length)],
     });
   }

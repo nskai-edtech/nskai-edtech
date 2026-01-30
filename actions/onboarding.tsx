@@ -18,8 +18,14 @@ interface TutorOnboardingData {
   expertise: string;
 }
 
+interface LearnerOnboardingData {
+  role: "LEARNER";
+  interests?: string[];
+  learningGoal?: string;
+}
+
 export async function completeOnboarding(
-  data: { role: "LEARNER" } | TutorOnboardingData,
+  data: LearnerOnboardingData | TutorOnboardingData,
 ) {
   const { userId } = await auth();
 
@@ -49,6 +55,14 @@ export async function completeOnboarding(
       updateData.lastName = tutorData.lastName;
       updateData.bio = tutorData.bio;
       updateData.expertise = tutorData.expertise;
+    } else {
+      const learnerData = data as LearnerOnboardingData;
+      if (learnerData.interests) {
+        updateData.interests = learnerData.interests;
+      }
+      if (learnerData.learningGoal) {
+        updateData.learningGoal = learnerData.learningGoal;
+      }
     }
 
     let updatedUsers = await db
@@ -92,11 +106,22 @@ export async function completeOnboarding(
     const userName = updatedUsers[0]?.firstName || "User";
 
     // Update Clerk Metadata
+    const publicMetadata: any = {
+      role: data.role,
+      status: status,
+    };
+
+    if (data.role === "LEARNER") {
+      if (data.interests) {
+        publicMetadata.interests = data.interests;
+      }
+      if (data.learningGoal) {
+        publicMetadata.learningGoal = data.learningGoal;
+      }
+    }
+
     await client.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        role: data.role,
-        status: status,
-      },
+      publicMetadata,
     });
     console.log("--> Clerk Metadata Synced.");
 

@@ -81,33 +81,34 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Batch Insert Assessment Results
-    if (resultsToInsert.length > 0) {
-      await db.insert(userAssessmentResults).values(resultsToInsert);
-    }
+    // 3. Batch Insert Assessment Results & Update User Skills (Atomic Transaction)
+    await db.transaction(async (tx) => {
+      if (resultsToInsert.length > 0) {
+        await tx.insert(userAssessmentResults).values(resultsToInsert);
+      }
 
-    // 4. Update User Skills (Radar Chart Data)
-    // We calculate a simple percentage for now: (Correct / Total) * 100
-    for (const [skillId, scoreData] of Object.entries(skillMasteryUpdates)) {
-      const masteryPercentage = Math.round((scoreData.correct / scoreData.total) * 100);
+      // 4. Update User Skills (Radar Chart Data)
+      for (const [skillId, scoreData] of Object.entries(skillMasteryUpdates)) {
+        const masteryPercentage = Math.round((scoreData.correct / scoreData.total) * 100);
 
-      // Upsert User Skill
-      await db
-        .insert(userSkills)
-        .values({
-          userId: internalUserId,
-          skillId,
-          masteryScore: masteryPercentage,
-          lastAssessedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: [userSkills.userId, userSkills.skillId],
-          set: {
+        // Upsert User Skill
+        await tx
+          .insert(userSkills)
+          .values({
+            userId: internalUserId,
+            skillId,
             masteryScore: masteryPercentage,
             lastAssessedAt: new Date(),
-          },
-        });
-    }
+          })
+          .onConflictDoUpdate({
+            target: [userSkills.userId, userSkills.skillId],
+            set: {
+              masteryScore: masteryPercentage,
+              lastAssessedAt: new Date(),
+            },
+          });
+      }
+    });
 
     // 5. Determine Recommended Track (Highest Scoring Category)
     let bestCategory = "General";
