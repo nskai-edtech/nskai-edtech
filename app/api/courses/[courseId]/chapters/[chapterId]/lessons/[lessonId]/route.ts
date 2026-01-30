@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { lessons, purchases, muxData, chapters, courses, users } from "@/drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { getInternalUser } from "@/lib/auth-utils";
 
 export async function GET(
   req: Request,

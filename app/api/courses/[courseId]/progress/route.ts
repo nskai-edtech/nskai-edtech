@@ -1,8 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { userProgress, users } from "@/drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { getInternalUser } from "@/lib/auth-utils";
 
 export async function PUT(
   req: Request,
