@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { courses } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { CourseResponse } from "@/types/api";
+import { errorResponse, successResponse } from "@/lib/api-response";
 
 export async function GET() {
   try {
@@ -19,9 +19,9 @@ export async function GET() {
       orderBy: (courses, { desc }) => [desc(courses.createdAt)],
     });
 
-    return NextResponse.json(publishedCourses as CourseResponse[]);
+    return successResponse<CourseResponse[]>(publishedCourses as CourseResponse[]);
   } catch (error) {
     console.error("[COURSES_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return errorResponse("Internal Error", 500);
   }
 }
