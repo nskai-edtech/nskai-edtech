@@ -1,5 +1,7 @@
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { userProgress, users } from "@/drizzle/schema";
+import { userProgress } from "@/drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { getInternalUser } from "@/lib/auth-utils";
 
@@ -16,9 +18,7 @@ export async function PUT(
     }
 
     // Get internal user ID
-    const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId)
-    });
+    const user = await getInternalUser(userId);
 
     if (!user) {
       return new NextResponse("User not found", { status: 404 });
@@ -63,50 +63,17 @@ export async function GET(
 ) {
   try {
     const { userId } = await auth();
-    const { courseId } = await params;
+    // const { courseId } = await params; // Unused for now if returning all progress
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId)
-    });
+    const user = await getInternalUser(userId);
 
     if (!user) {
       return new NextResponse("User not found", { status: 404 });
     }
-
-    // specific course progress?? 
-    // Usually we want all progress for the course to show checkmarks.
-    // The previous implementation plan said: "Get User Progress"
-
-    // Let's fetch all progress records for this user where lesson -> chapter -> courseId matches?
-    // OR just return all progress for the user and let frontend filter?
-    // Better: Fetch progress for lessons belonging to this course.
-
-    // JOIN is harder in Drizzle query builder without relations setup fully for deep filtering.
-    // But we have relations!
-
-    /*
-    const progress = await db.query.userProgress.findMany({
-        where: eq(userProgress.userId, user.id),
-        with: {
-            lesson: {
-                with: {
-                    chapter: {
-                        where: eq(chapters.courseId, courseId) 
-                    }
-                }
-            }
-        }
-    })
-    */
-    // Filtering nested relations in Drizzle query builder isn't always essentially "filtering the parent".
-    // It filters the included relation.
-
-    // Simplest acceptable approach for MVP: Return ALL progress for the user. Frontend maps it.
-    // Or simpler: published courses are few.
 
     const progress = await db.query.userProgress.findMany({
       where: eq(userProgress.userId, user.id),
@@ -123,4 +90,3 @@ export async function GET(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
