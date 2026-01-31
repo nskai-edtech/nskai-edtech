@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus,
@@ -9,11 +9,11 @@ import {
   GripVertical,
   Trash2,
   Eye,
-  EyeOff,
   Menu,
   X,
   Loader2,
   List,
+  AlertCircle,
 } from "lucide-react";
 import {
   createChapter,
@@ -21,9 +21,10 @@ import {
   deleteChapter,
   deleteLesson,
 } from "@/actions/chapters";
-import { updateCourse } from "@/actions/courses";
+import { submitCourseForReview, getCourseStatus } from "@/actions/courses";
 import toast from "react-hot-toast";
 import LessonEditor from "./lesson-editor";
+import CourseDetailsForm from "./course-details-form";
 import InputModal from "../ui/input-modal";
 
 type Lesson = {
@@ -35,6 +36,11 @@ type Lesson = {
   isFreePreview: boolean | null;
   createdAt: Date;
   chapterId: string | null;
+  muxData?: {
+    id: string;
+    assetId: string;
+    playbackId: string | null;
+  } | null;
 };
 
 type Chapter = {
@@ -52,6 +58,7 @@ type Course = {
   description: string | null;
   price: number | null;
   isPublished: boolean | null;
+  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
   imageUrl: string | null;
   createdAt: Date;
   tutorId: string | null;
@@ -78,6 +85,47 @@ export default function CourseEditor({
     type: "chapter" | "lesson" | null;
     chapterId?: string;
   }>({ isOpen: false, type: null });
+
+  // Sync internal state with prop from server
+  useEffect(() => {
+    setCourse(initialCourse);
+  }, [initialCourse]);
+
+  // Poll for status updates when course is pending approval
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (course.status === "PENDING") {
+      interval = setInterval(async () => {
+        try {
+          const result = await getCourseStatus(course.id);
+          if (result.status === "PUBLISHED") {
+            toast.success("Course approved and published!");
+            // Update local state first to show immediate visual feedback
+            setCourse((prev) => ({
+              ...prev,
+              status: "PUBLISHED",
+              isPublished: true,
+            }));
+            // Give the user a moment to see the change then redirect
+            setTimeout(() => {
+              router.push("/tutor/courses");
+              router.refresh();
+            }, 2000);
+          } else if (result.status === "REJECTED") {
+            toast.error("Course submission was rejected.");
+            setCourse((prev) => ({ ...prev, status: "REJECTED" }));
+          }
+        } catch (error) {
+          console.error("Polling error:", error);
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [course.id, course.status, router]);
 
   const toggleChapter = (chapterId: string) => {
     setExpandedChapters((prev) => {
@@ -124,9 +172,10 @@ export default function CourseEditor({
           chapter.id === chapterId
             ? {
                 ...chapter,
-                lessons: [...chapter.lessons, result.lesson].sort(
-                  (a, b) => a.position - b.position,
-                ),
+                lessons: [
+                  ...chapter.lessons,
+                  { ...result.lesson, muxData: null },
+                ].sort((a, b) => a.position - b.position),
               }
             : chapter,
         ),
@@ -174,33 +223,38 @@ export default function CourseEditor({
   };
 
   const handlePublishToggle = async () => {
-    setIsPublishing(true);
-    const result = await updateCourse(course.id, {
-      isPublished: !course.isPublished,
-    });
-
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.course) {
-      // Preserve chapters when updating from publish
-      setCourse({
-        ...result.course,
-        chapters: course.chapters,
-      } as Course);
-
-      const isNowPublished = result.course.isPublished;
-      toast.success(
-        isNowPublished ? "Course published!" : "Course unpublished",
-      );
-
-      // Redirect to courses page when publishing
-      if (isNowPublished) {
-        setTimeout(() => {
-          router.push("/tutor/courses");
-        }, 1000);
-      }
+    if (course.status === "PENDING") {
+      toast.error("Course is already pending approval");
+      return;
     }
-    setIsPublishing(false);
+
+    if (course.status === "PUBLISHED") {
+      // Allow unpublishing if already published?
+      // User said "Then when approved... automatically pushed to market"
+      // Let's stick to the submission part for now.
+      toast.error("Course is already published");
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const result = await submitCourseForReview(course.id);
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        setCourse((prev) => ({
+          ...prev,
+          status: "PENDING",
+        }));
+        toast.success("Course submitted for review!");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to submit course");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handleLessonUpdate = (updatedLesson: Lesson) => {
@@ -214,6 +268,14 @@ export default function CourseEditor({
       })),
     }));
     setSelectedLesson(updatedLesson);
+  };
+
+  const handleCourseUpdate = (updatedCourse: Partial<Course>) => {
+    setCourse((prev) => ({
+      ...prev,
+      ...updatedCourse,
+      chapters: prev.chapters,
+    }));
   };
 
   const handleModalSubmit = async (value: string) => {
@@ -253,8 +315,11 @@ export default function CourseEditor({
         }`}
       >
         {/* Header */}
-        <div className="p-4 pt-20 lg:pt-4 border-b border-border">
-          <h2 className="text-sm font-semibold text-secondary-text uppercase tracking-wider mb-2">
+        <div
+          className="p-4 pt-20 lg:pt-4 border-b border-border cursor-pointer hover:bg-surface-muted transition-colors group"
+          onClick={() => setSelectedLesson(null)}
+        >
+          <h2 className="text-sm font-semibold text-secondary-text uppercase tracking-wider mb-2 group-hover:text-brand transition-colors">
             Curriculum Editor
           </h2>
           <h3 className="text-lg font-bold text-primary-text truncate">
@@ -389,24 +454,42 @@ export default function CourseEditor({
             </button>
             <button
               onClick={handlePublishToggle}
-              disabled={isPublishing}
+              disabled={
+                isPublishing ||
+                course.status === "PENDING" ||
+                course.status === "PUBLISHED"
+              }
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                course.isPublished
-                  ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50"
-                  : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
+                course.status === "PUBLISHED"
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  : course.status === "PENDING"
+                    ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                    : course.status === "REJECTED"
+                      ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50"
+                      : "bg-brand/10 text-brand hover:bg-brand/20"
               }`}
             >
               {isPublishing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {course.isPublished ? "Unpublishing..." : "Publishing..."}
+                  Submitting...
                 </>
               ) : (
                 <>
-                  {course.isPublished ? (
+                  {course.status === "PUBLISHED" ? (
                     <>
-                      <EyeOff className="w-4 h-4" />
-                      Unpublish
+                      <Eye className="w-4 h-4" />
+                      Published
+                    </>
+                  ) : course.status === "PENDING" ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Pending Approval
+                    </>
+                  ) : course.status === "REJECTED" ? (
+                    <>
+                      <AlertCircle className="w-4 h-4" />
+                      Rejected - Resubmit
                     </>
                   ) : (
                     <>
@@ -428,15 +511,7 @@ export default function CourseEditor({
               onUpdate={handleLessonUpdate}
             />
           ) : (
-            <div className="max-w-2xl mx-auto text-center py-16">
-              <h2 className="text-2xl font-bold text-primary-text mb-4">
-                Select a lesson to edit
-              </h2>
-              <p className="text-secondary-text">
-                Choose a lesson from the curriculum sidebar or create a new
-                module to get started.
-              </p>
-            </div>
+            <CourseDetailsForm course={course} onUpdate={handleCourseUpdate} />
           )}
         </div>
 

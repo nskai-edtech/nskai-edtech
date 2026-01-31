@@ -22,6 +22,13 @@ export const statusEnum = pgEnum("status", [
   "BANNED",
 ]);
 
+export const courseStatusEnum = pgEnum("course_status", [
+  "DRAFT",
+  "PENDING",
+  "PUBLISHED",
+  "REJECTED",
+]);
+
 // 2. USERS
 export const users = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -67,6 +74,7 @@ export const courses = pgTable("course", {
 
   price: integer("price"), // Price in Kobo
   isPublished: boolean("is_published").default(false),
+  status: courseStatusEnum("status").default("DRAFT").notNull(),
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
