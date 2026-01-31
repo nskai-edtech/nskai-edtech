@@ -151,12 +151,20 @@ export default async function TutorCoursesPage({ searchParams }: PageProps) {
                 )}
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3">
-                  {course.isPublished ? (
+                  {course.status === "PUBLISHED" ? (
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400">
                       Published
                     </span>
-                  ) : (
+                  ) : course.status === "PENDING" ? (
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400">
+                      Pending
+                    </span>
+                  ) : course.status === "REJECTED" ? (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400">
+                      Rejected
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-muted border border-border text-secondary-text">
                       Draft
                     </span>
                   )}

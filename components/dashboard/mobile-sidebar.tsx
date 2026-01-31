@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   role: "TUTOR" | "ORG_ADMIN";
+  counts?: { pendingCourses?: number; pendingTutors?: number };
 }
 
-export const MobileSidebar = ({ role }: MobileSidebarProps) => {
+export const MobileSidebar = ({ role, counts }: MobileSidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -33,38 +34,34 @@ export const MobileSidebar = ({ role }: MobileSidebarProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="xl:hidden pr-4 hover:opacity-75 transition text-primary-text"
+        className="p-2 hover:bg-surface-muted rounded-lg transition-colors"
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="w-6 h-6 text-primary-text" />
       </button>
 
-      {/* Overlay */}
-      <div
-        className={cn(
-          "fixed inset-0 bg-black/50 z-100 xl:hidden transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
-        )}
-        onClick={() => setIsOpen(false)}
-      />
-
-      {/* Sidebar Drawer */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-101 w-72 bg-surface transition-transform duration-300 ease-in-out xl:hidden flex flex-col h-full border-r border-border",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <div className="absolute right-4 top-4 z-102 xl:hidden">
-          <button
+      {/* Sheet / Drawer */}
+      {isOpen && (
+        <div className="fixed inset-0 z-100">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-surface-muted rounded-full text-secondary-text"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+          />
 
-        <Sidebar role={role} />
-      </div>
+          {/* Sidebar */}
+          <div className="fixed inset-y-0 left-0 w-64 bg-surface shadow-2xl animate-in slide-in-from-left duration-300">
+            <div className="h-full relative">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-surface-muted rounded-lg z-110"
+              >
+                <X className="w-5 h-5 text-primary-text" />
+              </button>
+              <Sidebar role={role} counts={counts} />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

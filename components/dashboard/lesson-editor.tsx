@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { updateLesson } from "@/actions/chapters";
-import { Save, Upload, Loader2 } from "lucide-react";
+import { Save, Loader2, Video, RefreshCcw } from "lucide-react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type Lesson = {
   id: string;
@@ -14,6 +15,11 @@ type Lesson = {
   isFreePreview: boolean | null;
   createdAt: Date;
   chapterId: string | null;
+  muxData?: {
+    id: string;
+    assetId: string;
+    playbackId: string | null;
+  } | null;
 };
 
 interface LessonEditorProps {
@@ -21,12 +27,15 @@ interface LessonEditorProps {
   onUpdate: (updatedLesson: Lesson) => void;
 }
 
+import { MuxVideoUploader } from "./mux-uploader";
+import { VideoPlayer } from "../video-player";
+
 export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     title: lesson.title,
     description: lesson.description || "",
-    videoUrl: lesson.videoUrl || "",
     isFreePreview: lesson.isFreePreview || false,
   });
 
@@ -35,7 +44,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
     setFormData({
       title: lesson.title,
       description: lesson.description || "",
-      videoUrl: lesson.videoUrl || "",
       isFreePreview: lesson.isFreePreview || false,
     });
   }, [lesson]);
@@ -47,7 +55,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
       const result = await updateLesson(lesson.id, {
         title: formData.title,
         description: formData.description || undefined,
-        videoUrl: formData.videoUrl || undefined,
         isFreePreview: formData.isFreePreview,
       });
 
@@ -55,8 +62,11 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
         toast.error(result.error);
       } else if (result.lesson) {
         toast.success("Lesson saved!");
-        // Call onUpdate with the updated lesson
-        onUpdate(result.lesson);
+        // Call onUpdate with the updated lesson, preserving muxData relation
+        onUpdate({
+          ...result.lesson,
+          muxData: lesson.muxData,
+        } as Lesson);
       }
     } catch (error) {
       console.error(error);
@@ -109,62 +119,72 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
       </div>
 
       {/* Video Content */}
-      <div>
+      <div className="space-y-4">
         <label className="block text-sm font-medium text-primary-text mb-2">
           Video Content
         </label>
-        <div className="border-2 border-dashed border-border rounded-xl p-8">
-          {formData.videoUrl ? (
-            <div className="space-y-4">
-              <div className="relative aspect-video bg-surface-muted rounded-lg overflow-hidden">
-                <video
-                  src={formData.videoUrl}
-                  controls
-                  className="w-full h-full"
-                >
-                  Your browser does not support the video tag.
-                </video>
+
+        {lesson.muxData?.playbackId ? (
+          <div className="space-y-4">
+            <VideoPlayer
+              playbackId={lesson.muxData.playbackId}
+              title={lesson.title}
+            />
+            <div className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand/10 rounded-lg">
+                  <Video className="w-5 h-5 text-brand" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-primary-text">
+                    Mux Asset Ready
+                  </p>
+                  <p className="text-xs text-secondary-text">
+                    Asset ID: {lesson.muxData.assetId}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={formData.videoUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, videoUrl: e.target.value })
-                  }
-                  placeholder="https://example.com/video.mp4"
-                  className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-sm text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50"
-                />
                 <button
-                  onClick={() => setFormData({ ...formData, videoUrl: "" })}
-                  className="px-3 py-2 text-sm border border-border hover:bg-surface-muted rounded-lg transition-colors"
+                  onClick={() => router.refresh()}
+                  className="p-2 hover:bg-surface-muted rounded-lg transition-colors text-secondary-text"
+                  title="Refresh status"
                 >
-                  Change
+                  <RefreshCcw className="w-4 h-4" />
                 </button>
+                <MuxVideoUploader
+                  lessonId={lesson.id}
+                  onSuccess={(assetId, playbackId) => {
+                    onUpdate({
+                      ...lesson,
+                      muxData: {
+                        id: lesson.muxData?.id || "temp",
+                        assetId,
+                        playbackId,
+                      },
+                    });
+                  }}
+                />
               </div>
             </div>
-          ) : (
-            <div className="text-center">
-              <Upload className="w-12 h-12 mx-auto text-secondary-text mb-4" />
-              <h3 className="text-lg font-semibold text-primary-text mb-2">
-                Upload Lesson Video
-              </h3>
-              <p className="text-sm text-secondary-text mb-4">
-                Drag and drop MP4, MOV or WebM files
-              </p>
-              <input
-                type="url"
-                value={formData.videoUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, videoUrl: e.target.value })
-                }
-                placeholder="Or paste video URL here"
-                className="max-w-md mx-auto w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50"
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-3">
+          </div>
+        ) : (
+          <MuxVideoUploader
+            lessonId={lesson.id}
+            onSuccess={(assetId, playbackId) => {
+              onUpdate({
+                ...lesson,
+                muxData: {
+                  id: "temp",
+                  assetId,
+                  playbackId,
+                },
+              });
+            }}
+          />
+        )}
+
+        <div className="flex items-center gap-2 mt-3 p-2 bg-surface-muted/30 rounded-lg">
           <input
             type="checkbox"
             id="freePreview"

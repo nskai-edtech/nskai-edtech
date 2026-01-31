@@ -22,6 +22,9 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.10",
     "@clerk/themes": "^2.4.50",
+    "@mux/mux-node": "^12.8.1",
+    "@mux/mux-player-react": "^3.10.2",
+    "@mux/mux-uploader-react": "^1.4.1",
     "@neondatabase/serverless": "^1.0.2",
     "@react-email/components": "^1.0.6",
     "@react-email/render": "^2.0.4",

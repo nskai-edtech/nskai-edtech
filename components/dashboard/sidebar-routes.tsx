@@ -8,10 +8,14 @@ import {
   GraduationCap,
   Users,
   Shield,
+  CheckCircle,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export const useSidebarRoutes = (role: "TUTOR" | "ORG_ADMIN") => {
+export const useSidebarRoutes = (
+  role: "TUTOR" | "ORG_ADMIN",
+  counts?: { pendingCourses?: number; pendingTutors?: number },
+) => {
   const pathname = usePathname();
 
   const tutorRoutes = [
@@ -47,6 +51,14 @@ export const useSidebarRoutes = (role: "TUTOR" | "ORG_ADMIN") => {
       label: "Overview",
       href: "/org",
       active: pathname === "/org",
+      badgeCount: counts?.pendingTutors,
+    },
+    {
+      icon: CheckCircle,
+      label: "Approvals",
+      href: "/org/approvals",
+      active: pathname.includes("/org/approvals"),
+      badgeCount: counts?.pendingCourses,
     },
     {
       icon: GraduationCap,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -8,10 +9,11 @@ import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   role: "TUTOR" | "ORG_ADMIN";
+  counts?: { pendingCourses?: number; pendingTutors?: number };
 }
 
-export const Sidebar = ({ role }: SidebarProps) => {
-  const routes = useSidebarRoutes(role);
+export const Sidebar = ({ role, counts }: SidebarProps) => {
+  const routes = useSidebarRoutes(role, counts);
 
   return (
     <div
@@ -30,12 +32,12 @@ export const Sidebar = ({ role }: SidebarProps) => {
 
       {/* Navigation Routes */}
       <div className="flex-1 flex flex-col w-full">
-        {routes.map((route) => (
+        {routes.map((route: any) => (
           <Link
             key={route.href}
             href={route.href}
             className={cn(
-              "flex items-center gap-x-3 px-6 py-4 text-sm font-medium transition-all hover:bg-surface-muted group",
+              "flex items-center gap-x-3 px-6 py-4 text-sm font-medium transition-all hover:bg-surface-muted group relative",
               route.active
                 ? "text-brand bg-surface-muted border-r-4 border-brand"
                 : "text-secondary-text hover:text-primary-text",
@@ -50,6 +52,11 @@ export const Sidebar = ({ role }: SidebarProps) => {
               )}
             />
             {route.label}
+            {route.badgeCount !== undefined && route.badgeCount > 0 && (
+              <span className="ml-auto bg-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                {route.badgeCount}
+              </span>
+            )}
           </Link>
         ))}
       </div>

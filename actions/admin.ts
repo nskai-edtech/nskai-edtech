@@ -23,6 +23,30 @@ export async function getTutors() {
   return tutors;
 }
 
+export async function getAdminPendingCounts() {
+  const { sessionClaims } = await auth();
+
+  // @ts-ignore
+  if (sessionClaims?.metadata?.role !== "ORG_ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const [pendingCourses] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(eq(courses.status, "PENDING"));
+
+  const [pendingTutors] = await db
+    .select({ count: count() })
+    .from(users)
+    .where(and(eq(users.role, "TUTOR"), eq(users.status, "PENDING")));
+
+  return {
+    pendingCourses: pendingCourses?.count ?? 0,
+    pendingTutors: pendingTutors?.count ?? 0,
+  };
+}
+
 export async function getTutorsWithCourseCount() {
   const { sessionClaims } = await auth();
 
