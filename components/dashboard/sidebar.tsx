@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
 import { useSidebarRoutes } from "./sidebar-routes";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 import ThemeToggle from "../ModeToggle";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
 
       {/* Navigation Routes */}
       <div className="flex-1 flex flex-col w-full">
-        {routes.map((route: any) => (
+        {routes.map((route) => (
           <Link
             key={route.href}
             href={route.href}
@@ -66,7 +65,12 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
         className="p-6 mt-auto border-t border-border flex items-center justify-between"
         suppressHydrationWarning
       >
-        <UserButton afterSignOutUrl="/" />
+        <ClerkLoading>
+          <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
+        </ClerkLoading>
+        <ClerkLoaded>
+          <UserButton />
+        </ClerkLoaded>
         <ThemeToggle />
       </div>
     </div>

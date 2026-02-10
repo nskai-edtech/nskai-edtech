@@ -9,16 +9,25 @@ import {
   Users,
   Shield,
   CheckCircle,
+  UserCheck,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+
+interface SidebarRoute {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href: string;
+  active: boolean;
+  badgeCount?: number;
+}
 
 export const useSidebarRoutes = (
   role: "TUTOR" | "ORG_ADMIN",
   counts?: { pendingCourses?: number; pendingTutors?: number },
-) => {
+): SidebarRoute[] => {
   const pathname = usePathname();
 
-  const tutorRoutes = [
+  const tutorRoutes: SidebarRoute[] = [
     {
       icon: LayoutDashboard,
       label: "Dashboard",
@@ -45,17 +54,23 @@ export const useSidebarRoutes = (
     },
   ];
 
-  const orgRoutes = [
+  const orgRoutes: SidebarRoute[] = [
     {
       icon: Shield,
       label: "Overview",
       href: "/org",
       active: pathname === "/org",
+    },
+    {
+      icon: UserCheck,
+      label: "Tutor Approvals",
+      href: "/org/tutor-approvals",
+      active: pathname.includes("/org/tutor-approvals"),
       badgeCount: counts?.pendingTutors,
     },
     {
       icon: CheckCircle,
-      label: "Approvals",
+      label: "Course Approvals",
       href: "/org/approvals",
       active: pathname.includes("/org/approvals"),
       badgeCount: counts?.pendingCourses,

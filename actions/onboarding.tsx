@@ -43,7 +43,6 @@ export async function completeOnboarding(
     const isTutor = data.role === "TUTOR";
     const status = isTutor ? "PENDING" : "ACTIVE";
 
-    // 1. Prepare Data
     const updateData: any = {
       role: data.role,
       status: status,
@@ -74,7 +73,7 @@ export async function completeOnboarding(
         firstName: users.firstName,
       });
 
-    // FAILSAFE: If User not in DB (Webhook failed), Insert them now
+    // FAILSAFE: If User not in DB (Webhook failed), Insert here now
     if (updatedUsers.length === 0) {
       console.log(
         "--> User not found in DB update. Attempting Manual Insert...",
@@ -132,7 +131,7 @@ export async function completeOnboarding(
       const { data, error } = await resend.emails.send({
         from: "NSKAI <onboarding@resend.dev>",
 
-        // 2. TO: normally 'userEmail'.
+        // TO: normally 'userEmail'.
         // IMPORTANT: In test mode, this ONLY works if 'userEmail' is 'nsukka.ai@gmail.com'.
         to: "nsukka.ai@gmail.com",
 

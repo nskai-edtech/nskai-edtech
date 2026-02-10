@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getTutorById } from "@/actions/admin";
+import { getTutorById, getTutorCoursesForAdmin } from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import {
@@ -8,7 +8,6 @@ import {
   BookOpen,
   Calendar,
   Mail,
-  Star,
   Users,
   Clock,
   ShieldAlert,
@@ -32,6 +31,7 @@ export default async function TutorProfilePage({ params }: PageProps) {
   }
 
   const tutor = await getTutorById(tutorId);
+  const tutorCourses = await getTutorCoursesForAdmin(tutorId);
 
   if (!tutor) {
     notFound();
@@ -129,19 +129,10 @@ export default async function TutorProfilePage({ params }: PageProps) {
                 {/* Quick Stats */}
                 <div className="flex gap-6 md:gap-8">
                   <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-yellow-500 mb-1">
-                      <Star className="w-5 h-5 fill-current" />
-                      <span className="text-xl font-bold text-primary-text">
-                        4.8
-                      </span>
-                    </div>
-                    <span className="text-xs text-secondary-text">Rating</span>
-                  </div>
-                  <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <Users className="w-5 h-5 text-brand" />
                       <span className="text-xl font-bold text-primary-text">
-                        529
+                        {tutor.totalStudents}
                       </span>
                     </div>
                     <span className="text-xs text-secondary-text">
@@ -152,7 +143,7 @@ export default async function TutorProfilePage({ params }: PageProps) {
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <BookOpen className="w-5 h-5 text-brand" />
                       <span className="text-xl font-bold text-primary-text">
-                        6
+                        {tutor.totalCourses}
                       </span>
                     </div>
                     <span className="text-xs text-secondary-text">Courses</span>
@@ -201,7 +192,7 @@ export default async function TutorProfilePage({ params }: PageProps) {
         <p className="text-secondary-text mb-4">
           Manage courses created by this tutor.
         </p>
-        <CourseTabs />
+        <CourseTabs courses={tutorCourses} />
       </div>
     </div>
   );

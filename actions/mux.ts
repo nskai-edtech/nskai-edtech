@@ -21,7 +21,7 @@ const getMuxClient = () => {
 };
 
 /**
- * Generates a secure Mux direct upload URL for a specific lesson.
+ * Generate a secure Mux direct upload URL for a specific lesson.
  * Verifies that the user is a tutor and owns the course.
  */
 export async function getDirectUploadUrl(lessonId: string) {
@@ -44,7 +44,7 @@ export async function getDirectUploadUrl(lessonId: string) {
       };
     }
 
-    // 1. Get user for permission check
+    // Get user for permission check
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, clerkId),
     });
@@ -53,7 +53,7 @@ export async function getDirectUploadUrl(lessonId: string) {
       return { error: "Permission denied. Only tutors can upload videos." };
     }
 
-    // 2. Verify ownership: lesson -> chapter -> course -> tutorId
+    // Verify ownership: lesson -> chapter -> course -> tutorId
     const lessonData = await db.query.lessons.findFirst({
       where: eq(lessons.id, lessonId),
       with: {
@@ -73,7 +73,7 @@ export async function getDirectUploadUrl(lessonId: string) {
       return { error: "Permission denied. You do not own this course." };
     }
 
-    // 3. Create Mux Direct Upload
+    // Create Mux Direct Upload
     const upload = await mux.video.uploads.create({
       new_asset_settings: {
         playback_policy: ["public"],
@@ -82,8 +82,7 @@ export async function getDirectUploadUrl(lessonId: string) {
       cors_origin: "*",
     });
 
-    // 4. IMPORTANT: Save the assetId immediately so polling can work even without webhooks
-    // Mux creates the asset shell immediately when the upload is created
+    // Saving the assetId immediately so polling can work even without webhooks
     if (upload.asset_id) {
       await db
         .insert(muxData)
@@ -138,8 +137,7 @@ export async function checkLessonVideoStatus(
       };
     }
 
-    // 2. FALLBACK: If DB is empty or missing playbackId, check Mux directly
-    // We check either the existing assetId or the uploadId provided by the frontend
+    // FALLBACK: If DB is empty or missing playbackId, check Mux directly
     const idToPoll = data?.muxData?.assetId || uploadId;
 
     if (idToPoll) {
@@ -147,7 +145,7 @@ export async function checkLessonVideoStatus(
       if (mux) {
         let assetId = data?.muxData?.assetId;
 
-        // If we only have an uploadId, we need to get the assetId from the upload object
+        // If only uploadId exists, get assetId from the upload object
         if (!assetId && uploadId) {
           const upload = await mux.video.uploads.retrieve(uploadId);
           assetId = upload.asset_id || undefined;
@@ -159,7 +157,7 @@ export async function checkLessonVideoStatus(
           if (asset.status === "ready" && asset.playback_ids?.[0]) {
             const playbackId = asset.playback_ids[0].id;
 
-            // Sync the DB manually since webhooks are clearly not reaching us
+            // Sync the DB manually
             const updatedMuxData = await db
               .insert(muxData)
               .values({

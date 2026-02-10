@@ -2,11 +2,10 @@
 
 import { db } from "@/lib/db";
 import { courses, users, purchases, chapters, lessons } from "@/drizzle/schema";
-import { eq, desc, count, and, or, ilike, SQL, not } from "drizzle-orm";
+import { eq, desc, count, and, or, ilike, SQL, not, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-// Types
 export interface CourseWithTutor {
   id: string;
   title: string;
@@ -321,7 +320,6 @@ export async function getCourseById(courseId: string) {
   return course;
 }
 
-// Create a new course
 // Get just the status of a course (for polling)
 export async function getCourseStatus(courseId: string) {
   try {
@@ -491,7 +489,7 @@ export async function deleteCourse(courseId: string) {
 
 // Get related courses (same tutor + other published courses)
 export async function getRelatedCourses(courseId: string, tutorId: string) {
-  // 1. Get other courses by the same tutor
+  // Get other courses by the same tutor
   const tutorCourses = await db
     .select({
       id: courses.id,
@@ -520,7 +518,7 @@ export async function getRelatedCourses(courseId: string, tutorId: string) {
     )
     .limit(3);
 
-  // 2. Get other published courses to fill up
+  // Get other published courses to fill up
   const otherCoursesCount = 6 - tutorCourses.length;
   let otherCourses: CourseWithTutor[] = [];
 
@@ -740,4 +738,70 @@ export async function rejectCourse(courseId: string) {
     console.error("Error rejecting course:", error);
     return { error: "Failed to reject course" };
   }
+}
+
+// Get tutor dashboard stats (Revenue, Students, Top Courses)
+export async function getTutorDashboardStats() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  // Get the tutor's database ID
+  const tutor = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId),
+  });
+
+  if (!tutor || tutor.role !== "TUTOR") {
+    throw new Error("Not a tutor");
+  }
+
+  // 1. Total Revenue
+  const [revenueResult] = await db
+    .select({
+      total: sql<number>`coalesce(sum(${purchases.amount}), 0)`,
+    })
+    .from(purchases)
+    .innerJoin(courses, eq(purchases.courseId, courses.id))
+    .where(eq(courses.tutorId, tutor.id));
+
+  // 2. Total Students (Distinct learners who bought at least one course)
+  const [studentsResult] = await db
+    .select({
+      count: sql<number>`cast(count(distinct ${purchases.userId}) as integer)`,
+    })
+    .from(purchases)
+    .innerJoin(courses, eq(purchases.courseId, courses.id))
+    .where(eq(courses.tutorId, tutor.id));
+
+  // 3. Total Courses
+  const [coursesResult] = await db
+    .select({ count: count() })
+    .from(courses)
+    .where(eq(courses.tutorId, tutor.id));
+
+  // 4. Top Performing Courses (by Revenue)
+  const topCourses = await db
+    .select({
+      id: courses.id,
+      title: courses.title,
+      price: courses.price,
+      imageUrl: courses.imageUrl,
+      revenue: sql<number>`coalesce(sum(${purchases.amount}), 0)`,
+      students: sql<number>`cast(count(distinct ${purchases.userId}) as integer)`,
+    })
+    .from(courses)
+    .leftJoin(purchases, eq(courses.id, purchases.courseId))
+    .where(eq(courses.tutorId, tutor.id))
+    .groupBy(courses.id)
+    .orderBy(desc(sql`coalesce(sum(${purchases.amount}), 0)`))
+    .limit(4);
+
+  return {
+    totalRevenue: revenueResult?.total ?? 0,
+    totalStudents: studentsResult?.count ?? 0,
+    totalCourses: coursesResult?.count ?? 0,
+    topCourses,
+  };
 }

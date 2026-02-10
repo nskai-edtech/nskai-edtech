@@ -45,7 +45,7 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
         {/* Content */}
         <div className="flex flex-col flex-1 p-5">
           <div className="flex items-center gap-1 mb-2 text-xs font-medium uppercase tracking-wider text-brand">
-            {/* Category could go here if available */}
+            {/* TODO: Category could go here */}
             Course
           </div>
 

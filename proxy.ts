@@ -26,6 +26,21 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/learner", req.url));
   }
 
+  // Redirect authenticated users away from auth pages
+  if (
+    userId &&
+    (req.nextUrl.pathname.startsWith("/sign-in") ||
+      req.nextUrl.pathname.startsWith("/sign-up"))
+  ) {
+    if (role === "TUTOR")
+      return NextResponse.redirect(new URL("/tutor", req.url));
+    if (role === "LEARNER")
+      return NextResponse.redirect(new URL("/learner", req.url));
+    if (role === "ORG_ADMIN")
+      return NextResponse.redirect(new URL("/org", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   if (isProtectedRoute(req) && !userId) {
     return (await auth()).redirectToSignIn();
   }

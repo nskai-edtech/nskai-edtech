@@ -55,6 +55,8 @@ export const ManagerModal = () => {
         }
       }
 
+      console.log("Action Result:", result);
+
       if (result?.error) {
         toast.error(result.error);
       } else {

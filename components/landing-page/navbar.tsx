@@ -5,12 +5,15 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import Link from "next/link";
 import ThemeToggle from "../ModeToggle";
 
 function Navbar() {
   return (
     <nav className="flex items-center justify-between px-4 py-2 sticky top-0 z-50 bg-surface">
-      <div className="font-bold text-xl text-brand ml-4">NSKAI</div>
+      <div className="font-bold text-xl text-brand ml-4">
+        <Link href="/">ZERRA</Link>
+      </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <ThemeToggle />
         <SignedOut>
