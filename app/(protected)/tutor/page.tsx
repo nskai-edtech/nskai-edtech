@@ -1,4 +1,4 @@
-import { getTutorCourses } from "@/actions/courses";
+import { getTutorDashboardStats } from "@/actions/courses";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -6,32 +6,20 @@ import {
   DollarSign,
   Users,
   Clock,
-  TrendingUp,
-  Star,
   BookOpen,
   ArrowUpRight,
 } from "lucide-react";
 
 export default async function TutorDashboard() {
-  const { courses, totalCount } = await getTutorCourses(1, 100);
-
-  const publishedCourses = courses.filter((c) => c.isPublished);
-  const hasPublishedCourses = publishedCourses.length > 0;
-
-  // Calculate stats (mock values since we don't have real student/revenue data yet)
-  // All stats are 0 when no real data exists
-  const totalRevenue = 0;
-  const totalStudents = 0;
-  const avgWatchTime = { minutes: 0, seconds: 0 };
-  const conversionRate = 0;
+  const stats = await getTutorDashboardStats();
 
   // Format price from Kobo to Naira
   const formatPrice = (priceInKobo: number) => {
     return `₦${(priceInKobo / 100).toLocaleString()}`;
   };
 
-  // Empty state - no courses yet
-  if (totalCount === 0) {
+  // no courses yet
+  if (stats.totalCourses === 0) {
     return (
       <div className="p-6 md:p-8">
         <div className="max-w-2xl mx-auto text-center py-16">
@@ -87,9 +75,9 @@ export default async function TutorDashboard() {
           </p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold text-primary-text">
-              {formatPrice(totalRevenue)}
+              {formatPrice(stats.totalRevenue)}
             </span>
-            <span className="text-xs text-secondary-text">vs last mo.</span>
+            <span className="text-xs text-secondary-text">lifetime</span>
           </div>
         </div>
 
@@ -109,53 +97,44 @@ export default async function TutorDashboard() {
           </p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold text-primary-text">
-              {totalStudents.toLocaleString()}
+              {stats.totalStudents.toLocaleString()}
             </span>
-            <span className="text-xs text-secondary-text">active users</span>
+            <span className="text-xs text-secondary-text">active learners</span>
           </div>
         </div>
 
-        {/* Avg Watch Time */}
+        {/* Total Courses */}
         <div className="bg-surface border border-border rounded-xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              +0%
+            {/* Value trend not yet tracked */}
+          </div>
+          <p className="text-xs text-secondary-text uppercase tracking-wider font-semibold">
+            Total Courses
+          </p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="text-2xl font-bold text-primary-text">
+              {stats.totalCourses}
             </span>
+            <span className="text-xs text-secondary-text">created</span>
+          </div>
+        </div>
+
+        {/* Avg Watch Time (Just placeholder for design consistency for now) */}
+        <div className="bg-surface border border-border rounded-xl p-5 opacity-60">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
           </div>
           <p className="text-xs text-secondary-text uppercase tracking-wider font-semibold">
             Avg Watch Time
           </p>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-primary-text">
-              {avgWatchTime.minutes}m {avgWatchTime.seconds}s
-            </span>
-            <span className="text-xs text-secondary-text">per session</span>
-          </div>
-        </div>
-
-        {/* Course Conversion */}
-        <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <span className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              +0%
-            </span>
-          </div>
-          <p className="text-xs text-secondary-text uppercase tracking-wider font-semibold">
-            Course Conversion
-          </p>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-primary-text">
-              {conversionRate}%
-            </span>
-            <span className="text-xs text-secondary-text">of leads</span>
+            <span className="text-2xl font-bold text-primary-text">--</span>
+            <span className="text-xs text-secondary-text">coming soon</span>
           </div>
         </div>
       </div>
@@ -187,7 +166,7 @@ export default async function TutorDashboard() {
           {/* Chart Placeholder */}
           <div className="h-64 flex items-center justify-center bg-surface-muted/50 rounded-lg border border-dashed border-border">
             <p className="text-secondary-text text-sm">
-              Chart data will appear when you have student enrollments
+              Advanced analytics coming soon
             </p>
           </div>
         </div>
@@ -206,9 +185,9 @@ export default async function TutorDashboard() {
             </Link>
           </div>
 
-          {publishedCourses.length > 1 ? (
+          {stats.topCourses.length > 0 ? (
             <div className="space-y-4">
-              {publishedCourses.slice(0, 4).map((course, index) => (
+              {stats.topCourses.map((course) => (
                 <div
                   key={course.id}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-muted/50 transition-colors"
@@ -233,9 +212,8 @@ export default async function TutorDashboard() {
                       {course.title}
                     </h4>
                     <div className="flex items-center gap-1 text-xs text-secondary-text">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span>0.0</span>
-                      <span className="text-secondary-text/50">(0)</span>
+                      <Users className="w-3 h-3" />
+                      <span>{course.students} enrolled</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -243,67 +221,22 @@ export default async function TutorDashboard() {
                       {formatPrice(course.price || 0)}
                     </div>
                     <div className="text-xs text-green-600 dark:text-green-400">
-                      0%
+                      {formatPrice(course.revenue)} earned
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center">
-              <p className="text-secondary-text text-sm">
-                {publishedCourses.length === 0
-                  ? "No published courses yet"
-                  : "Publish more courses to see rankings"}
+            <div className="py-8 text-center bg-surface-muted/30 rounded-lg border border-dashed border-border">
+              <p className="text-secondary-text text-sm font-medium">
+                No course data yet
+              </p>
+              <p className="text-xs text-secondary-text mt-1">
+                Your top performing courses will appear here
               </p>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Student Demographics */}
-        <div className="bg-surface border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-primary-text">
-                Student Demographics
-              </h3>
-              <p className="text-sm text-secondary-text">
-                Global distribution of learners
-              </p>
-            </div>
-          </div>
-          {/* Map Placeholder */}
-          <div className="h-48 flex items-center justify-center bg-surface-muted/50 rounded-lg border border-dashed border-border">
-            <p className="text-secondary-text text-sm">
-              Demographics appear after student enrollments
-            </p>
-          </div>
-        </div>
-
-        {/* Retention Rate */}
-        <div className="bg-surface border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-primary-text">
-                Retention Rate
-              </h3>
-              <p className="text-sm text-secondary-text">
-                Monthly student cohort retention
-              </p>
-            </div>
-            <span className="px-3 py-1 text-xs font-medium bg-surface-muted rounded-full text-secondary-text">
-              Current Year
-            </span>
-          </div>
-          {/* Chart Placeholder */}
-          <div className="h-48 flex items-center justify-center bg-surface-muted/50 rounded-lg border border-dashed border-border">
-            <p className="text-secondary-text text-sm">
-              Retention data appears after student enrollments
-            </p>
-          </div>
         </div>
       </div>
 

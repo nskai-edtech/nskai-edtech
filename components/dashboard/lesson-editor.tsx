@@ -1,34 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect } from "react";
-import { updateLesson } from "@/actions/chapters";
-import { Save, Loader2, Video, RefreshCcw } from "lucide-react";
-import toast from "react-hot-toast";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2, Video, RefreshCcw, Cloud } from "lucide-react";
+import toast from "react-hot-toast";
 
-type Lesson = {
-  id: string;
-  title: string;
-  description: string | null;
-  videoUrl: string | null;
-  position: number;
-  isFreePreview: boolean | null;
-  createdAt: Date;
-  chapterId: string | null;
-  muxData?: {
-    id: string;
-    assetId: string;
-    playbackId: string | null;
-  } | null;
-};
+import { updateLesson } from "@/actions/chapters";
+import { Lesson } from "@/types";
+import { useDebounce } from "@/hooks/use-debounce";
+import { VideoPlayer } from "@/components/video-player";
+import { Editor } from "@/components/editor";
+import { MuxVideoUploader } from "./mux-uploader";
 
 interface LessonEditorProps {
   lesson: Lesson;
   onUpdate: (updatedLesson: Lesson) => void;
 }
-
-import { MuxVideoUploader } from "./mux-uploader";
-import { VideoPlayer } from "../video-player";
 
 export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
   const router = useRouter();
@@ -37,74 +25,102 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
     title: lesson.title,
     description: lesson.description || "",
     isFreePreview: lesson.isFreePreview || false,
+    notes: lesson.notes || "",
   });
 
-  // Update form data when lesson prop changes
+  // Debounce form data to avoid too many requests
+  const debouncedData = useDebounce(formData, 3000);
+
+  // Keep track of last saved data to only save on changes
+  const lastSavedData = useRef(formData);
+
+  // Keep track of first render to avoid auto-saving on mount
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    setFormData({
+    const initialData = {
       title: lesson.title,
       description: lesson.description || "",
       isFreePreview: lesson.isFreePreview || false,
-    });
-  }, [lesson]);
+      notes: lesson.notes || "",
+    };
+    setFormData(initialData);
+    lastSavedData.current = initialData; // Reset saved state when switching lessons
+  }, [lesson.id]); // Only reset when switching lessons, not on internal updates
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    try {
-      const result = await updateLesson(lesson.id, {
-        title: formData.title,
-        description: formData.description || undefined,
-        isFreePreview: formData.isFreePreview,
-      });
+  useEffect(() => {
+    if (!isMounted) return;
 
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.lesson) {
-        toast.success("Lesson saved!");
-        // Call onUpdate with the updated lesson, preserving muxData relation
-        onUpdate({
-          ...result.lesson,
-          muxData: lesson.muxData,
-        } as Lesson);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to save lesson");
-    } finally {
-      setIsSaving(false);
+    // Only save if data has actually changed from what we last saved
+    if (
+      JSON.stringify(debouncedData) === JSON.stringify(lastSavedData.current)
+    ) {
+      return;
     }
-  };
+
+    const save = async () => {
+      setIsSaving(true);
+      try {
+        const result = await updateLesson(lesson.id, {
+          title: debouncedData.title,
+          description: debouncedData.description || undefined,
+          isFreePreview: debouncedData.isFreePreview,
+          notes: debouncedData.notes || undefined,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.lesson) {
+          // Update last saved reference
+          lastSavedData.current = debouncedData;
+
+          // Silent success or subtle indicator
+          onUpdate({
+            ...result.lesson,
+            muxData: lesson.muxData,
+          } as Lesson);
+        }
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+        toast.error("Auto-save failed");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    save();
+  }, [debouncedData]);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between sticky top-0 z-20 bg-background/80 backdrop-blur pb-4 pt-2 border-b border-border/50 lg:border-none mb-6 lg:mb-0">
         <h2 className="text-2xl font-bold text-primary-text">Lesson Details</h2>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand/90 disabled:bg-brand/50 text-white rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
-        >
+
+        <div className="flex items-center gap-2">
           {isSaving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
+            <div className="flex items-center gap-2 text-primary-text bg-surface border border-border px-3 py-1.5 rounded-full text-xs font-medium animate-pulse">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Auto saving...
+            </div>
           ) : (
-            <>
-              <Save className="w-4 h-4" />
-              Save Changes
-            </>
+            <div className="flex items-center gap-2 text-secondary-text bg-surface-muted border border-border px-3 py-1.5 rounded-full text-xs font-medium">
+              <Cloud className="w-3 h-3" />
+              Saved
+            </div>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Lesson Title */}
-      <div>
+      <div className="bg-surface p-6 rounded-xl border border-border">
         <label
           htmlFor="title"
-          className="block text-sm font-medium text-primary-text mb-2"
+          className="block text-sm font-bold text-primary-text mb-2"
         >
           Lesson Title
         </label>
@@ -114,33 +130,35 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="e.g., Introduction to LLM Architectures"
-          className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50"
+          className="w-full px-4 py-3 bg-background border border-border rounded-lg text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all font-medium text-lg"
         />
       </div>
 
       {/* Video Content */}
-      <div className="space-y-4">
-        <label className="block text-sm font-medium text-primary-text mb-2">
+      <div className="bg-surface p-6 rounded-xl border border-border">
+        <label className="block text-sm font-bold text-primary-text mb-4">
           Video Content
         </label>
 
         {lesson.muxData?.playbackId ? (
           <div className="space-y-4">
-            <VideoPlayer
-              playbackId={lesson.muxData.playbackId}
-              title={lesson.title}
-            />
-            <div className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl">
+            <div className="rounded-xl overflow-hidden shadow-lg border border-border/50">
+              <VideoPlayer
+                playbackId={lesson.muxData.playbackId}
+                title={lesson.title}
+              />
+            </div>
+            <div className="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand/10 rounded-lg">
-                  <Video className="w-5 h-5 text-brand" />
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <Video className="w-5 h-5 text-green-500" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-primary-text">
-                    Mux Asset Ready
+                    Video Processed & Ready
                   </p>
-                  <p className="text-xs text-secondary-text">
-                    Asset ID: {lesson.muxData.assetId}
+                  <p className="text-xs text-secondary-text font-mono">
+                    ID: {lesson.muxData.assetId.substring(0, 8)}...
                   </p>
                 </div>
               </div>
@@ -169,22 +187,33 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
             </div>
           </div>
         ) : (
-          <MuxVideoUploader
-            lessonId={lesson.id}
-            onSuccess={(assetId, playbackId) => {
-              onUpdate({
-                ...lesson,
-                muxData: {
-                  id: "temp",
-                  assetId,
-                  playbackId,
-                },
-              });
-            }}
-          />
+          <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center bg-surface-muted/20">
+            <div className="mb-4 p-4 bg-surface rounded-full shadow-sm">
+              <Video className="w-8 h-8 text-secondary-text" />
+            </div>
+            <p className="text-primary-text font-medium mb-2">
+              No video uploaded
+            </p>
+            <p className="text-sm text-secondary-text mb-6 text-center max-w-sm">
+              Upload a video lesson for your students to watch.
+            </p>
+            <MuxVideoUploader
+              lessonId={lesson.id}
+              onSuccess={(assetId, playbackId) => {
+                onUpdate({
+                  ...lesson,
+                  muxData: {
+                    id: "temp",
+                    assetId,
+                    playbackId,
+                  },
+                });
+              }}
+            />
+          </div>
         )}
 
-        <div className="flex items-center gap-2 mt-3 p-2 bg-surface-muted/30 rounded-lg">
+        <div className="flex items-center gap-3 mt-6 p-4 bg-brand/5 border border-brand/10 rounded-xl">
           <input
             type="checkbox"
             id="freePreview"
@@ -192,64 +221,54 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
             onChange={(e) =>
               setFormData({ ...formData, isFreePreview: e.target.checked })
             }
-            className="w-4 h-4 rounded border-border"
+            className="w-5 h-5 rounded border-border text-brand focus:ring-brand"
           />
-          <label htmlFor="freePreview" className="text-sm text-secondary-text">
-            Make this lesson available as a free preview
-          </label>
+          <div className="flex flex-col">
+            <label
+              htmlFor="freePreview"
+              className="text-sm font-medium text-primary-text"
+            >
+              Free Preview
+            </label>
+            <label
+              htmlFor="freePreview"
+              className="text-xs text-secondary-text"
+            >
+              Allow students to watch this lesson without purchasing the course.
+            </label>
+          </div>
         </div>
       </div>
 
-      {/* Lesson Notes */}
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-primary-text mb-2"
-        >
-          Lesson Notes
+      {/* Lesson Description (Rich Text) */}
+      <div className="bg-surface p-6 rounded-xl border border-border">
+        <label className="block text-sm font-bold text-primary-text mb-2">
+          Lesson Description
         </label>
-        <div className="border border-border rounded-lg overflow-hidden">
-          {/* Toolbar */}
-          <div className="flex items-center gap-1 p-2 bg-surface-muted/50 border-b border-border">
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors">
-              <strong className="text-sm">B</strong>
-            </button>
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors">
-              <em className="text-sm">I</em>
-            </button>
-            <div className="w-px h-5 bg-border mx-1" />
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors text-sm">
-              UL
-            </button>
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors text-sm">
-              OL
-            </button>
-            <div className="w-px h-5 bg-border mx-1" />
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors text-sm">
-              Code
-            </button>
-            <button className="p-2 hover:bg-surface rounded text-secondary-text hover:text-primary-text transition-colors text-sm">
-              Link
-            </button>
-          </div>
-
-          {/* Editor */}
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            placeholder="Start writing your lesson content or use AI to generate a draft..."
-            rows={12}
-            className="w-full px-4 py-3 bg-surface text-primary-text placeholder:text-secondary-text focus:outline-none resize-none"
-          />
-        </div>
-        <p className="text-xs text-secondary-text mt-2 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-            Auto-saved
-          </span>
+        <p className="text-xs text-secondary-text mb-4">
+          A detailed overview of what students will learn in this lesson.
         </p>
+        <Editor
+          value={formData.description}
+          onChange={(val) =>
+            setFormData((prev) => ({ ...prev, description: val }))
+          }
+        />
+      </div>
+
+      {/* Lesson Notes (Rich Text) */}
+      <div className="bg-surface p-6 rounded-xl border border-border">
+        <label className="block text-sm font-bold text-primary-text mb-2">
+          Lesson Notes & Resources
+        </label>
+        <p className="text-xs text-secondary-text mb-4">
+          Add code snippets, downloadable resources (PDFs), or supplementary
+          links.
+        </p>
+        <Editor
+          value={formData.notes}
+          onChange={(val) => setFormData((prev) => ({ ...prev, notes: val }))}
+        />
       </div>
     </div>
   );

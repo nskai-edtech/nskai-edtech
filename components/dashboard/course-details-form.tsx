@@ -1,30 +1,15 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { updateCourse } from "@/actions/courses";
-import {
-  Save,
-  Loader2,
-  Image as ImageIcon,
-  ExternalLink,
-  AlertCircle,
-} from "lucide-react";
-import toast from "react-hot-toast";
 import Image from "next/image";
-
-type Course = {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number | null;
-  imageUrl: string | null;
-  isPublished: boolean | null;
-  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
-};
+import toast from "react-hot-toast";
+import { useDebounce } from "@/hooks/use-debounce";
+import { updateCourse } from "@/actions/courses";
+import { Course } from "@/types";
+import { Loader2, Image as ImageIcon, Cloud, X } from "lucide-react";
+import { FileUpload } from "@/components/file-upload";
 
 interface CourseDetailsFormProps {
   course: Course;
-  onUpdate: (updatedCourse: Course) => void;
+  onUpdate: (course: Course) => void;
 }
 
 export default function CourseDetailsForm({
@@ -39,6 +24,10 @@ export default function CourseDetailsForm({
     imageUrl: course.imageUrl || "",
   });
 
+  // Debounce the form data
+  const debouncedData = useDebounce(formData, 1000);
+  const [isMounted, setIsMounted] = useState(false);
+
   // Update form data when course prop changes
   useEffect(() => {
     setFormData({
@@ -49,44 +38,59 @@ export default function CourseDetailsForm({
     });
   }, [course]);
 
-  const handleSave = async () => {
-    if (!formData.title) {
-      toast.error("Course title is required");
-      return;
-    }
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    if (!formData.imageUrl) {
-      toast.error("Course image is important and not optional");
-      return;
-    }
+  useEffect(() => {
+    if (!isMounted) return;
 
-    setIsSaving(true);
+    const save = async () => {
+      // Deep comparison to prevent auto-save if nothing changed
+      const currentPrice = course.price ? (course.price / 100).toString() : "";
+      const isTitleSame = debouncedData.title === course.title;
+      const isDescriptionSame =
+        (debouncedData.description || "") === (course.description || "");
+      const isPriceSame = (debouncedData.price || "") === (currentPrice || "");
+      const isImageSame =
+        (debouncedData.imageUrl || "") === (course.imageUrl || "");
 
-    try {
-      const priceValue = formData.price
-        ? Math.floor(parseFloat(formData.price) * 100)
-        : 0;
-
-      const result = await updateCourse(course.id, {
-        title: formData.title,
-        description: formData.description || undefined,
-        price: priceValue,
-        imageUrl: formData.imageUrl || undefined,
-      });
-
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.course) {
-        toast.success("Course updated!");
-        onUpdate(result.course as Course);
+      if (isTitleSame && isDescriptionSame && isPriceSame && isImageSame) {
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to save course details");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
+      // Validation checks
+      if (!debouncedData.title) return;
+
+      setIsSaving(true);
+      try {
+        const priceValue = debouncedData.price
+          ? Math.floor(parseFloat(debouncedData.price) * 100)
+          : 0;
+
+        const result = await updateCourse(course.id, {
+          title: debouncedData.title,
+          description: debouncedData.description || undefined,
+          price: priceValue,
+          imageUrl: debouncedData.imageUrl || undefined,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.course) {
+          onUpdate(result.course as Course);
+        }
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+        toast.error("Auto-save failed");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    save();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedData]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -97,7 +101,7 @@ export default function CourseDetailsForm({
             Course Settings
           </h2>
           <p className="text-secondary-text text-sm mt-1">
-            Manage your course identity, details and pricing.
+            Manage your course identity, details, and pricing.
           </p>
           <div className="flex items-center gap-2 mt-3">
             {course.status === "PUBLISHED" ? (
@@ -119,23 +123,20 @@ export default function CourseDetailsForm({
             )}
           </div>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand hover:bg-brand/90 disabled:bg-brand/50 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:cursor-not-allowed active:scale-95"
-        >
+
+        <div className="flex items-center gap-2">
           {isSaving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
+            <div className="flex items-center gap-2 text-primary-text bg-surface border border-border px-3 py-1.5 rounded-full text-xs font-medium animate-pulse">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Auto saving...
+            </div>
           ) : (
-            <>
-              <Save className="w-4 h-4" />
-              Save Changes
-            </>
+            <div className="flex items-center gap-2 text-secondary-text bg-surface-muted border border-border px-3 py-1.5 rounded-full text-xs font-medium">
+              <Cloud className="w-3 h-3" />
+              Saved
+            </div>
           )}
-        </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -189,44 +190,49 @@ export default function CourseDetailsForm({
             </p>
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload */}
           <div>
-            <label
-              htmlFor="imageUrl"
-              className="block text-sm font-semibold text-primary-text mb-2"
-            >
-              Course Thumbnail URL <span className="text-brand">*</span>
+            <label className="block text-sm font-semibold text-primary-text mb-2">
+              Course Thumbnail <span className="text-brand">*</span>
             </label>
-            <div className="relative group">
-              <input
-                id="imageUrl"
-                type="text"
-                value={formData.imageUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, imageUrl: e.target.value })
-                }
-                placeholder="https://images.unsplash.com/..."
-                className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all text-sm"
-              />
-              {formData.imageUrl && (
-                <a
-                  href={formData.imageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-secondary-text hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              {formData.imageUrl ? (
+                <div className="relative aspect-video">
+                  <Image
+                    src={formData.imageUrl}
+                    alt="Upload"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                      className="p-2 bg-white rounded-full hover:bg-white/90 transition-colors"
+                      title="Remove image"
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
+                    {/* Change image logic would require unsetting and showing uploader again, effectively same as remove */}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4">
+                  <FileUpload
+                    endpoint="courseImage"
+                    onChange={(url) => {
+                      if (url) {
+                        setFormData({ ...formData, imageUrl: url });
+                      }
+                    }}
+                  />
+                  <div className="text-center mt-2">
+                    <p className="text-[10px] text-secondary-text uppercase tracking-tight">
+                      16:9 aspect ratio recommended
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
-            {!formData.imageUrl && (
-              <div className="flex items-center gap-2 mt-2 text-amber-500">
-                <AlertCircle className="w-3 h-3" />
-                <span className="text-[10px] font-medium uppercase tracking-tight">
-                  Image preview is important and not optional
-                </span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -242,11 +248,6 @@ export default function CourseDetailsForm({
                 alt="Course preview"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                onLoadingComplete={(img) => {
-                  if (img.naturalWidth === 0) {
-                    // Fallback or error handled by Next.js or UI
-                  }
-                }}
               />
             ) : (
               <>
@@ -254,7 +255,7 @@ export default function CourseDetailsForm({
                   <ImageIcon className="w-8 h-8 text-secondary-text" />
                 </div>
                 <p className="text-xs text-secondary-text font-medium text-center px-4">
-                  Enter a valid image URL to see the preview here
+                  Upload an image to see the preview here
                 </p>
               </>
             )}

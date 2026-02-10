@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, ThumbsUp, ChevronDown } from "lucide-react";
 
 type Role = "Student" | "Educator";
@@ -384,18 +385,20 @@ const TESTIMONIALS: Testimonial[] = [
 function TestimonialsSection() {
   const [activeTab, setActiveTab] = useState<"All" | Role | string>("All");
 
-  // Get initial count based on screen size (client-side only)
-  const getInitialCount = () => {
-    if (typeof window === "undefined") return 3;
-    return window.matchMedia("(min-width: 768px)").matches ? 6 : 3;
-  };
+  const [visibleCount, setVisibleCount] = useState(3);
 
-  const [visibleCount, setVisibleCount] = useState(getInitialCount);
+  useEffect(() => {
+    // adjust for larger screens on the client side only
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setVisibleCount(6);
+    }
+  }, []);
 
   // Reset visible count when tab changes
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    setVisibleCount(getInitialCount());
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    setVisibleCount(isDesktop ? 6 : 3);
   };
 
   const filteredTestimonials =

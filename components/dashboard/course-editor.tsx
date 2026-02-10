@@ -27,43 +27,7 @@ import LessonEditor from "./lesson-editor";
 import CourseDetailsForm from "./course-details-form";
 import InputModal from "../ui/input-modal";
 
-type Lesson = {
-  id: string;
-  title: string;
-  description: string | null;
-  videoUrl: string | null;
-  position: number;
-  isFreePreview: boolean | null;
-  createdAt: Date;
-  chapterId: string | null;
-  muxData?: {
-    id: string;
-    assetId: string;
-    playbackId: string | null;
-  } | null;
-};
-
-type Chapter = {
-  id: string;
-  title: string;
-  position: number;
-  createdAt: Date;
-  courseId: string | null;
-  lessons: Lesson[];
-};
-
-type Course = {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number | null;
-  isPublished: boolean | null;
-  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
-  imageUrl: string | null;
-  createdAt: Date;
-  tutorId: string | null;
-  chapters: Chapter[];
-};
+import { Course, Lesson } from "@/types";
 
 interface CourseEditorProps {
   course: Course;
@@ -230,8 +194,6 @@ export default function CourseEditor({
 
     if (course.status === "PUBLISHED") {
       // Allow unpublishing if already published?
-      // User said "Then when approved... automatically pushed to market"
-      // Let's stick to the submission part for now.
       toast.error("Course is already published");
       return;
     }
@@ -521,7 +483,7 @@ export default function CourseEditor({
           className="fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
         >
           <List className="w-5 h-5" />
-          <span className="hidden sm:inline">View Courses</span>
+          <span className="hidden sm:inline">View All Courses</span>
         </button>
       </main>
 

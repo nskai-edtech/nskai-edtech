@@ -7,6 +7,7 @@ import {
   Wallet,
   Twitter,
 } from "lucide-react";
+import Link from "next/link";
 
 interface FooterLink {
   label: string;
@@ -19,35 +20,35 @@ interface FooterSection {
 }
 
 const PRODUCT_LINKS: FooterLink[] = [
-  { label: "Features", href: "#" },
-  { label: "AI Tutors", href: "#" },
-  { label: "Pricing Plans", href: "#" },
-  { label: "For Schools", href: "#" },
-  { label: "Case Studies", href: "#" },
+  { label: "Features", href: "/features" },
+  { label: "AI Tutors", href: "/ai-tutors" },
+  { label: "Pricing Plans", href: "/pricing" },
+  { label: "For Schools", href: "/for-schools" },
+  { label: "Case Studies", href: "/case-studies" },
 ];
 
 const COMPANY_LINKS: FooterLink[] = [
-  { label: "About Us", href: "#" },
-  { label: "Careers", href: "#" },
-  { label: "Blog", href: "#" },
-  { label: "Press Kit", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "About Us", href: "/about" },
+  { label: "Careers", href: "/careers" },
+  { label: "Blog", href: "/blog" },
+  { label: "Press Kit", href: "/press-kit" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const RESOURCE_LINKS: FooterLink[] = [
-  { label: "Documentation", href: "#" },
-  { label: "Help Center", href: "#" },
-  { label: "API Reference", href: "#" },
-  { label: "Community", href: "#" },
-  { label: "Partner Program", href: "#" },
+  { label: "Documentation", href: "/documentation" },
+  { label: "Help Center", href: "/help" },
+  { label: "API Reference", href: "/api-reference" },
+  { label: "Community", href: "/community" },
+  { label: "Partner Program", href: "/partner-program" },
 ];
 
 const LEGAL_LINKS: FooterLink[] = [
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
-  { label: "Cookie Policy", href: "#" },
-  { label: "Security", href: "#" },
-  { label: "Accessibility", href: "#" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+  { label: "Cookie Policy", href: "/cookie-policy" },
+  { label: "Security", href: "/security" },
+  { label: "Accessibility", href: "/accessibility" },
 ];
 
 function FooterSection() {
@@ -61,10 +62,12 @@ function FooterSection() {
             {/* Brand */}
             <div className="flex flex-col gap-6 max-w-sm">
               <div className="flex items-center gap-2">
+                <Link href="/">
                 <div className="bg-brand p-1.5 rounded-lg">
                   <Globe className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">NSKAI Platform</span>
+                <span className="text-xl font-bold">ZERRA</span>
+              </Link>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                 Empowering the next generation of learners through personalized

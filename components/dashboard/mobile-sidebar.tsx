@@ -5,7 +5,6 @@ import { Menu, X } from "lucide-react";
 import { Sidebar } from "./sidebar";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   role: "TUTOR" | "ORG_ADMIN";

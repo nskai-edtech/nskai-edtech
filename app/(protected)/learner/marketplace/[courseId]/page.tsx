@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
   getCourseById,
   getRelatedCourses,
@@ -9,6 +10,8 @@ import { CourseCard } from "@/components/courses/course-card";
 import { CourseCurriculum } from "@/components/courses/course-curriculum";
 import { CourseEnrollButton } from "@/components/courses/course-enroll-button";
 import { Star, Video, Download, Globe, GraduationCap } from "lucide-react";
+
+import { CourseVideoPreview } from "@/components/courses/course-video-preview";
 
 export default async function CourseDetailsPage({
   params,
@@ -31,6 +34,11 @@ export default async function CourseDetailsPage({
     (acc, chapter) => acc + chapter.lessons.length,
     0,
   );
+
+  // Find the first free preview lesson with a playback ID
+  const previewLesson = course.chapters
+    .flatMap((chapter) => chapter.lessons)
+    .find((lesson) => lesson.isFreePreview && lesson.muxData?.playbackId);
 
   return (
     <div className="max-w-[1400px] mx-auto pb-20">
@@ -111,40 +119,22 @@ export default async function CourseDetailsPage({
                 <p className="text-xs text-secondary-text font-semibold uppercase tracking-wider">
                   Created by
                 </p>
-                <p className="text-base font-bold text-brand hover:underline cursor-pointer">
+                <Link
+                  href={`/learner/tutor/${course.tutorId}`}
+                  className="text-base font-bold text-brand hover:underline cursor-pointer"
+                >
                   {course.tutor?.firstName} {course.tutor?.lastName}
-                </p>
+                </Link>
               </div>
             </div>
           </div>
 
           {/* Main Video Preview / Image */}
-          <div className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-black/5 group cursor-pointer shadow-2xl shadow-brand/10">
-            {course.imageUrl ? (
-              <Image
-                src={course.imageUrl}
-                alt={course.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Video className="w-20 h-20 text-brand/20" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl border border-white/30 transform group-hover:scale-110 transition-transform duration-300">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-inner">
-                  <div className="w-0 h-0 border-t-10 border-t-transparent border-l-18 border-l-brand border-b-10 border-b-transparent ml-1" />
-                </div>
-              </div>
-            </div>
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white/90">
-              <span className="text-sm font-bold bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                Preview: Introduction to {course.title}
-              </span>
-            </div>
-          </div>
+          <CourseVideoPreview
+            imageUrl={course.imageUrl}
+            title={course.title}
+            previewPlaybackId={previewLesson?.muxData?.playbackId || null}
+          />
 
           {/* Tabs / Content */}
           <div className="space-y-12 pt-10">
@@ -205,9 +195,12 @@ export default async function CourseDetailsPage({
                     application, their courses focus on bridging the gap between
                     complex technical concepts and real-world results.
                   </p>
-                  <button className="text-brand font-bold text-sm hover:underline flex items-center gap-1 transition-all">
+                  <Link
+                    href={`/learner/tutor/${course.tutorId}`}
+                    className="text-brand font-bold text-sm hover:underline flex items-center gap-1 transition-all"
+                  >
                     View Full Profile
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

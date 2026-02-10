@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  ),
   title: {
     template: "%s | NSK.AI",
     default: "NSK.AI - AI-Powered Learning Management System",
@@ -44,7 +47,7 @@ export const metadata: Metadata = {
     siteName: "NSK.AI",
     images: [
       {
-        url: "/og-image.png", // check for this later
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "NSK.AI Platform",
@@ -58,10 +61,10 @@ export const metadata: Metadata = {
     title: "NSK.AI - AI-Powered Learning Management System",
     description:
       "The next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
-    images: ["/og-image.png"], // check for this later
+    images: ["/og-image.svg"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.svg",
   },
 };
 

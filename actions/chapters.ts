@@ -5,8 +5,6 @@ import { chapters, lessons } from "@/drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
-// Chapter Actions
-
 export async function createChapter(courseId: string, title: string) {
   const { userId } = await auth();
   if (!userId) {
@@ -150,6 +148,7 @@ export async function updateLesson(
     videoUrl?: string;
     position?: number;
     isFreePreview?: boolean;
+    notes?: string;
   },
 ) {
   const { userId } = await auth();

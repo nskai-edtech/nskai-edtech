@@ -36,8 +36,8 @@ export const users = pgTable("user", {
   email: text("email").notNull(),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  bio: text("bio"), // The description of the tutor
-  expertise: text("expertise"), // e.g., "Frontend Dev", "Data Science"
+  bio: text("bio"),
+  expertise: text("expertise"),
 
   // Default is LEARNER. The frontend can send 'TUTOR' if selected.
   // 'ADMIN' can NEVER be set via the public API.
@@ -49,7 +49,7 @@ export const users = pgTable("user", {
 
   imageUrl: text("image_url"),
 
-  // Paystack: Only needed if they buy something
+  // Paystack
   paystackCustomerCode: text("paystack_customer_code"),
 
   // Interests for learners
@@ -101,6 +101,7 @@ export const lessons = pgTable("lesson", {
   videoUrl: text("video_url"),
   position: integer("position").notNull(),
   isFreePreview: boolean("is_free_preview").default(false),
+  notes: text("notes"), // For rich text content (HTML)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -117,10 +118,10 @@ export const muxData = pgTable("mux_data", {
 // 7. PURCHASES (Access Control)
 export const purchases = pgTable("purchase", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }), // The Student
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
   courseId: uuid("course_id").references(() => courses.id, {
     onDelete: "cascade",
-  }), // The Course
+  }),
 
   // Paystack Verification
   paystackReference: text("paystack_reference").unique().notNull(),
