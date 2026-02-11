@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { updateCourse } from "@/actions/courses";
 import { Course } from "@/types";
-import { Loader2, Image as ImageIcon, Cloud, X } from "lucide-react";
+import { Loader2, Image as ImageIcon, Cloud } from "lucide-react";
 import { FileUpload } from "@/components/file-upload";
 
 interface CourseDetailsFormProps {
@@ -195,24 +195,27 @@ export default function CourseDetailsForm({
             <label className="block text-sm font-semibold text-primary-text mb-2">
               Course Thumbnail <span className="text-brand">*</span>
             </label>
-            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+            <div className="bg-surface border border-border rounded-xl overflow-hidden p-4">
               {formData.imageUrl ? (
-                <div className="relative aspect-video">
-                  <Image
-                    src={formData.imageUrl}
-                    alt="Upload"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => setFormData({ ...formData, imageUrl: "" })}
-                      className="p-2 bg-white rounded-full hover:bg-white/90 transition-colors"
-                      title="Remove image"
-                    >
-                      <X className="w-4 h-4 text-red-500" />
-                    </button>
-                    {/* Change image logic would require unsetting and showing uploader again, effectively same as remove */}
+                <div className="space-y-4">
+                  <div className="relative aspect-video rounded-md overflow-hidden border border-border">
+                    <Image
+                      src={formData.imageUrl}
+                      alt="Upload"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <FileUpload
+                      endpoint="courseImage"
+                      variant="button"
+                      onChange={(url) => {
+                        if (url) {
+                          setFormData({ ...formData, imageUrl: url });
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               ) : (
