@@ -50,28 +50,20 @@ export async function saveUserNote(lessonId: string, content: string) {
       return { error: "User not found" };
     }
 
-    const existingNote = await db.query.userNotes.findFirst({
-      where: and(
-        eq(userNotes.userId, user.id),
-        eq(userNotes.lessonId, lessonId),
-      ),
-    });
-
-    if (existingNote) {
-      await db
-        .update(userNotes)
-        .set({
-          content,
-          updatedAt: new Date(),
-        })
-        .where(eq(userNotes.id, existingNote.id));
-    } else {
-      await db.insert(userNotes).values({
+    await db
+      .insert(userNotes)
+      .values({
         userId: user.id,
         lessonId,
         content,
+      })
+      .onConflictDoUpdate({
+        target: [userNotes.userId, userNotes.lessonId],
+        set: {
+          content,
+          updatedAt: new Date(),
+        },
       });
-    }
 
     return { success: true };
   } catch (error) {

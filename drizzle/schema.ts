@@ -137,10 +137,14 @@ export const userProgress = pgTable(
   "user_progress",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-    lessonId: uuid("lesson_id").references(() => lessons.id, {
-      onDelete: "cascade",
-    }),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    lessonId: uuid("lesson_id")
+      .references(() => lessons.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
     isCompleted: boolean("is_completed").default(false),
     lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
   },
@@ -331,18 +335,22 @@ export const userAssessmentResultRelations = relations(
 );
 
 // 15. NOTES (User Private Notes)
-export const userNotes = pgTable("user_notes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  lessonId: uuid("lesson_id")
-    .references(() => lessons.id, { onDelete: "cascade" })
-    .notNull(),
-  content: text("content"), // Rich Text HTML
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const userNotes = pgTable(
+  "user_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    lessonId: uuid("lesson_id")
+      .references(() => lessons.id, { onDelete: "cascade" })
+      .notNull(),
+    content: text("content"), // Rich Text HTML
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("user_notes_user_lesson_idx").on(t.userId, t.lessonId)],
+);
 
 export const userNoteRelations = relations(userNotes, ({ one }) => ({
   user: one(users, {

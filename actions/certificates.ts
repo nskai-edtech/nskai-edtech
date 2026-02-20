@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { courses, userProgress, users } from "@/drizzle/schema";
+import { courses, userProgress, users, purchases } from "@/drizzle/schema";
 import { eq, and, count, desc, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
@@ -43,8 +43,25 @@ export async function getCompletedCourses(): Promise<
       return { error: "User not found" };
     }
 
-    // Get all courses with their chapters and lessons
+    // 1. Get purchased course IDs
+    const purchasedCourses = await db
+      .select({
+        courseId: purchases.courseId,
+      })
+      .from(purchases)
+      .where(eq(purchases.userId, user.id));
+
+    const purchasedCourseIds = purchasedCourses
+      .map((p) => p.courseId)
+      .filter((id): id is string => !!id);
+
+    if (purchasedCourseIds.length === 0) {
+      return { courses: [] };
+    }
+
+    // 2. Get details only for purchased courses
     const allCourses = await db.query.courses.findMany({
+      where: inArray(courses.id, purchasedCourseIds),
       with: {
         chapters: {
           with: {

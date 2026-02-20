@@ -40,6 +40,11 @@ export function QaForm({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!lessonId && !questionId) {
+      toast.error("Missing context");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let result;
@@ -85,6 +90,7 @@ export function QaForm({
       <button
         type="submit"
         disabled={isSubmitting}
+        aria-label={lessonId ? "Post question" : "Post reply"}
         className="h-10 w-10 flex items-center justify-center rounded-md bg-brand text-primary-foreground hover:bg-brand/90 disabled:opacity-50 transition-colors"
       >
         {isSubmitting ? (

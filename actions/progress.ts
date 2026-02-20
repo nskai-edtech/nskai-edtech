@@ -9,7 +9,7 @@ import {
   users,
   purchases,
 } from "@/drizzle/schema";
-import { eq, and, count, desc } from "drizzle-orm";
+import { eq, and, count, desc, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -325,9 +325,16 @@ export async function getCourseProgressDetails(courseId: string) {
       return { error: "Course not found" };
     }
 
-    // Get all progress records for this user
+    // Get all progress records for this user for the specific lessons in this course
+    const lessonIds = course.chapters.flatMap((chapter) =>
+      chapter.lessons.map((lesson) => lesson.id),
+    );
+
     const progressRecords = await db.query.userProgress.findMany({
-      where: and(eq(userProgress.userId, user.id)),
+      where: and(
+        eq(userProgress.userId, user.id),
+        inArray(userProgress.lessonId, lessonIds),
+      ),
     });
 
     // map lesson progress
