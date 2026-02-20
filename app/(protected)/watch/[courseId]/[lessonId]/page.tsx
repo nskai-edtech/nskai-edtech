@@ -6,50 +6,41 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { getQuestions } from "@/actions/qa";
+import { QuestionWithRelations } from "@/types";
+
 export default async function LessonPage({
   params,
 }: {
   params: Promise<{ courseId: string; lessonId: string }>;
 }) {
-  // Use Promise.all to fetch data in parallel for better performance
   const { courseId, lessonId } = await params;
 
-  // 1. Fetch Course Outline (for sidebar)
   const courseOutlinePromise = getCourseOutline(courseId);
 
-  // 2. Fetch Lesson Data (securely)
   const lessonDataPromise = getLessonWithAccess(courseId, lessonId).catch(
     () => null,
   );
 
-  const [course, lessonData] = await Promise.all([
+  const questionsPromise = getQuestions(lessonId);
+
+  const [course, lessonData, questionsResult] = await Promise.all([
     courseOutlinePromise,
     lessonDataPromise,
+    questionsPromise,
   ]);
+
+  const questions: QuestionWithRelations[] = questionsResult?.questions || [];
 
   if (!course) {
     return redirect("/learner/enrolled");
   }
 
   if (!lessonData) {
-    // If lesson fetch failed (likely access denied or invalid ID), redirect to course start
-    // or show error. Redirecting safe for now.
     return redirect(`/watch/${courseId}`);
   }
 
   const { lesson, muxData, nextLessonId, prevLessonId } = lessonData;
-
-  // Determine if user has full access (purchased) based on the successful fetch
-  // Since getLessonWithAccess only returns if access is granted, we can assume valid access for THIS lesson.
-  // But for the sidebar lock icons, we need to know if the user bought the course.
-  // We can pass a prop for that. Re-using the check logic or trust the sidebar to handle it?
-  // Ideally getCourseOutline should mock/return that info, but for now passing 'true' as we are in a valid lesson view
-  // Actually, we should check purchase status globally for the course to unlock the whole sidebar.
-  // Since `getLessonWithAccess` verifies purchase, let's assume if we are here, we might have access.
-  // BUT, free preview users might be here. `getLessonWithAccess` checks free preview too.
-  // I need to know if the COURSE is purchased.
-  // I'll assume 'true' for now to unblock, or I can add a dedicated check.
-  // Let's pass 'true' to existing sidebar prop to keep it simple, but lock logic will be improved later.
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
@@ -93,6 +84,7 @@ export default async function LessonPage({
                 <VideoPlayer
                   playbackId={muxData.playbackId}
                   title={lesson.title}
+                  lessonId={lessonId}
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-white/50 bg-slate-900">
@@ -136,17 +128,24 @@ export default async function LessonPage({
             </div>
 
             {/* Tabs */}
-            <LessonTabs lesson={lesson} />
+            <LessonTabs
+              lesson={lesson}
+              lessonId={lessonId}
+              tutorNotes={lesson.notes}
+              questions={questions}
+            />
           </div>
         </div>
 
         {/* Sidebar (List of Lessons) */}
-        <div className="w-[350px] shrink-0 hidden lg:block h-full overflow-hidden">
-          <CourseSidebar
-            course={course}
-            currentLessonId={lessonId}
-            purchase={true} // TODO: Pass real purchase status
-          />
+        <div className="w-[350px] shrink-0 hidden lg:block h-full overflow-hidden border-l border-border bg-surface flex flex-col">
+          <div className="flex-1 overflow-y-auto">
+            <CourseSidebar
+              course={course}
+              currentLessonId={lessonId}
+              purchase={true} // TODO: Pass real purchase status
+            />
+          </div>
         </div>
       </div>
     </div>

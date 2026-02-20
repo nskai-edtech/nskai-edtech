@@ -3,15 +3,31 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { NotesPanel } from "@/components/learner/notes-panel";
+
+import { QaSection } from "@/components/watch/qa-section";
+
 interface Lesson {
+  id: string;
   description: string | null;
+  notes: string | null;
 }
+
+import { QuestionWithRelations } from "@/types";
 
 interface LessonTabsProps {
   lesson: Lesson;
+  lessonId: string;
+  tutorNotes: string | null;
+  questions: QuestionWithRelations[];
 }
 
-export const LessonTabs = ({ lesson }: LessonTabsProps) => {
+export const LessonTabs = ({
+  lesson,
+  lessonId,
+  tutorNotes,
+  questions,
+}: LessonTabsProps) => {
   const [activeTab, setActiveTab] = useState<"overview" | "qa" | "notes">(
     "overview",
   );
@@ -28,7 +44,7 @@ export const LessonTabs = ({ lesson }: LessonTabsProps) => {
           label="Q&A"
           isActive={activeTab === "qa"}
           onClick={() => setActiveTab("qa")}
-          count={12}
+          count={questions.length}
         />
         <TabButton
           label="Notes"
@@ -55,14 +71,14 @@ export const LessonTabs = ({ lesson }: LessonTabsProps) => {
         )}
 
         {activeTab === "qa" && (
-          <div className="flex flex-col items-center justify-center h-40 text-secondary-text animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <p>Q&A feature coming soon!</p>
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <QaSection lessonId={lessonId} questions={questions} />
           </div>
         )}
 
         {activeTab === "notes" && (
-          <div className="flex flex-col items-center justify-center h-40 text-secondary-text animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <p>Notes feature coming soon!</p>
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <NotesPanel lessonId={lessonId} tutorNotes={tutorNotes} />
           </div>
         )}
       </div>

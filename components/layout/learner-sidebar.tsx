@@ -4,7 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { LayoutDashboard, ShoppingBag, BookOpen, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  BookOpen,
+  Menu,
+  X,
+  User,
+  Award,
+} from "lucide-react";
 import ThemeToggle from "@/components/ModeToggle";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +32,16 @@ const navItems = [
     href: "/learner/enrolled",
     icon: BookOpen,
   },
+  {
+    label: "Certificates",
+    href: "/learner/certificates",
+    icon: Award,
+  },
+  {
+    label: "Profile",
+    href: "/learner/profile",
+    icon: User,
+  },
 ];
 
 export function LearnerSidebar() {
@@ -32,7 +50,7 @@ export function LearnerSidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button - Only show hamburger when closed */}
+      {/* Mobile Menu Button */}
       {!isMobileMenuOpen && (
         <button
           onClick={() => setIsMobileMenuOpen(true)}
@@ -54,7 +72,6 @@ export function LearnerSidebar() {
       <aside
         className={cn(
           "fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-surface transition-transform duration-300",
-          // Hide on mobile by default, show when menu is open
           isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0",
@@ -65,11 +82,9 @@ export function LearnerSidebar() {
           <div className="flex h-16 items-center justify-between border-b border-border px-6">
             <Link href="/learner" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand">
-                <span className="text-lg font-bold text-white">N</span>
+                <span className="text-lg font-bold text-white">Z</span>
               </div>
-              <span className="text-xl font-bold text-primary-text">
-                NSK.AI
-              </span>
+              <span className="text-xl font-bold text-primary-text">ZERRA</span>
             </Link>
             {/* Close button for mobile */}
             <button

@@ -6,7 +6,11 @@ import { BookOpen, User } from "lucide-react";
 import { CourseWithTutor } from "@/actions/courses";
 
 interface CourseCardProps {
-  course: CourseWithTutor;
+  course: CourseWithTutor & {
+    progressPercentage?: number;
+    completedLessons?: number;
+    totalLessons?: number;
+  };
   href: string;
 }
 
@@ -17,6 +21,9 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
         currency: "NGN",
       }).format(course.price / 100)
     : "Free";
+
+  const hasProgress =
+    course.progressPercentage !== undefined && course.progressPercentage > 0;
 
   return (
     <Link href={href} className="group">
@@ -40,6 +47,13 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
           <div className="absolute top-3 right-3 px-3 py-1 text-sm font-semibold rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10">
             {formattedPrice}
           </div>
+
+          {/* Progress Badge (if enrolled) */}
+          {hasProgress && (
+            <div className="absolute bottom-3 left-3 px-3 py-1 text-xs font-bold rounded-full bg-brand/90 backdrop-blur-md text-white border border-white/20">
+              {course.progressPercentage}% Complete
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -56,6 +70,24 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
           <p className="mb-4 text-sm line-clamp-2 text-secondary-text">
             {course.description || "No description provided."}
           </p>
+
+          {/* Progress Bar (if enrolled) */}
+          {hasProgress && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1 text-xs text-secondary-text">
+                <span>Progress</span>
+                <span>
+                  {course.completedLessons}/{course.totalLessons} lessons
+                </span>
+              </div>
+              <div className="w-full h-2 overflow-hidden rounded-full bg-surface-muted">
+                <div
+                  className="h-full transition-all duration-500 bg-linear-to-r from-brand to-brand-dark"
+                  style={{ width: `${course.progressPercentage}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
             <div className="flex items-center gap-2">

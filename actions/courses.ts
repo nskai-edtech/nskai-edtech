@@ -1,7 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { courses, users, purchases, chapters, lessons } from "@/drizzle/schema";
+import {
+  courses,
+  users,
+  purchases,
+  chapters,
+  lessons,
+  userProgress,
+} from "@/drizzle/schema";
 import { eq, desc, count, and, or, ilike, SQL, not, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -294,7 +301,48 @@ export async function getEnrolledCourses() {
     .where(eq(purchases.userId, student.id))
     .orderBy(desc(purchases.createdAt));
 
-  return enrolledCourses as CourseWithTutor[];
+  // Calculate progress for each course
+  const coursesWithProgress = await Promise.all(
+    enrolledCourses.map(async (course) => {
+      // Get total lessons
+      const totalLessonsResult = await db
+        .select({ count: count() })
+        .from(lessons)
+        .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+        .where(eq(chapters.courseId, course.id));
+
+      const totalLessons = totalLessonsResult[0]?.count ?? 0;
+
+      // Get completed lessons
+      const completedLessonsResult = await db
+        .select({ count: count() })
+        .from(userProgress)
+        .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
+        .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+        .where(
+          and(
+            eq(userProgress.userId, student.id),
+            eq(userProgress.isCompleted, true),
+            eq(chapters.courseId, course.id),
+          ),
+        );
+
+      const completedLessons = completedLessonsResult[0]?.count ?? 0;
+      const progressPercentage =
+        totalLessons > 0
+          ? Math.round((completedLessons / totalLessons) * 100)
+          : 0;
+
+      return {
+        ...course,
+        progressPercentage,
+        completedLessons,
+        totalLessons,
+      };
+    }),
+  );
+
+  return coursesWithProgress;
 }
 
 // Get a single course by ID
@@ -662,7 +710,7 @@ export async function getCourseReviewData(courseId: string) {
 
   if (!course) return null;
 
-  // Fetch total counts separately to keep it efficient
+  // Fetch total counts separately
   const [chaptersCount] = await db
     .select({ count: count() })
     .from(chapters)

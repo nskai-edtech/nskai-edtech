@@ -63,11 +63,11 @@ function FooterSection() {
             <div className="flex flex-col gap-6 max-w-sm">
               <div className="flex items-center gap-2">
                 <Link href="/">
-                <div className="bg-brand p-1.5 rounded-lg">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
+                  <div className="bg-brand p-1.5 rounded-lg">
+                    <Globe className="w-5 h-5 text-white" />
+                  </div>
                 <span className="text-xl font-bold">ZERRA</span>
-              </Link>
+                </Link>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                 Empowering the next generation of learners through personalized
