@@ -1,14 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import {
-  courses,
-  chapters,
-  lessons,
-  userProgress,
-  users,
-} from "@/drizzle/schema";
-import { eq, and, count } from "drizzle-orm";
+import { courses, userProgress, users } from "@/drizzle/schema";
+import { eq, and, count, desc, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 interface CompletedCourse {
@@ -79,6 +73,7 @@ export async function getCompletedCourses(): Promise<
           and(
             eq(userProgress.userId, user.id),
             eq(userProgress.isCompleted, true),
+            inArray(userProgress.lessonId, lessonIds),
           ),
         );
 
@@ -90,15 +85,15 @@ export async function getCompletedCourses(): Promise<
         const lastProgressResult = await db
           .select({ lastAccessedAt: userProgress.lastAccessedAt })
           .from(userProgress)
-          .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
-          .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+
           .where(
             and(
               eq(userProgress.userId, user.id),
               eq(userProgress.isCompleted, true),
+              inArray(userProgress.lessonId, lessonIds),
             ),
           )
-          .orderBy(userProgress.lastAccessedAt)
+          .orderBy(desc(userProgress.lastAccessedAt))
           .limit(1);
 
         const completionDate =
@@ -183,6 +178,7 @@ export async function getCertificateData(
         and(
           eq(userProgress.userId, user.id),
           eq(userProgress.isCompleted, true),
+          inArray(userProgress.lessonId, lessonIds),
         ),
       );
 
@@ -196,15 +192,14 @@ export async function getCertificateData(
     const lastProgressResult = await db
       .select({ lastAccessedAt: userProgress.lastAccessedAt })
       .from(userProgress)
-      .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
-      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
       .where(
         and(
           eq(userProgress.userId, user.id),
           eq(userProgress.isCompleted, true),
+          inArray(userProgress.lessonId, lessonIds),
         ),
       )
-      .orderBy(userProgress.lastAccessedAt)
+      .orderBy(desc(userProgress.lastAccessedAt))
       .limit(1);
 
     const completionDate = lastProgressResult[0]?.lastAccessedAt ?? new Date();
@@ -283,6 +278,7 @@ export async function checkCertificateEligibility(
         and(
           eq(userProgress.userId, user.id),
           eq(userProgress.isCompleted, true),
+          inArray(userProgress.lessonId, lessonIds),
         ),
       );
 

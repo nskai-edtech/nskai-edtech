@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -132,15 +133,21 @@ export const purchases = pgTable("purchase", {
 });
 
 // 8. PROGRESS
-export const userProgress = pgTable("user_progress", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-  lessonId: uuid("lesson_id").references(() => lessons.id, {
-    onDelete: "cascade",
-  }),
-  isCompleted: boolean("is_completed").default(false),
-  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
-});
+export const userProgress = pgTable(
+  "user_progress",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    lessonId: uuid("lesson_id").references(() => lessons.id, {
+      onDelete: "cascade",
+    }),
+    isCompleted: boolean("is_completed").default(false),
+    lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("user_progress_user_lesson_idx").on(t.userId, t.lessonId),
+  ],
+);
 
 // 9. RELATIONS (For Drizzle Querying)
 

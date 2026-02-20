@@ -43,7 +43,7 @@ export default function CertificateViewPage() {
           if (shouldAutoDownload) {
             setTimeout(() => {
               const downloadButton = document.querySelector(
-                "[data-download-button]",
+                "[data-download-button] button",
               ) as HTMLButtonElement;
               downloadButton?.click();
             }, 1000);

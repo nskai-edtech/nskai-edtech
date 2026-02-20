@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   BarChart3,
   Pencil,
@@ -17,7 +18,7 @@ import {
 export interface Topic {
   id: string;
   name: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   color: string;
 }
 

@@ -32,32 +32,18 @@ export async function markLessonComplete(lessonId: string) {
       return { error: "User not found" };
     }
 
-    // Check if progress record already exists
-    const existingProgress = await db.query.userProgress.findFirst({
-      where: and(
-        eq(userProgress.userId, user.id),
-        eq(userProgress.lessonId, lessonId),
-      ),
-    });
-
-    if (existingProgress) {
-      // Update existing record
-      await db
-        .update(userProgress)
-        .set({
-          isCompleted: true,
-          lastAccessedAt: new Date(),
-        })
-        .where(eq(userProgress.id, existingProgress.id));
-    } else {
-      // Create new progress record
-      await db.insert(userProgress).values({
+    await db
+      .insert(userProgress)
+      .values({
         userId: user.id,
-        lessonId: lessonId,
+        lessonId,
         isCompleted: true,
         lastAccessedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [userProgress.userId, userProgress.lessonId],
+        set: { isCompleted: true, lastAccessedAt: new Date() },
       });
-    }
 
     // Revalidate relevant paths
     revalidatePath("/learner/enrolled");
@@ -88,31 +74,18 @@ export async function updateLastAccessed(lessonId: string) {
       return { error: "User not found" };
     }
 
-    // Check if progress record exists
-    const existingProgress = await db.query.userProgress.findFirst({
-      where: and(
-        eq(userProgress.userId, user.id),
-        eq(userProgress.lessonId, lessonId),
-      ),
-    });
-
-    if (existingProgress) {
-      // Update timestamp only
-      await db
-        .update(userProgress)
-        .set({
-          lastAccessedAt: new Date(),
-        })
-        .where(eq(userProgress.id, existingProgress.id));
-    } else {
-      // Create new record with incomplete status
-      await db.insert(userProgress).values({
+    await db
+      .insert(userProgress)
+      .values({
         userId: user.id,
-        lessonId: lessonId,
+        lessonId,
         isCompleted: false,
         lastAccessedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [userProgress.userId, userProgress.lessonId],
+        set: { lastAccessedAt: new Date() },
       });
-    }
 
     return { success: true };
   } catch (error) {
