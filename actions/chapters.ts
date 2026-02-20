@@ -149,6 +149,7 @@ export async function updateLesson(
     position?: number;
     isFreePreview?: boolean;
     notes?: string;
+    type?: "VIDEO" | "QUIZ";
   },
 ) {
   const { userId } = await auth();

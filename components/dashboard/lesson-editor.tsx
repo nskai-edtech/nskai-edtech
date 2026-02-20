@@ -12,6 +12,8 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { VideoPlayer } from "@/components/video-player";
 import { Editor } from "@/components/editor";
 import { MuxVideoUploader } from "./mux-uploader";
+import { QuizEditor } from "../tutor/quiz-editor";
+import { getQuizQuestionsAdmin, QuizQuestionWithAnswer } from "@/actions/quiz";
 
 interface LessonEditorProps {
   lesson: Lesson;
@@ -26,7 +28,13 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
     description: lesson.description || "",
     isFreePreview: lesson.isFreePreview || false,
     notes: lesson.notes || "",
+    type: (lesson.type as "VIDEO" | "QUIZ") || "VIDEO",
   });
+
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestionWithAnswer[]>(
+    [],
+  );
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   // Debounce form data to avoid too many requests
   const debouncedData = useDebounce(formData, 3000);
@@ -43,10 +51,26 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
       description: lesson.description || "",
       isFreePreview: lesson.isFreePreview || false,
       notes: lesson.notes || "",
+      type: (lesson.type as "VIDEO" | "QUIZ") || "VIDEO",
     };
     setFormData(initialData);
     lastSavedData.current = initialData; // Reset saved state when switching lessons
-  }, [lesson.id]); // Only reset when switching lessons, not on internal updates
+  }, [lesson.id, lesson.type]); // Only reset when switching lessons, not on internal updates
+
+  // Fetch quiz questions if type is quiz
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (formData.type === "QUIZ") {
+        setIsLoadingQuestions(true);
+        const res = await getQuizQuestionsAdmin(lesson.id);
+        if ("questions" in res) {
+          setQuizQuestions(res.questions);
+        }
+        setIsLoadingQuestions(false);
+      }
+    };
+    fetchQuestions();
+  }, [lesson.id, formData.type]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,6 +94,7 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
           description: debouncedData.description || undefined,
           isFreePreview: debouncedData.isFreePreview,
           notes: debouncedData.notes || undefined,
+          type: debouncedData.type,
         });
 
         if (result.error) {
@@ -134,111 +159,159 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
         />
       </div>
 
-      {/* Video Content */}
+      {/* Lesson Type Switcher */}
       <div className="bg-surface p-6 rounded-xl border border-border">
         <label className="block text-sm font-bold text-primary-text mb-4">
-          Video Content
+          Lesson Type
         </label>
-
-        {lesson.muxData?.playbackId ? (
-          <div className="space-y-4">
-            <div className="rounded-xl overflow-hidden shadow-lg border border-border/50">
-              <VideoPlayer
-                playbackId={lesson.muxData.playbackId}
-                title={lesson.title}
-              />
-            </div>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-background border border-border rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-500/10 rounded-lg">
-                  <Video className="w-5 h-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-primary-text">
-                    Video Processed & Ready
-                  </p>
-                  <p className="text-xs text-secondary-text font-mono">
-                    ID: {lesson.muxData.assetId.substring(0, 8)}...
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => router.refresh()}
-                  className="p-2 hover:bg-surface-muted rounded-lg transition-colors text-secondary-text"
-                  title="Refresh status"
-                >
-                  <RefreshCcw className="w-4 h-4" />
-                </button>
-                <MuxVideoUploader
-                  lessonId={lesson.id}
-                  onSuccess={(assetId, playbackId) => {
-                    onUpdate({
-                      ...lesson,
-                      muxData: {
-                        id: lesson.muxData?.id || "temp",
-                        assetId,
-                        playbackId,
-                      },
-                    });
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center bg-surface-muted/20">
-            <div className="mb-4 p-4 bg-surface rounded-full shadow-sm">
-              <Video className="w-8 h-8 text-secondary-text" />
-            </div>
-            <p className="text-primary-text font-medium mb-2">
-              No video uploaded
-            </p>
-            <p className="text-sm text-secondary-text mb-6 text-center max-w-sm">
-              Upload a video lesson for your students to watch.
-            </p>
-            <MuxVideoUploader
-              lessonId={lesson.id}
-              onSuccess={(assetId, playbackId) => {
-                onUpdate({
-                  ...lesson,
-                  muxData: {
-                    id: "temp",
-                    assetId,
-                    playbackId,
-                  },
-                });
-              }}
-            />
-          </div>
-        )}
-
-        <div className="flex items-center gap-3 mt-6 p-4 bg-brand/5 border border-brand/10 rounded-xl">
-          <input
-            type="checkbox"
-            id="freePreview"
-            checked={formData.isFreePreview}
-            onChange={(e) =>
-              setFormData({ ...formData, isFreePreview: e.target.checked })
-            }
-            className="w-5 h-5 rounded border-border text-brand focus:ring-brand"
-          />
-          <div className="flex flex-col">
-            <label
-              htmlFor="freePreview"
-              className="text-sm font-medium text-primary-text"
-            >
-              Free Preview
-            </label>
-            <label
-              htmlFor="freePreview"
-              className="text-xs text-secondary-text"
-            >
-              Allow students to watch this lesson without purchasing the course.
-            </label>
-          </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setFormData({ ...formData, type: "VIDEO" })}
+            className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+              formData.type === "VIDEO"
+                ? "border-brand bg-brand/5 text-brand"
+                : "border-border hover:border-brand/50 text-secondary-text"
+            }`}
+          >
+            <Video className="w-6 h-6 mb-2" />
+            <span className="font-semibold text-sm">Video Lesson</span>
+          </button>
+          <button
+            onClick={() => setFormData({ ...formData, type: "QUIZ" })}
+            className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+              formData.type === "QUIZ"
+                ? "border-brand bg-brand/5 text-brand"
+                : "border-border hover:border-brand/50 text-secondary-text"
+            }`}
+          >
+            <Cloud className="w-6 h-6 mb-2" />
+            <span className="font-semibold text-sm">Quiz / Assessment</span>
+          </button>
         </div>
       </div>
+
+      {formData.type === "VIDEO" ? (
+        /* Video Content */
+        <div className="bg-surface p-6 rounded-xl border border-border">
+          <label className="block text-sm font-bold text-primary-text mb-4">
+            Video Content
+          </label>
+
+          {lesson.muxData?.playbackId ? (
+            <div className="space-y-4">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-border/50">
+                <VideoPlayer
+                  playbackId={lesson.muxData.playbackId}
+                  title={lesson.title}
+                />
+              </div>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-background border border-border rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <Video className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-primary-text">
+                      Video Processed & Ready
+                    </p>
+                    <p className="text-xs text-secondary-text font-mono">
+                      ID: {lesson.muxData.assetId.substring(0, 8)}...
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => router.refresh()}
+                    className="p-2 hover:bg-surface-muted rounded-lg transition-colors text-secondary-text"
+                    title="Refresh status"
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                  </button>
+                  <MuxVideoUploader
+                    lessonId={lesson.id}
+                    onSuccess={(assetId, playbackId) => {
+                      onUpdate({
+                        ...lesson,
+                        muxData: {
+                          id: lesson.muxData?.id || "temp",
+                          assetId,
+                          playbackId,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center bg-surface-muted/20">
+              <div className="mb-4 p-4 bg-surface rounded-full shadow-sm">
+                <Video className="w-8 h-8 text-secondary-text" />
+              </div>
+              <p className="text-primary-text font-medium mb-2">
+                No video uploaded
+              </p>
+              <p className="text-sm text-secondary-text mb-6 text-center max-w-sm">
+                Upload a video lesson for your students to watch.
+              </p>
+              <MuxVideoUploader
+                lessonId={lesson.id}
+                onSuccess={(assetId, playbackId) => {
+                  onUpdate({
+                    ...lesson,
+                    muxData: {
+                      id: "temp",
+                      assetId,
+                      playbackId,
+                    },
+                  });
+                }}
+              />
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 mt-6 p-4 bg-brand/5 border border-brand/10 rounded-xl">
+            <input
+              type="checkbox"
+              id="freePreview"
+              checked={formData.isFreePreview}
+              onChange={(e) =>
+                setFormData({ ...formData, isFreePreview: e.target.checked })
+              }
+              className="w-5 h-5 rounded border-border text-brand focus:ring-brand"
+            />
+            <div className="flex flex-col">
+              <label
+                htmlFor="freePreview"
+                className="text-sm font-medium text-primary-text"
+              >
+                Free Preview
+              </label>
+              <label
+                htmlFor="freePreview"
+                className="text-xs text-secondary-text"
+              >
+                Allow students to watch this lesson without purchasing the
+                course.
+              </label>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Quiz Content */
+        <div className="bg-surface p-6 rounded-xl border border-border">
+          <label className="block text-sm font-bold text-primary-text mb-4">
+            Quiz Builder
+          </label>
+          {isLoadingQuestions ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-brand" />
+            </div>
+          ) : (
+            <QuizEditor lessonId={lesson.id} initialQuestions={quizQuestions} />
+          )}
+        </div>
+      )}
 
       {/* Lesson Description (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">

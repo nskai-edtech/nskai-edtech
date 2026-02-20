@@ -21,36 +21,37 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ),
   title: {
-    template: "%s | NSK.AI",
-    default: "NSK.AI - AI-Powered Learning Management System",
+    template: "%s | Zerra",
+    default: "Zerra - The AI-Powered Learning Platform",
   },
   description:
-    "The next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
+    "Zerra (formerly NSK.AI) is the next generation of online learning. Experience AI-powered tutoring, interactive courses, and real-time progress tracking on the Zerra platform.",
   keywords: [
+    "Zerra",
+    "NSK AI",
+    "NSK AI learning platform",
     "LMS",
     "EdTech",
-    "AI",
-    "Education",
+    "AI Education",
+    "Online Courses",
     "Next.js",
-    "Clerk",
-    "Neon",
-    "Drizzle",
+    "Learning Management System",
   ],
-  authors: [{ name: "NSK.AI Team" }],
-  creator: "NSK.AI",
-  publisher: "NSK.AI",
+  authors: [{ name: "Zerra Team" }],
+  creator: "Zerra",
+  publisher: "Zerra",
   openGraph: {
-    title: "NSK.AI - AI-Powered Learning Management System",
+    title: "Zerra - The AI-Powered Learning Platform",
     description:
-      "The next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
+      "Zerra is the next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "NSK.AI",
+    siteName: "Zerra",
     images: [
       {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "NSK.AI Platform",
+        alt: "Zerra Learning Platform",
       },
     ],
     locale: "en_US",
@@ -58,13 +59,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "NSK.AI - AI-Powered Learning Management System",
+    title: "Zerra - The AI-Powered Learning Platform",
     description:
-      "The next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
+      "Zerra is the next generation of learning. Interactive courses, AI tutoring, and real-time progress tracking.",
     images: ["/og-image.svg"],
   },
   icons: {
-    icon: "/logo.svg",
+    icon: "/icon", // Points to the dynamic icon.tsx
   },
 };
 

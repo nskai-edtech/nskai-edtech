@@ -2,12 +2,14 @@ import { getCourseOutline, getLessonWithAccess } from "@/actions/lesson-viewer";
 import { VideoPlayer } from "@/components/video-player";
 import { CourseSidebar } from "@/components/watch/course-sidebar";
 import { LessonTabs } from "@/components/watch/lesson-tabs";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getQuestions } from "@/actions/qa";
+import { getQuizQuestions, getLastQuizAttempt } from "@/actions/quiz";
 import { QuestionWithRelations } from "@/types";
+import { QuizPlayer } from "@/components/watch/quiz-player";
 
 export default async function LessonPage({
   params,
@@ -23,24 +25,37 @@ export default async function LessonPage({
   );
 
   const questionsPromise = getQuestions(lessonId);
+  const quizQuestionsPromise = getQuizQuestions(lessonId);
+  const quizAttemptPromise = getLastQuizAttempt(lessonId);
 
-  const [course, lessonData, questionsResult] = await Promise.all([
+  const [
+    course,
+    lessonData,
+    questionsResult,
+    quizQuestionsResult,
+    quizAttempt,
+  ] = await Promise.all([
     courseOutlinePromise,
     lessonDataPromise,
     questionsPromise,
+    quizQuestionsPromise,
+    quizAttemptPromise,
   ]);
 
   const questions: QuestionWithRelations[] = questionsResult?.questions || [];
+  const quizQuestions =
+    "questions" in quizQuestionsResult ? quizQuestionsResult.questions : [];
 
   if (!course) {
     return redirect("/learner/enrolled");
   }
 
   if (!lessonData) {
-    return redirect(`/watch/${courseId}`);
+    return redirect(`/watch/${courseId}`); // Or 404
   }
 
   const { lesson, muxData, nextLessonId, prevLessonId } = lessonData;
+  const isQuiz = lesson.type === "QUIZ";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
@@ -64,7 +79,6 @@ export default async function LessonPage({
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Progress or other tools */}
           <Link
             href="/learner"
             className="text-sm font-bold text-brand hover:underline"
@@ -75,12 +89,41 @@ export default async function LessonPage({
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Main Content Area (Video + Tabs) */}
+        {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto bg-surface-muted/30">
           <div className="max-w-5xl mx-auto p-6 md:p-10">
-            {/* Video Player Container */}
-            <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/20 mb-8 border border-border/50 relative group">
-              {muxData?.playbackId ? (
+            {/* Content Container (Video or Quiz) */}
+            <div className="aspect-video bg-surface rounded-2xl overflow-hidden shadow-2xl shadow-black/5 mb-8 border border-border/50 relative group">
+              {isQuiz ? (
+                <div className="w-full h-full overflow-y-auto p-6 md:p-12 bg-surface">
+                  <div className="max-w-2xl mx-auto">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-3 bg-brand/10 rounded-xl">
+                        <HelpCircle className="w-8 h-8 text-brand" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-primary-text">
+                          Quiz: {lesson.title}
+                        </h2>
+                        <p className="text-secondary-text">
+                          Test your knowledge.
+                        </p>
+                      </div>
+                    </div>
+                    {quizQuestions.length > 0 ? (
+                      <QuizPlayer
+                        lessonId={lessonId}
+                        questions={quizQuestions}
+                        lastAttempt={quizAttempt}
+                      />
+                    ) : (
+                      <div className="text-center py-12 text-secondary-text">
+                        No questions in this quiz yet.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : muxData?.playbackId ? (
                 <VideoPlayer
                   playbackId={muxData.playbackId}
                   title={lesson.title}
@@ -127,7 +170,7 @@ export default async function LessonPage({
               </div>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs (Notes / Q&A) - Only show if not a quiz or if desired */}
             <LessonTabs
               lesson={lesson}
               lessonId={lessonId}
@@ -143,7 +186,7 @@ export default async function LessonPage({
             <CourseSidebar
               course={course}
               currentLessonId={lessonId}
-              purchase={true} // TODO: Pass real purchase status
+              purchase={true}
             />
           </div>
         </div>
