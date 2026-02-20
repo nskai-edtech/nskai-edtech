@@ -1,17 +1,15 @@
 import { redirect } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  getCourseById,
-  getRelatedCourses,
-  checkEnrollment,
-} from "@/actions/courses";
-import { CourseCard } from "@/components/courses/course-card";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import { getCourseById } from "@/actions/courses";
 import { CourseCurriculum } from "@/components/courses/course-curriculum";
-import { CourseEnrollButton } from "@/components/courses/course-enroll-button";
-import { Star, Video, Download, Globe, GraduationCap } from "lucide-react";
-
 import { CourseVideoPreview } from "@/components/courses/course-video-preview";
+
+import { CourseHero } from "./_components/course-hero";
+import { CourseSidebar } from "./_components/course-sidebar";
+import { CourseInstructor } from "./_components/course-instructor";
+import { CourseRelated } from "./_components/course-related";
+import { CourseReviewsWrapper } from "./_components/course-reviews-wrapper";
 
 export default async function CourseDetailsPage({
   params,
@@ -25,11 +23,6 @@ export default async function CourseDetailsPage({
     return redirect("/learner/marketplace");
   }
 
-  const isEnrolled = await checkEnrollment(courseId);
-  const relatedCourses = course.tutorId
-    ? await getRelatedCourses(courseId, course.tutorId)
-    : [];
-
   const totalLessons = course.chapters.reduce(
     (acc, chapter) => acc + chapter.lessons.length,
     0,
@@ -42,261 +35,83 @@ export default async function CourseDetailsPage({
 
   return (
     <div className="max-w-[1400px] mx-auto pb-20">
-      {/* Hero Section */}
       <div className="grid lg:grid-cols-3 gap-10 items-start">
         <div className="lg:col-span-2 space-y-8">
-          <div>
-            <div className="flex items-center gap-2 text-brand font-bold text-xs uppercase tracking-widest mb-4">
-              <span className="bg-brand/10 px-3 py-1 rounded-full">Course</span>
-              {course.chapters.length > 0 && (
-                <span className="bg-orange-500/10 text-orange-600 px-3 py-1 rounded-full border border-orange-500/20">
-                  Certification Available
-                </span>
-              )}
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-primary-text leading-[1.15] mb-6">
-              {course.title}
-            </h1>
-            <p className="text-xl text-secondary-text leading-relaxed max-w-3xl">
-              {course.description}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-6 mt-8">
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className="w-4 h-4 fill-orange-400 text-orange-400"
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-bold text-primary-text">4.8</span>
-                <span className="text-xs text-secondary-text font-medium">
-                  (2,450 reviews)
-                </span>
+          <Suspense
+            fallback={
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/4"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg w-3/4"></div>
+                <div className="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg w-full"></div>
               </div>
+            }
+          >
+            <CourseHero
+              courseId={courseId}
+              courseTitle={course.title}
+              courseDescription={course.description}
+              hasCert={course.chapters.length > 0}
+              tutor={course.tutor}
+            />
+          </Suspense>
 
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-6 h-6 rounded-full border-2 border-surface bg-gray-100 flex items-center justify-center overflow-hidden"
-                    >
-                      <Image
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`}
-                        alt="student"
-                        width={24}
-                        height={24}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <span className="text-xs text-secondary-text font-medium">
-                  <span className="text-primary-text font-bold">15,243</span>{" "}
-                  students enrolled
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 mt-8 pt-8 border-t border-border">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border border-border">
-                {course.tutor?.imageUrl ? (
-                  <Image
-                    src={course.tutor.imageUrl}
-                    alt={course.tutor.firstName || "Tutor"}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-brand/10 flex items-center justify-center text-brand font-bold">
-                    {course.tutor?.firstName?.[0]}
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-secondary-text font-semibold uppercase tracking-wider">
-                  Created by
-                </p>
-                <Link
-                  href={`/learner/tutor/${course.tutorId}`}
-                  className="text-base font-bold text-brand hover:underline cursor-pointer"
-                >
-                  {course.tutor?.firstName} {course.tutor?.lastName}
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Video Preview / Image */}
           <CourseVideoPreview
             imageUrl={course.imageUrl}
             title={course.title}
             previewPlaybackId={previewLesson?.muxData?.playbackId || null}
           />
 
-          {/* Tabs / Content */}
           <div className="space-y-12 pt-10">
             <CourseCurriculum chapters={course.chapters} />
 
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-primary-text flex items-center gap-3">
-                <GraduationCap className="w-7 h-7 text-brand" />
-                About the Instructor
-              </h2>
-              <div className="bg-surface border border-border rounded-3xl p-8 flex flex-col md:flex-row gap-8">
-                <div className="relative w-32 h-32 rounded-3xl overflow-hidden shadow-xl border border-border shrink-0">
-                  {course.tutor?.imageUrl ? (
-                    <Image
-                      src={course.tutor.imageUrl}
-                      alt={course.tutor.firstName || "Tutor"}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-brand/10 flex items-center justify-center text-3xl text-brand font-bold">
-                      {course.tutor?.firstName?.[0]}
-                    </div>
-                  )}
+            <Suspense
+              fallback={
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-brand" />
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-brand">
-                      {course.tutor?.firstName} {course.tutor?.lastName}
-                    </h3>
-                    <p className="text-secondary-text font-medium italic mt-1">
-                      AI Research Lead & Principal Course Designer
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-6 py-2 border-y border-border/50">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
-                      <span className="text-sm font-bold text-primary-text">
-                        4.9 Instructor Rating
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-secondary-text">
-                      <Globe className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        82,451 Reviews
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-secondary-text">
-                      <GraduationCap className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        450,210 Students
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-secondary-text leading-relaxed">
-                    {course.tutor?.firstName} brings over 15 years of industry
-                    experience to NSKAI-EdTech. Specializing in practical
-                    application, their courses focus on bridging the gap between
-                    complex technical concepts and real-world results.
-                  </p>
-                  <Link
-                    href={`/learner/tutor/${course.tutorId}`}
-                    className="text-brand font-bold text-sm hover:underline flex items-center gap-1 transition-all"
-                  >
-                    View Full Profile
-                  </Link>
-                </div>
-              </div>
-            </div>
+              }
+            >
+              <CourseInstructor tutor={course.tutor} />
+            </Suspense>
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="lg:sticky lg:top-24 space-y-6">
-          <div className="bg-surface border border-border rounded-3xl p-6 shadow-xl shadow-brand/5 ring-1 ring-border">
-            <div className="space-y-6">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-primary-text">
-                  {course.price
-                    ? `₦${(course.price / 100).toLocaleString()}`
-                    : "Free"}
-                </span>
-                {course.price && (
-                  <span className="text-lg text-secondary-text line-through font-medium opacity-50">
-                    ₦${(course.price / 80).toLocaleString()}
-                  </span>
-                )}
-              </div>
-
-              <CourseEnrollButton
-                courseId={courseId}
-                isEnrolled={isEnrolled}
-                price={course.price}
-              />
-
-              <p className="text-[10px] text-center text-secondary-text font-semibold uppercase tracking-wider">
-                30-day money-back guarantee
-              </p>
-
-              <div className="space-y-4 pt-6 border-t border-border">
-                <h4 className="font-bold text-primary-text text-sm">
-                  This course includes:
-                </h4>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3 text-sm text-secondary-text">
-                    <Video className="w-4 h-4 text-brand" />
-                    <span className="font-medium text-primary-text/80">
-                      {totalLessons} on-demand video lessons
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-3 text-sm text-secondary-text">
-                    <Download className="w-4 h-4 text-brand" />
-                    <span className="font-medium text-primary-text/80">
-                      12 downloadable resources
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-3 text-sm text-secondary-text">
-                    <Globe className="w-4 h-4 text-brand" />
-                    <span className="font-medium text-primary-text/80">
-                      Full lifetime access
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-3 text-sm text-secondary-text">
-                    <Star className="w-4 h-4 text-brand" />
-                    <span className="font-medium text-primary-text/80">
-                      Certificate of completion
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <Suspense
+            fallback={
+              <div className="h-[400px] bg-gray-200 dark:bg-gray-800 animate-pulse rounded-3xl"></div>
+            }
+          >
+            <CourseSidebar
+              courseId={courseId}
+              price={course.price}
+              totalLessons={totalLessons}
+            />
+          </Suspense>
         </div>
       </div>
 
-      {/* Related Courses */}
-      {relatedCourses.length > 0 && (
-        <div className="mt-32 space-y-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h2 className="text-3xl font-black text-primary-text tracking-tight">
-                More Courses for You
-              </h2>
-              <p className="text-secondary-text mt-2 font-medium">
-                Recommended based on your interests and current choice
-              </p>
+      <div className="mt-20">
+        <Suspense
+          fallback={
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-brand" />
             </div>
-            <button className="text-brand font-black text-sm uppercase tracking-widest bg-brand/5 px-6 py-3 rounded-xl border border-brand/10 hover:bg-brand/10 transition-all">
-              See All Courses
-            </button>
+          }
+        >
+          <CourseReviewsWrapper courseId={courseId} />
+        </Suspense>
+      </div>
+
+      <Suspense
+        fallback={
+          <div className="mt-32 flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-brand" />
           </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {relatedCourses.map((relatedCourse) => (
-              <CourseCard
-                key={relatedCourse.id}
-                course={relatedCourse}
-                href={`/learner/marketplace/${relatedCourse.id}`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        }
+      >
+        <CourseRelated courseId={courseId} tutorId={course.tutorId} />
+      </Suspense>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { ShoppingCart, CheckCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { usePaystackPayment } from "react-paystack";
-import { verifyTransaction } from "@/actions/payment";
+import { verifyTransaction, enrollFree } from "@/actions/payment";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -45,8 +45,19 @@ export const CourseEnrollButton = ({
   const config = {
     reference: new Date().getTime().toString(),
     email: user?.emailAddresses[0]?.emailAddress || "",
-    amount: price || 0, // Paystack takes kobo
+    amount: price || 0,
+    currency: "NGN",
     publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
+    metadata: {
+      courseId,
+      custom_fields: [
+        {
+          display_name: "Course ID",
+          variable_name: "course_id",
+          value: courseId,
+        },
+      ],
+    },
   };
 
   const initializePayment = usePaystackPayment(config);
@@ -80,15 +91,34 @@ export const CourseEnrollButton = ({
     console.log("Payment closed");
   };
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     if (!user) {
       toast.error("Please login to enroll");
       return;
     }
 
     if (!price || price === 0) {
-      // Handle free enrollment directly (could be a separate action)
-      toast.error("Free enrollment logic not yet implemented separately");
+      try {
+        setIsLoading(true);
+        toast.loading("Enrolling...", { id: "enroll" });
+
+        const result = await enrollFree(courseId);
+
+        if (result.success) {
+          toast.success("Enrolled successfully!", { id: "enroll" });
+          router.refresh();
+          setTimeout(() => {
+            router.push(`/watch/${courseId}`);
+          }, 1000);
+        } else {
+          toast.error(result.message || "Enrollment failed", { id: "enroll" });
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Free enrollment failed:", error);
+        toast.error("Something went wrong", { id: "enroll" });
+        setIsLoading(false);
+      }
       return;
     }
 

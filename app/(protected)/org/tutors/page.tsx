@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { getTutorsWithCourseCount } from "@/actions/admin";
+import { getTutorRatingStats } from "@/actions/reviews";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
@@ -26,6 +27,17 @@ export default async function TutorsPage() {
   // Filter to only show ACTIVE tutors on this page (the public-facing tutors view)
   const activeTutors = tutors.filter((t) => t.status === "ACTIVE");
 
+  const activeTutorsWithStats = await Promise.all(
+    activeTutors.map(async (tutor) => {
+      const stats = await getTutorRatingStats(tutor.id);
+      return {
+        ...tutor,
+        avgRating: stats.avgRating,
+        totalReviews: stats.totalReviews,
+      };
+    }),
+  );
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
       {/* Page Header */}
@@ -49,7 +61,7 @@ export default async function TutorsPage() {
 
       {/* Tutors Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {activeTutors.map((tutor) => (
+        {activeTutorsWithStats.map((tutor) => (
           <div
             key={tutor.id}
             className="group relative bg-surface border border-border rounded-2xl p-6 hover:shadow-xl hover:border-brand/30 transition-all duration-300 flex flex-col"
@@ -91,8 +103,10 @@ export default async function TutorsPage() {
                 </p>
                 <div className="flex items-center gap-1 mt-1 text-sm text-secondary-text">
                   <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-primary-text">4.8</span>
-                  <span>(New)</span>
+                  <span className="font-semibold text-primary-text">
+                    {tutor.avgRating > 0 ? tutor.avgRating.toFixed(1) : "New"}
+                  </span>
+                  <span className="text-xs">({tutor.totalReviews})</span>
                 </div>
               </div>
             </div>
@@ -162,7 +176,7 @@ export default async function TutorsPage() {
       </div>
 
       {/* Empty State */}
-      {activeTutors.length === 0 && (
+      {activeTutorsWithStats.length === 0 && (
         <div className="text-center py-12">
           <Users className="w-16 h-16 text-secondary-text mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-primary-text mb-2">

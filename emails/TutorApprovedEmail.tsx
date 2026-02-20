@@ -11,28 +11,15 @@ import {
   Preview,
 } from "@react-email/components";
 
-interface WelcomeEmailProps {
+interface TutorApprovedEmailProps {
   name: string;
-  role?: "TUTOR" | "LEARNER";
 }
 
-export default function WelcomeEmail({
-  name,
-  role = "LEARNER",
-}: WelcomeEmailProps) {
-  const isTutor = role === "TUTOR";
-  const previewText = isTutor
-    ? `Welcome to NSKAI, ${name}! Your tutor application is under review.`
-    : `Welcome to NSKAI, ${name}! Start exploring courses now.`;
-
-  const dashboardUrl = isTutor
-    ? "https://nskai.org/tutor"
-    : "https://nskai.org/learner/marketplace";
-
+export default function TutorApprovedEmail({ name }: TutorApprovedEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>{previewText}</Preview>
+      <Preview>Your tutor application has been approved, {name}!</Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
           {/* Header */}
@@ -45,34 +32,35 @@ export default function WelcomeEmail({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Heading style={styles.heading}>Welcome aboard, {name}! 🎉</Heading>
+            <Heading style={styles.heading}>You&apos;re approved! 🎓</Heading>
 
-            {isTutor ? (
-              <>
-                <Text style={styles.text}>
-                  Thanks for applying to become a tutor on NSKAI EdTech. Your
-                  application is currently under review by our team.
-                </Text>
-                <Text style={styles.text}>
-                  We&apos;ll notify you as soon as your account is approved. In
-                  the meantime, you can start preparing your course content.
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.text}>
-                  You&apos;re all set! Browse our growing catalog of courses
-                  taught by expert instructors and start learning today.
-                </Text>
-                <Text style={styles.text}>
-                  Track your progress, earn certificates, and build skills that
-                  matter.
-                </Text>
-              </>
-            )}
+            <Text style={styles.text}>
+              Congratulations, {name}! Your tutor application has been reviewed
+              and approved by the NSKAI team.
+            </Text>
 
-            <Button style={styles.button} href={dashboardUrl}>
-              {isTutor ? "Go to Tutor Dashboard" : "Browse Courses"}
+            <Text style={styles.text}>
+              You can now create and publish courses on the platform. Your
+              courses will be available to thousands of learners across the
+              NSKAI ecosystem.
+            </Text>
+
+            {/* Highlight box */}
+            <Section style={styles.highlight}>
+              <Text style={styles.highlightTitle}>What&apos;s next?</Text>
+              <Text style={styles.highlightText}>
+                1. Head to your Tutor Dashboard{"\n"}
+                2. Create your first course{"\n"}
+                3. Add chapters and video lessons{"\n"}
+                4. Submit for review and publish
+              </Text>
+            </Section>
+
+            <Button
+              style={styles.button}
+              href="https://nskai.org/tutor/courses"
+            >
+              Start Creating Courses
             </Button>
           </Section>
 
@@ -140,16 +128,37 @@ const styles = {
     color: "#3f3f46",
     margin: "0 0 12px 0",
   },
+  highlight: {
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #bbf7d0",
+    borderRadius: "8px",
+    padding: "16px 20px",
+    marginTop: "16px",
+    marginBottom: "16px",
+  },
+  highlightTitle: {
+    fontSize: "14px",
+    fontWeight: "700" as const,
+    color: "#166534",
+    margin: "0 0 8px 0",
+  },
+  highlightText: {
+    fontSize: "14px",
+    lineHeight: "1.8",
+    color: "#15803d",
+    margin: "0" as const,
+    whiteSpace: "pre-line" as const,
+  },
   button: {
     display: "inline-block" as const,
-    backgroundColor: "#0a0a0a",
+    backgroundColor: "#16a34a",
     color: "#ffffff",
     fontSize: "14px",
     fontWeight: "600" as const,
     padding: "12px 28px",
     borderRadius: "8px",
     textDecoration: "none" as const,
-    marginTop: "16px",
+    marginTop: "8px",
   },
   hr: {
     borderColor: "#e4e4e7",
