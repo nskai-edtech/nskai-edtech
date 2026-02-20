@@ -65,12 +65,14 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
         className="p-6 mt-auto border-t border-border flex items-center justify-between"
         suppressHydrationWarning
       >
-        <ClerkLoading>
-          <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
-        </ClerkLoading>
-        <ClerkLoaded>
-          <UserButton />
-        </ClerkLoaded>
+        <div suppressHydrationWarning>
+          <ClerkLoading>
+            <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
+          </ClerkLoading>
+          <ClerkLoaded>
+            <UserButton />
+          </ClerkLoaded>
+        </div>
         <ThemeToggle />
       </div>
     </div>

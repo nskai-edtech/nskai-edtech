@@ -30,6 +30,8 @@ export const courseStatusEnum = pgEnum("course_status", [
   "REJECTED",
 ]);
 
+export const lessonTypeEnum = pgEnum("lesson_type", ["VIDEO", "QUIZ"]);
+
 // 2. USERS
 export const users = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -103,7 +105,35 @@ export const lessons = pgTable("lesson", {
   position: integer("position").notNull(),
   isFreePreview: boolean("is_free_preview").default(false),
   notes: text("notes"), // For rich text content (HTML)
+  type: lessonTypeEnum("type").default("VIDEO").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 5b. QUIZ QUESTIONS (linked to a lesson of type QUIZ)
+export const quizQuestions = pgTable("quiz_question", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  lessonId: uuid("lesson_id")
+    .references(() => lessons.id, { onDelete: "cascade" })
+    .notNull(),
+  questionText: text("question_text").notNull(),
+  options: text("options").array().notNull(),
+  correctOption: integer("correct_option").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 5c. USER QUIZ ATTEMPTS
+export const userQuizAttempts = pgTable("user_quiz_attempt", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  lessonId: uuid("lesson_id")
+    .references(() => lessons.id, { onDelete: "cascade" })
+    .notNull(),
+  score: integer("score").notNull(), // 0-100 percentage
+  passed: boolean("passed").notNull().default(false),
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
 });
 
 // 6. MUX DATA (Video Hosting)
@@ -190,7 +220,30 @@ export const lessonRelations = relations(lessons, ({ one, many }) => ({
   userProgress: many(userProgress),
   userNotes: many(userNotes),
   questions: many(questions),
+  quizQuestions: many(quizQuestions),
+  quizAttempts: many(userQuizAttempts),
 }));
+
+export const quizQuestionRelations = relations(quizQuestions, ({ one }) => ({
+  lesson: one(lessons, {
+    fields: [quizQuestions.lessonId],
+    references: [lessons.id],
+  }),
+}));
+
+export const userQuizAttemptRelations = relations(
+  userQuizAttempts,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userQuizAttempts.userId],
+      references: [users.id],
+    }),
+    lesson: one(lessons, {
+      fields: [userQuizAttempts.lessonId],
+      references: [lessons.id],
+    }),
+  }),
+);
 
 export const muxDataRelations = relations(muxData, ({ one }) => ({
   lesson: one(lessons, {
