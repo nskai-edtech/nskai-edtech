@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { Resend } from "resend";
+import { sendEmail } from "@/lib/email";
 import WelcomeEmail from "@/emails/WelcomeEmail";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface TutorOnboardingData {
   role: "TUTOR";
@@ -43,7 +40,7 @@ export async function completeOnboarding(
     const isTutor = data.role === "TUTOR";
     const status = isTutor ? "PENDING" : "ACTIVE";
 
-    const updateData: any = {
+    const updateData: Record<string, string | string[] | undefined> = {
       role: data.role,
       status: status,
     };
@@ -105,7 +102,7 @@ export async function completeOnboarding(
     const userName = updatedUsers[0]?.firstName || "User";
 
     // Update Clerk Metadata
-    const publicMetadata: any = {
+    const publicMetadata: Record<string, string | string[] | undefined> = {
       role: data.role,
       status: status,
     };
@@ -124,25 +121,20 @@ export async function completeOnboarding(
     });
     console.log("--> Clerk Metadata Synced.");
 
-    // Send Welcome Email (WITH LOGS)
+    // Send Welcome Email
     if (userEmail) {
       console.log(`--> Attempting to send email to: ${userEmail}`);
 
-      const { data, error } = await resend.emails.send({
-        from: "NSKAI <onboarding@resend.dev>",
-
-        // TO: normally 'userEmail'.
-        // IMPORTANT: In test mode, this ONLY works if 'userEmail' is 'nsukka.ai@gmail.com'.
-        to: "nsukka.ai@gmail.com",
-
+      const result = await sendEmail({
+        to: userEmail,
         subject: "Welcome to NSKAI",
-        react: <WelcomeEmail name={userName} />,
+        react: WelcomeEmail({ name: userName, role: data.role }),
       });
 
-      if (error) {
-        console.error("--> RESEND ERROR:", error);
+      if (result.error) {
+        console.error("--> EMAIL ERROR:", result.error);
       } else {
-        console.log("--> EMAIL SENT SUCCESSFULLY ✅ ID:", data?.id);
+        console.log("--> EMAIL SENT SUCCESSFULLY ✅ ID:", result.id);
       }
     } else {
       console.log("--> SKIPPED EMAIL: No email address found in DB record.");

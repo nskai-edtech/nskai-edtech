@@ -74,6 +74,9 @@ export async function getLearnerProfile(): Promise<
  * Update learner profile (bio, expertise, and interests)
  */
 export async function updateLearnerProfile(data: {
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
   bio?: string;
   expertise?: string;
   interests?: string[];
@@ -108,6 +111,10 @@ export async function updateLearnerProfile(data: {
     await db
       .update(users)
       .set({
+        firstName:
+          data.firstName !== undefined ? data.firstName : user.firstName,
+        lastName: data.lastName !== undefined ? data.lastName : user.lastName,
+        imageUrl: data.imageUrl !== undefined ? data.imageUrl : user.imageUrl,
         bio: data.bio !== undefined ? data.bio : user.bio,
         expertise:
           data.expertise !== undefined ? data.expertise : user.expertise,

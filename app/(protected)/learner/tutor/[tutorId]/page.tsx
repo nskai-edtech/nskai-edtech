@@ -112,7 +112,9 @@ export default async function TutorProfilePage({ params }: PageProps) {
                         Rating
                       </p>
                       <p className="text-lg font-bold text-gray-900 dark:text-white">
-                        4.9{" "}
+                        {tutor.avgRating > 0
+                          ? tutor.avgRating.toFixed(1)
+                          : "New"}{" "}
                         <span className="text-xs text-gray-400 dark:text-white/30 font-normal">
                           ({tutor.totalReviews})
                         </span>

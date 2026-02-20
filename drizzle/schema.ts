@@ -162,6 +162,40 @@ export const purchases = pgTable("purchase", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// 7b. REVIEWS
+export const reviews = pgTable(
+  "review",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    courseId: uuid("course_id")
+      .references(() => courses.id, { onDelete: "cascade" })
+      .notNull(),
+    rating: integer("rating").notNull(),
+    comment: text("comment"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("review_user_course_idx").on(t.userId, t.courseId)],
+);
+
+// 7c. COURSE LIKES
+export const courseLikes = pgTable(
+  "course_like",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    courseId: uuid("course_id")
+      .references(() => courses.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("course_like_user_course_idx").on(t.userId, t.courseId)],
+);
+
 // 8. PROGRESS
 export const userProgress = pgTable(
   "user_progress",
@@ -192,6 +226,8 @@ export const userRelations = relations(users, ({ many }) => ({
   userNotes: many(userNotes),
   questions: many(questions),
   answers: many(answers),
+  reviews: many(reviews),
+  courseLikes: many(courseLikes),
 }));
 
 export const courseRelations = relations(courses, ({ one, many }) => ({
@@ -201,6 +237,8 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
   }),
   chapters: many(chapters),
   purchases: many(purchases),
+  reviews: many(reviews),
+  courseLikes: many(courseLikes),
 }));
 
 export const chapterRelations = relations(chapters, ({ one, many }) => ({
@@ -259,6 +297,28 @@ export const purchaseRelations = relations(purchases, ({ one }) => ({
   }),
   course: one(courses, {
     fields: [purchases.courseId],
+    references: [courses.id],
+  }),
+}));
+
+export const reviewRelations = relations(reviews, ({ one }) => ({
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
+  course: one(courses, {
+    fields: [reviews.courseId],
+    references: [courses.id],
+  }),
+}));
+
+export const courseLikeRelations = relations(courseLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [courseLikes.userId],
+    references: [users.id],
+  }),
+  course: one(courses, {
+    fields: [courseLikes.courseId],
     references: [courses.id],
   }),
 }));

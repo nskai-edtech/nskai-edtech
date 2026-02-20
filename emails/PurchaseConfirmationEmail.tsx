@@ -11,28 +11,32 @@ import {
   Preview,
 } from "@react-email/components";
 
-interface WelcomeEmailProps {
+interface PurchaseConfirmationEmailProps {
   name: string;
-  role?: "TUTOR" | "LEARNER";
+  courseTitle: string;
+  amount: number; // in kobo
+  courseId: string;
 }
 
-export default function WelcomeEmail({
+export default function PurchaseConfirmationEmail({
   name,
-  role = "LEARNER",
-}: WelcomeEmailProps) {
-  const isTutor = role === "TUTOR";
-  const previewText = isTutor
-    ? `Welcome to NSKAI, ${name}! Your tutor application is under review.`
-    : `Welcome to NSKAI, ${name}! Start exploring courses now.`;
-
-  const dashboardUrl = isTutor
-    ? "https://nskai.org/tutor"
-    : "https://nskai.org/learner/marketplace";
+  courseTitle,
+  amount,
+  courseId,
+}: PurchaseConfirmationEmailProps) {
+  const isFree = amount === 0;
+  const formattedAmount = isFree
+    ? "Free"
+    : `₦${(amount / 100).toLocaleString()}`;
 
   return (
     <Html>
       <Head />
-      <Preview>{previewText}</Preview>
+      <Preview>
+        {isFree
+          ? `You're enrolled in ${courseTitle}!`
+          : `Payment confirmed for ${courseTitle}`}
+      </Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
           {/* Header */}
@@ -45,34 +49,37 @@ export default function WelcomeEmail({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Heading style={styles.heading}>Welcome aboard, {name}! 🎉</Heading>
+            <Heading style={styles.heading}>
+              {isFree ? "You're enrolled! 🚀" : "Payment confirmed ✅"}
+            </Heading>
 
-            {isTutor ? (
-              <>
-                <Text style={styles.text}>
-                  Thanks for applying to become a tutor on NSKAI EdTech. Your
-                  application is currently under review by our team.
-                </Text>
-                <Text style={styles.text}>
-                  We&apos;ll notify you as soon as your account is approved. In
-                  the meantime, you can start preparing your course content.
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.text}>
-                  You&apos;re all set! Browse our growing catalog of courses
-                  taught by expert instructors and start learning today.
-                </Text>
-                <Text style={styles.text}>
-                  Track your progress, earn certificates, and build skills that
-                  matter.
-                </Text>
-              </>
-            )}
+            <Text style={styles.text}>
+              {isFree
+                ? `Hey ${name}, you've successfully enrolled in a free course!`
+                : `Hey ${name}, your payment has been processed and verified.`}
+            </Text>
 
-            <Button style={styles.button} href={dashboardUrl}>
-              {isTutor ? "Go to Tutor Dashboard" : "Browse Courses"}
+            {/* Order summary */}
+            <Section style={styles.orderBox}>
+              <Text style={styles.orderLabel}>Course</Text>
+              <Text style={styles.orderValue}>{courseTitle}</Text>
+
+              <Hr style={styles.orderDivider} />
+
+              <Text style={styles.orderLabel}>Amount</Text>
+              <Text style={styles.orderValue}>{formattedAmount}</Text>
+            </Section>
+
+            <Text style={styles.text}>
+              You now have full lifetime access to all lessons, quizzes, and
+              course materials. Jump in and start learning!
+            </Text>
+
+            <Button
+              style={styles.button}
+              href={`https://nskai.org/watch/${courseId}`}
+            >
+              Start Learning Now
             </Button>
           </Section>
 
@@ -140,6 +147,32 @@ const styles = {
     color: "#3f3f46",
     margin: "0 0 12px 0",
   },
+  orderBox: {
+    backgroundColor: "#fafafa",
+    border: "1px solid #e4e4e7",
+    borderRadius: "8px",
+    padding: "16px 20px",
+    marginTop: "16px",
+    marginBottom: "16px",
+  },
+  orderLabel: {
+    fontSize: "11px",
+    fontWeight: "700" as const,
+    color: "#71717a",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em",
+    margin: "0 0 2px 0",
+  },
+  orderValue: {
+    fontSize: "16px",
+    fontWeight: "600" as const,
+    color: "#0a0a0a",
+    margin: "0 0 4px 0",
+  },
+  orderDivider: {
+    borderColor: "#e4e4e7",
+    margin: "12px 0",
+  },
   button: {
     display: "inline-block" as const,
     backgroundColor: "#0a0a0a",
@@ -149,7 +182,7 @@ const styles = {
     padding: "12px 28px",
     borderRadius: "8px",
     textDecoration: "none" as const,
-    marginTop: "16px",
+    marginTop: "8px",
   },
   hr: {
     borderColor: "#e4e4e7",

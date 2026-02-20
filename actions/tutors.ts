@@ -2,7 +2,8 @@
 
 import { db } from "@/lib/db";
 import { users, courses, purchases } from "@/drizzle/schema";
-import { eq, count, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
+import { getTutorRatingStats } from "@/actions/reviews";
 
 export async function getTutorProfile(tutorId: string) {
   try {
@@ -35,26 +36,21 @@ export async function getTutorProfile(tutorId: string) {
       },
     });
 
-    // Get Total Students (Count unique purchases of their courses)
-    // This is a bit complex in pure Drizzle without raw SQL for aggregations across joins sometimes,
-    // but we can approximate or do a join count.
-    // Efficient way: Join purchases -> courses -> where courses.tutorId = tutorId
     const [studentCountResult] = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(distinct ${purchases.userId})` })
       .from(purchases)
       .innerJoin(courses, eq(purchases.courseId, courses.id))
       .where(eq(courses.tutorId, tutorId));
 
-    const totalStudents = studentCountResult?.count ?? 0;
+    const totalStudents = Number(studentCountResult?.count || 0);
 
-    // 4. Mock Reviews (for now)
-    // Formula: (Students * 0.15) + Random offset
-    const totalReviews = Math.floor(totalStudents * 0.15) + 12;
+    const ratingStats = await getTutorRatingStats(tutorId);
 
     return {
       ...tutor,
       totalStudents,
-      totalReviews,
+      totalReviews: ratingStats.totalReviews,
+      avgRating: ratingStats.avgRating,
       courses: tutorCourses,
     };
   } catch (error) {

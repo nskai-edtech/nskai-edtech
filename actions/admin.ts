@@ -6,6 +6,8 @@ import { users, courses, purchases } from "@/drizzle/schema";
 import { eq, desc, and, count, sql, aliasedTable } from "drizzle-orm";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
+import TutorApprovedEmail from "@/emails/TutorApprovedEmail";
 
 export async function getTutors() {
   const { sessionClaims } = await auth();
@@ -182,6 +184,15 @@ export async function approveTutor(tutorId: string) {
     }
 
     revalidatePath("/org");
+
+    sendEmail({
+      to: tutor.email,
+      subject: "Your NSKAI tutor application is approved!",
+      react: TutorApprovedEmail({
+        name: tutor.firstName || "Tutor",
+      }),
+    }).catch(() => {});
+
     return { success: true };
   } catch (error) {
     console.error("Approval Error:", error);

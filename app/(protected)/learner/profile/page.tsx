@@ -7,11 +7,31 @@ import {
   TrendingUp,
   Calendar,
   User,
+  Loader2,
 } from "lucide-react";
 import { ProfileForm } from "@/components/learner/profile-form";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <Suspense fallback={<ProfileSkeleton />}>
+        <ProfileContent />
+      </Suspense>
+    </div>
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="flex justify-center items-center py-20">
+      <Loader2 className="w-8 h-8 animate-spin text-brand" />
+    </div>
+  );
+}
+
+async function ProfileContent() {
   const clerkUser = await currentUser();
   const profileResult = await getLearnerProfile();
   const statsResult = await getLearnerStats();
@@ -48,12 +68,12 @@ export default async function ProfilePage() {
     : "Recently";
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="space-y-8">
       {/* Header Section */}
       <div className="bg-surface border border-border rounded-3xl p-8">
         <div className="flex items-start gap-6">
           {/* Avatar */}
-          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-surface-muted shrink-0">
+          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-surface-muted shrink-0 shadow-sm border border-border">
             {profile.imageUrl ? (
               <Image
                 src={profile.imageUrl}
@@ -152,6 +172,9 @@ export default async function ProfilePage() {
           Edit Profile
         </h2>
         <ProfileForm
+          initialFirstName={profile.firstName}
+          initialLastName={profile.lastName}
+          initialImageUrl={profile.imageUrl}
           initialBio={profile.bio}
           initialInterests={profile.interests}
         />
