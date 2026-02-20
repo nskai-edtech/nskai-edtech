@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, ChevronRight, Sparkles } from "lucide-react";
-import { getEnrolledCourses, getMarketplaceCourses } from "@/actions/courses";
+import { getMarketplaceCourses } from "@/actions/courses";
+import { getLearnerStats } from "@/actions/profile";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
+import { ContinueLearningWidget } from "@/components/learner/continue-learning-widget";
 
 // Mock Data Types (to be replaced with real backend data later)
 interface Session {
@@ -43,8 +45,18 @@ const UPCOMING_SESSIONS: Session[] = [
 
 export default async function LearnerDashboard() {
   const user = await currentUser();
-  const enrolledCourses = await getEnrolledCourses();
   const { courses: recommendedCourses } = await getMarketplaceCourses(1, 3); // Fetch 3 top courses
+  const statsResult = await getLearnerStats();
+
+  // Get stats or use defaults
+  const stats =
+    "error" in statsResult
+      ? {
+          totalCoursesEnrolled: 0,
+          totalLessonsCompleted: 0,
+          completionRate: 0,
+        }
+      : statsResult;
 
   return (
     <div className="space-y-8">
@@ -56,28 +68,37 @@ export default async function LearnerDashboard() {
             <span className="text-4xl">👋</span>
           </h1>
           <p className="text-secondary-text mt-2 text-lg">
-            You&apos;re crushing it! 5-day streak and counting.
+            Keep up the great work on your learning journey!
           </p>
         </div>
 
         {/* Stats Cards */}
         <div className="flex gap-4">
           <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1">🔥</span>
+            <span className="text-2xl mb-1">📚</span>
             <span className="font-extrabold text-xl text-primary-text">
-              5 Days
+              {stats.totalCoursesEnrolled}
             </span>
             <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Streak
+              Enrolled
             </span>
           </div>
           <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1 text-yellow-400">⭐</span>
+            <span className="text-2xl mb-1">✅</span>
             <span className="font-extrabold text-xl text-primary-text">
-              1,250
+              {stats.totalLessonsCompleted}
             </span>
             <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Points
+              Lessons
+            </span>
+          </div>
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+            <span className="text-2xl mb-1 text-brand">📈</span>
+            <span className="font-extrabold text-xl text-primary-text">
+              {stats.completionRate}%
+            </span>
+            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+              Progress
             </span>
           </div>
         </div>
@@ -86,10 +107,10 @@ export default async function LearnerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content Column */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Active Courses */}
+          {/* Continue Learning Section */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-primary-text">
-              My Active Courses
+              Continue Learning
             </h2>
             <Link
               href="/learner/enrolled"
@@ -99,58 +120,7 @@ export default async function LearnerDashboard() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {enrolledCourses.length > 0 ? (
-              enrolledCourses.slice(0, 2).map((course) => (
-                <div
-                  key={course.id}
-                  className="bg-surface border border-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
-                >
-                  {/* Icon/Image Placeholder */}
-                  <div className="w-12 h-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mb-4">
-                    <Sparkles className="w-6 h-6" />
-                  </div>
-
-                  {/* Progress Circle (Simulated) */}
-                  <div className="absolute top-6 right-6">
-                    <div className="relative w-12 h-12 rounded-full border-4 border-surface-muted flex items-center justify-center text-xs font-bold text-primary-text">
-                      <span
-                        className="absolute inset-0 rounded-full border-4 border-brand border-t-transparent animate-[spin_1s_ease-out_reverse]"
-                        style={{ transform: "rotate(-45deg)" }}
-                      ></span>
-                      75%
-                    </div>
-                  </div>
-
-                  <h3 className="font-bold text-lg text-primary-text mb-2 line-clamp-1">
-                    {course.title}
-                  </h3>
-                  <p className="text-sm text-secondary-text mb-6">
-                    Last accessed: 2 hours ago
-                  </p>
-
-                  <Link
-                    href={`/watch/${course.id}`}
-                    className="w-full block text-center bg-brand text-white font-bold py-3 rounded-xl hover:bg-brand-dark transition-colors"
-                  >
-                    Continue Learning
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-2 py-12 text-center bg-surface-muted/50 rounded-3xl border border-dashed border-border">
-                <p className="text-secondary-text mb-4">
-                  No active courses yet.
-                </p>
-                <Link
-                  href="/learner/marketplace"
-                  className="text-brand font-bold hover:underline"
-                >
-                  Start a course
-                </Link>
-              </div>
-            )}
-          </div>
+          <ContinueLearningWidget />
 
           {/* Recommended Section */}
           <div className="bg-surface-muted/30 rounded-[40px] p-8">

@@ -5,9 +5,7 @@ test.describe("Marketing Pages", () => {
     await page.goto("/");
     await expect(page).toHaveTitle(/NSK\.AI/);
     await expect(
-      page
-        .getByRole("button", { name: /Sign in/i })
-        .or(page.getByRole("button", { name: /Get Started/i })),
+      page.getByRole("button", { name: /Start Learning for Free/i }),
     ).toBeVisible();
   });
 

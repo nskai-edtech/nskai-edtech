@@ -6,7 +6,7 @@ function HeroSection() {
       {/* LEFT */}
       <div className="flex-1 flex flex-col items-center lg:items-start gap-6">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-text text-center lg:text-left">
-          Master Any Skill With NSKAI <br className="hidden md:block" />{" "}
+          Master Any Skill With ZERRA <br className="hidden md:block" />{" "}
           Alongside <span className="text-brand">AI</span> as Your Tutor
         </h1>
         <p className="text-base md:text-lg mt-4 text-secondary-text text-left lg:text-left">
@@ -15,10 +15,10 @@ function HeroSection() {
           help you achieve your goals.
         </p>
         <div className="flex items-center gap-4 mt-4 select-none">
-          <button className="bg-brand text-white rounded-full font-semibold text-[10px] sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer hover:bg-brand/85 transition-all duration-300">
+          <button className="bg-brand text-white rounded-full font-bold text-[10px] sm:text-base h-10 sm:h-12 px-6 sm:px-8 cursor-pointer hover:bg-brand-dark hover:scale-105 transition-all duration-300 shadow-lg shadow-brand/25">
             Start Learning for Free
           </button>
-          <button className="bg-surface-muted border border-border text-primary-text rounded-full font-semibold text-[10px] sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer hover:border-brand/50 transition-all duration-300">
+          <button className="bg-surface/50 backdrop-blur-sm border border-border text-primary-text rounded-full font-bold text-[10px] sm:text-base h-10 sm:h-12 px-6 sm:px-8 cursor-pointer hover:border-brand/50 hover:bg-surface transition-all duration-300">
             Explore Courses
           </button>
         </div>
