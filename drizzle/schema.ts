@@ -159,6 +159,9 @@ export const userRelations = relations(users, ({ many }) => ({
   coursesTeaching: many(courses),
   purchases: many(purchases),
   progress: many(userProgress),
+  userNotes: many(userNotes),
+  questions: many(questions),
+  answers: many(answers),
 }));
 
 export const courseRelations = relations(courses, ({ one, many }) => ({
@@ -185,6 +188,8 @@ export const lessonRelations = relations(lessons, ({ one, many }) => ({
   }),
   muxData: one(muxData),
   userProgress: many(userProgress),
+  userNotes: many(userNotes),
+  questions: many(questions),
 }));
 
 export const muxDataRelations = relations(muxData, ({ one }) => ({

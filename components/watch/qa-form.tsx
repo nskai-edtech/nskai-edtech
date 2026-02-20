@@ -10,7 +10,7 @@ import { askQuestion, answerQuestion } from "@/actions/qa";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  content: z.string().min(1, {
+  content: z.string().trim().min(1, {
     message: "Content is required.",
   }),
 });
@@ -80,17 +80,29 @@ export function QaForm({
           className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none custom-scrollbar"
           placeholder={placeholder}
           disabled={isSubmitting}
+          aria-invalid={!!form.formState.errors.content}
+          aria-describedby="content-error"
         />
-        {form.formState.errors.content && (
-          <p className="text-xs text-red-500 mt-1">
-            {form.formState.errors.content.message}
-          </p>
-        )}
+        <p
+          id="content-error"
+          className="text-xs text-red-500 mt-1 min-h-[1rem]"
+          aria-live="polite"
+        >
+          {form.formState.errors.content?.message || ""}
+        </p>
       </div>
       <button
         type="submit"
         disabled={isSubmitting}
-        aria-label={lessonId ? "Post question" : "Post reply"}
+        aria-label={
+          isSubmitting
+            ? lessonId
+              ? "Posting question"
+              : "Posting reply"
+            : lessonId
+              ? "Post question"
+              : "Post reply"
+        }
         className="h-10 w-10 flex items-center justify-center rounded-md bg-brand text-primary-foreground hover:bg-brand/90 disabled:opacity-50 transition-colors"
       >
         {isSubmitting ? (

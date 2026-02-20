@@ -75,47 +75,15 @@ export async function getCompletedCourses(): Promise<
     const completedCourses: CompletedCourse[] = [];
 
     for (const course of allCourses) {
-      // Get all lesson IDs for this course
-      const lessonIds = course.chapters.flatMap((chapter) =>
-        chapter.lessons.map((lesson) => lesson.id),
-      );
-
-      if (lessonIds.length === 0) continue;
-
-      // Get completed lessons for this course
-      const completedLessonsResult = await db
-        .select({ count: count() })
-        .from(userProgress)
-        .where(
-          and(
-            eq(userProgress.userId, user.id),
-            eq(userProgress.isCompleted, true),
-            inArray(userProgress.lessonId, lessonIds),
-          ),
-        );
-
-      const completedLessons = completedLessonsResult[0]?.count ?? 0;
+      const { lessonIds, completedCount, completionDate } =
+        await getCourseCompletionStatus(user.id, course);
 
       // Check if all lessons are completed
-      if (completedLessons === lessonIds.length && lessonIds.length > 0) {
-        // Get the most recent completion date
-        const lastProgressResult = await db
-          .select({ lastAccessedAt: userProgress.lastAccessedAt })
-          .from(userProgress)
-
-          .where(
-            and(
-              eq(userProgress.userId, user.id),
-              eq(userProgress.isCompleted, true),
-              inArray(userProgress.lessonId, lessonIds),
-            ),
-          )
-          .orderBy(desc(userProgress.lastAccessedAt))
-          .limit(1);
-
-        const completionDate =
-          lastProgressResult[0]?.lastAccessedAt ?? new Date();
-
+      if (
+        completedCount === lessonIds.length &&
+        lessonIds.length > 0 &&
+        completionDate
+      ) {
         completedCourses.push({
           courseId: course.id,
           courseTitle: course.title,
@@ -162,6 +130,18 @@ export async function getCertificateData(
       return { error: "User not found" };
     }
 
+    // Defensive check: Verify enrollment
+    const purchase = await db.query.purchases.findFirst({
+      where: and(
+        eq(purchases.userId, user.id),
+        eq(purchases.courseId, courseId),
+      ),
+    });
+
+    if (!purchase || purchase.status !== "success") {
+      return { error: "User not enrolled in this course" };
+    }
+
     // Get course details
     const course = await db.query.courses.findFirst({
       where: eq(courses.id, courseId),
@@ -179,47 +159,16 @@ export async function getCertificateData(
       return { error: "Course not found" };
     }
 
-    // Verify course is completed
-    const lessonIds = course.chapters.flatMap((chapter) =>
-      chapter.lessons.map((lesson) => lesson.id),
-    );
+    const { lessonIds, completedCount, completionDate } =
+      await getCourseCompletionStatus(user.id, course);
 
     if (lessonIds.length === 0) {
       return { error: "Course has no lessons" };
     }
 
-    const completedLessonsResult = await db
-      .select({ count: count() })
-      .from(userProgress)
-      .where(
-        and(
-          eq(userProgress.userId, user.id),
-          eq(userProgress.isCompleted, true),
-          inArray(userProgress.lessonId, lessonIds),
-        ),
-      );
-
-    const completedLessons = completedLessonsResult[0]?.count ?? 0;
-
-    if (completedLessons !== lessonIds.length) {
+    if (completedCount !== lessonIds.length) {
       return { error: "Course not completed yet" };
     }
-
-    // Get completion date
-    const lastProgressResult = await db
-      .select({ lastAccessedAt: userProgress.lastAccessedAt })
-      .from(userProgress)
-      .where(
-        and(
-          eq(userProgress.userId, user.id),
-          eq(userProgress.isCompleted, true),
-          inArray(userProgress.lessonId, lessonIds),
-        ),
-      )
-      .orderBy(desc(userProgress.lastAccessedAt))
-      .limit(1);
-
-    const completionDate = lastProgressResult[0]?.lastAccessedAt ?? new Date();
 
     const learnerName =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Learner";
@@ -234,7 +183,7 @@ export async function getCertificateData(
       courseImageUrl: course.imageUrl,
       learnerName,
       tutorName,
-      completionDate,
+      completionDate: completionDate ?? new Date(),
       courseId: course.id,
     };
   } catch (error) {
@@ -263,6 +212,18 @@ export async function checkCertificateEligibility(
       return { eligible: false, error: "User not found" };
     }
 
+    // Defensive check: Verify enrollment
+    const purchase = await db.query.purchases.findFirst({
+      where: and(
+        eq(purchases.userId, user.id),
+        eq(purchases.courseId, courseId),
+      ),
+    });
+
+    if (!purchase || purchase.status !== "success") {
+      return { eligible: false, error: "User not enrolled" };
+    }
+
     // Get course with lessons
     const course = await db.query.courses.findFirst({
       where: eq(courses.id, courseId),
@@ -279,31 +240,73 @@ export async function checkCertificateEligibility(
       return { eligible: false, error: "Course not found" };
     }
 
-    const lessonIds = course.chapters.flatMap((chapter) =>
-      chapter.lessons.map((lesson) => lesson.id),
+    const { lessonIds, completedCount } = await getCourseCompletionStatus(
+      user.id,
+      course,
     );
 
     if (lessonIds.length === 0) {
       return { eligible: false, error: "Course has no lessons" };
     }
 
-    // Check completion
-    const completedLessonsResult = await db
-      .select({ count: count() })
-      .from(userProgress)
-      .where(
-        and(
-          eq(userProgress.userId, user.id),
-          eq(userProgress.isCompleted, true),
-          inArray(userProgress.lessonId, lessonIds),
-        ),
-      );
-
-    const completedLessons = completedLessonsResult[0]?.count ?? 0;
-
-    return { eligible: completedLessons === lessonIds.length };
+    return { eligible: completedCount === lessonIds.length };
   } catch (error) {
     console.error("[CHECK_CERTIFICATE_ELIGIBILITY]", error);
     return { eligible: false, error: "Failed to check eligibility" };
   }
+}
+
+/**
+ * Helper: Get completion status for a specific course
+ */
+async function getCourseCompletionStatus(
+  userId: string,
+  course: {
+    chapters: {
+      lessons: { id: string }[];
+    }[];
+  },
+) {
+  const lessonIds = course.chapters.flatMap((chapter) =>
+    chapter.lessons.map((lesson) => lesson.id),
+  );
+
+  if (lessonIds.length === 0) {
+    return { lessonIds, completedCount: 0, completionDate: null };
+  }
+
+  // Get completed lessons count
+  const completedLessonsResult = await db
+    .select({ count: count() })
+    .from(userProgress)
+    .where(
+      and(
+        eq(userProgress.userId, userId),
+        eq(userProgress.isCompleted, true),
+        inArray(userProgress.lessonId, lessonIds),
+      ),
+    );
+
+  const completedCount = completedLessonsResult[0]?.count ?? 0;
+  let completionDate: Date | null = null;
+
+  // If completed, get the latest completion date
+  if (completedCount === lessonIds.length) {
+    const lastProgressResult = await db
+      .select({ lastAccessedAt: userProgress.lastAccessedAt })
+      .from(userProgress)
+      .where(
+        and(
+          eq(userProgress.userId, userId),
+          eq(userProgress.isCompleted, true),
+          inArray(userProgress.lessonId, lessonIds),
+        ),
+      )
+      .orderBy(desc(userProgress.lastAccessedAt))
+      .limit(1);
+
+    completionDate = lastProgressResult[0]?.lastAccessedAt ?? new Date();
+  }
+
+  return { lessonIds, completedCount, completionDate };
 }

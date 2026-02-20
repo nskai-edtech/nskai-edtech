@@ -23,12 +23,13 @@ test.describe("Course Image Upload", () => {
       name: /Upload a new image/i,
     });
 
-    if (await uploadButton.isVisible()) {
-      await expect(uploadButton).toBeVisible();
-    } else {
-      console.log(
+    if (!(await uploadButton.isVisible())) {
+      test.skip(
+        true,
         "Upload button not found, potentially due to restricted access or UI changes.",
       );
+      return;
     }
+    await expect(uploadButton).toBeVisible();
   });
 });

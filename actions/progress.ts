@@ -226,28 +226,66 @@ export async function getCourseCompletion() {
       .innerJoin(courses, eq(purchases.courseId, courses.id))
       .where(eq(purchases.userId, user.id));
 
-    // For each course, calculate progress
-    const coursesWithProgress = await Promise.all(
-      enrolledCourses.map(async (course) => {
-        const progress = await getUserProgress(course.courseId);
+    if (enrolledCourses.length === 0) {
+      return [];
+    }
 
-        if ("error" in progress) {
-          return {
-            courseId: course.courseId,
-            courseTitle: course.courseTitle,
-            completedLessons: 0,
-            totalLessons: 0,
-            percentage: 0,
-          };
-        }
+    const courseIds = enrolledCourses.map((c) => c.courseId);
 
-        return {
-          courseId: course.courseId,
-          courseTitle: course.courseTitle,
-          ...progress,
-        };
-      }),
+    // 1. Get total lessons count per course
+    const totalLessonsRaw = await db
+      .select({
+        courseId: chapters.courseId,
+        count: count(lessons.id),
+      })
+      .from(lessons)
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(inArray(chapters.courseId, courseIds))
+      .groupBy(chapters.courseId);
+
+    // 2. Get completed lessons count per course for this user
+    const completedLessonsRaw = await db
+      .select({
+        courseId: chapters.courseId,
+        count: count(userProgress.id),
+      })
+      .from(userProgress)
+      .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(
+        and(
+          eq(userProgress.userId, user.id),
+          eq(userProgress.isCompleted, true),
+          inArray(chapters.courseId, courseIds),
+        ),
+      )
+      .groupBy(chapters.courseId);
+
+    // Build maps for easy lookup
+    const totalLessonsMap = new Map(
+      totalLessonsRaw.map((r) => [r.courseId, r.count]),
     );
+    const completedLessonsMap = new Map(
+      completedLessonsRaw.map((r) => [r.courseId, r.count]),
+    );
+
+    // Combine results
+    const coursesWithProgress = enrolledCourses.map((course) => {
+      const totalLessons = totalLessonsMap.get(course.courseId) ?? 0;
+      const completedLessons = completedLessonsMap.get(course.courseId) ?? 0;
+      const percentage =
+        totalLessons === 0
+          ? 0
+          : Math.round((completedLessons / totalLessons) * 100);
+
+      return {
+        courseId: course.courseId,
+        courseTitle: course.courseTitle,
+        completedLessons,
+        totalLessons,
+        percentage,
+      };
+    });
 
     return coursesWithProgress;
   } catch (error) {
