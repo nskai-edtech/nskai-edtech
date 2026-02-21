@@ -3,7 +3,11 @@ import { ArrowLeft, BookOpen, Layers } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { EnrollPathButton } from "../_components/enroll-path-button";
+import { ClientEnrollButton } from "../_components/client-enroll-button";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+import { userLearningPaths, users } from "@/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
 export default async function LearnerPathDetailsPage({
   params,
@@ -11,10 +15,28 @@ export default async function LearnerPathDetailsPage({
   params: Promise<{ pathId: string }>;
 }) {
   const { pathId } = await params;
+  const { userId: clerkId } = await auth();
   const path = await getLearningPathDetails(pathId);
 
   // If path doesn't exist or isn't published
   if (!path || !path.isPublished) return notFound();
+
+  let isEnrolled = false;
+  if (clerkId) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkId),
+    });
+
+    if (user) {
+      const enrollment = await db.query.userLearningPaths.findFirst({
+        where: and(
+          eq(userLearningPaths.userId, user.id),
+          eq(userLearningPaths.learningPathId, pathId),
+        ),
+      });
+      isEnrolled = !!enrollment;
+    }
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
@@ -43,7 +65,11 @@ export default async function LearnerPathDetailsPage({
           </h1>
           <p className="text-lg text-secondary-text mb-8">{path.description}</p>
 
-          <EnrollPathButton pathId={path.id} />
+          <ClientEnrollButton
+            pathId={path.id}
+            price={path.totalPrice}
+            isEnrolled={isEnrolled}
+          />
         </div>
       </div>
 
