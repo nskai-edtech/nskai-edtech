@@ -11,6 +11,7 @@ import {
 import { auth } from "@clerk/nextjs/server";
 import { eq, and, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { checkModuleQuizzesPassed } from "./gamification";
 
 export interface QuizQuestion {
   id: string;
@@ -145,6 +146,15 @@ export async function submitQuiz(
       });
 
     revalidatePath("/learner");
+  }
+
+  // GAMIFICATION: Trigger Quiz Mastery module check
+  // We need the chapterId to check if all quizzes in the module scored > 75%
+  const lessonData = await db.query.lessons.findFirst({
+    where: eq(lessons.id, lessonId),
+  });
+  if (lessonData?.chapterId) {
+    await checkModuleQuizzesPassed(user.id, lessonData.chapterId);
   }
 
   return { score, passed };

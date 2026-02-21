@@ -5,6 +5,7 @@ import { getLearnerStats } from "@/actions/profile";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { ContinueLearningWidget } from "@/components/learner/continue-learning-widget";
+import { LearnerGreeting } from "@/components/learner/learner-greeting";
 
 // Mock Data Types (to be replaced with real backend data later)
 interface Session {
@@ -55,25 +56,24 @@ export default async function LearnerDashboard() {
           totalCoursesEnrolled: 0,
           totalLessonsCompleted: 0,
           completionRate: 0,
+          points: 0,
+          currentStreak: 0,
         }
       : statsResult;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-w-0">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-black text-primary-text flex items-center gap-3">
-            Welcome back, {user?.firstName || "Learner"}!{" "}
-            <span className="text-4xl">👋</span>
-          </h1>
+          <LearnerGreeting name={user?.firstName || "Learner"} />
           <p className="text-secondary-text mt-2 text-lg">
             Keep up the great work on your learning journey!
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1">📚</span>
             <span className="font-extrabold text-xl text-primary-text">
@@ -99,6 +99,24 @@ export default async function LearnerDashboard() {
             </span>
             <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
               Progress
+            </span>
+          </div>
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+            <span className="text-2xl mb-1">🔥</span>
+            <span className="font-extrabold text-xl text-primary-text">
+              {stats.currentStreak || 0}
+            </span>
+            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+              Days
+            </span>
+          </div>
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+            <span className="text-2xl mb-1">🏆</span>
+            <span className="font-extrabold text-xl text-brand">
+              {(stats.points || 0).toLocaleString()}
+            </span>
+            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+              XP
             </span>
           </div>
         </div>

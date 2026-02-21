@@ -31,6 +31,9 @@ interface LearnerStats {
   completionRate: number;
   memberSince: Date | null;
   lastActivityDate: Date | null;
+  points: number;
+  currentStreak: number;
+  longestStreak: number;
 }
 
 /**
@@ -257,6 +260,9 @@ export async function getLearnerStats(): Promise<
       completionRate,
       memberSince: user.createdAt,
       lastActivityDate,
+      points: user.points ?? 0,
+      currentStreak: user.currentStreak ?? 0,
+      longestStreak: user.longestStreak ?? 0,
     };
   } catch (error) {
     console.error("[GET_LEARNER_STATS]", error);

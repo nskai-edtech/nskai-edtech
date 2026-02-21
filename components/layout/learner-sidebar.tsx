@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -12,8 +11,9 @@ import {
   X,
   User,
   Award,
+  Heart,
+  Trophy,
 } from "lucide-react";
-import ThemeToggle from "@/components/ModeToggle";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -21,6 +21,11 @@ const navItems = [
     label: "Dashboard",
     href: "/learner",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Leaderboard",
+    href: "/learner/leaderboard",
+    icon: Trophy,
   },
   {
     label: "Course Marketplace",
@@ -31,6 +36,11 @@ const navItems = [
     label: "Enrolled Courses",
     href: "/learner/enrolled",
     icon: BookOpen,
+  },
+  {
+    label: "Wishlist",
+    href: "/learner/wishlist",
+    icon: Heart,
   },
   {
     label: "Certificates",
@@ -71,7 +81,8 @@ export function LearnerSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-surface transition-transform duration-300",
+          "fixed left-0 top-0 z-40 h-screen border-r border-border bg-surface transition-all duration-300",
+          "w-64 md:w-20 lg:w-64",
           isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0",
@@ -79,12 +90,17 @@ export function LearnerSidebar() {
       >
         <div className="flex h-full flex-col">
           {/* Logo/Brand with Close Button */}
-          <div className="flex h-16 items-center justify-between border-b border-border px-6">
-            <Link href="/learner" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand">
+          <div className="flex h-16 items-center justify-between border-b border-border px-6 md:px-0 lg:px-6 md:justify-center lg:justify-between">
+            <Link
+              href="/learner"
+              className="flex items-center gap-2 md:gap-0 lg:gap-2"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand shrink-0">
                 <span className="text-lg font-bold text-white">Z</span>
               </div>
-              <span className="text-xl font-bold text-primary-text">ZERRA</span>
+              <span className="text-xl font-bold text-primary-text block md:hidden lg:block">
+                ZERRA
+              </span>
             </Link>
             {/* Close button for mobile */}
             <button
@@ -111,28 +127,16 @@ export function LearnerSidebar() {
                     isActive
                       ? "bg-brand text-white"
                       : "text-secondary-text hover:bg-surface-muted hover:text-primary-text",
+                    "md:justify-center lg:justify-start",
                   )}
+                  title={item.label}
                 >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
+                  <Icon className="h-5 w-5 shrink-0" />
+                  <span className="block md:hidden lg:block">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
-
-          {/* Bottom Section - Theme Toggle & User */}
-          <div className="border-t border-border p-4">
-            <div className="flex items-center justify-between">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "h-10 w-10",
-                  },
-                }}
-              />
-              <ThemeToggle />
-            </div>
-          </div>
         </div>
       </aside>
     </>
