@@ -10,6 +10,7 @@ import {
   Shield,
   CheckCircle,
   UserCheck,
+  Layers,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -86,6 +87,12 @@ export const useSidebarRoutes = (
       label: "Courses",
       href: "/org/courses",
       active: pathname.includes("/org/courses"),
+    },
+    {
+      icon: Layers,
+      label: "Learning Paths",
+      href: "/org/paths",
+      active: pathname.includes("/org/paths"),
     },
     {
       icon: Users,

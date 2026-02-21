@@ -8,6 +8,8 @@ import {
   chapters,
   lessons,
   userProgress,
+  learningPathCourses,
+  userLearningPaths,
 } from "@/drizzle/schema";
 import { eq, desc, count, and, or, ilike, SQL, not, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
@@ -603,7 +605,38 @@ export async function getRelatedCourses(courseId: string, tutorId: string) {
   return [...tutorCourses, ...otherCourses];
 }
 
-// Check if a user is enrolled in a course
+// Reusable utility to check if a user owns a course (Directly or via Bundle)
+export async function verifyCourseAccess(
+  userId: string, // the db users.id
+  courseId: string,
+): Promise<boolean> {
+  // 1. Check direct purchase
+  const purchase = await db.query.purchases.findFirst({
+    where: and(eq(purchases.courseId, courseId), eq(purchases.userId, userId)),
+  });
+
+  if (purchase) return true;
+
+  // 2. Check Learning Path bundle enrollment
+  const bundleAccess = await db
+    .select({ id: userLearningPaths.id })
+    .from(userLearningPaths)
+    .innerJoin(
+      learningPathCourses,
+      eq(userLearningPaths.learningPathId, learningPathCourses.learningPathId),
+    )
+    .where(
+      and(
+        eq(userLearningPaths.userId, userId),
+        eq(learningPathCourses.courseId, courseId),
+      ),
+    )
+    .limit(1);
+
+  return bundleAccess.length > 0;
+}
+
+// Check if a user is enrolled in a course (for the UI)
 export async function checkEnrollment(courseId: string) {
   const { userId } = await auth();
   if (!userId) return false;
@@ -614,14 +647,7 @@ export async function checkEnrollment(courseId: string) {
 
   if (!dbUser) return false;
 
-  const purchase = await db.query.purchases.findFirst({
-    where: and(
-      eq(purchases.courseId, courseId),
-      eq(purchases.userId, dbUser.id),
-    ),
-  });
-
-  return !!purchase;
+  return await verifyCourseAccess(dbUser.id, courseId);
 }
 // Submit a course for review
 export async function submitCourseForReview(courseId: string) {

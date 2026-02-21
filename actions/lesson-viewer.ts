@@ -1,9 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { courses, chapters, lessons, purchases, users } from "@/drizzle/schema";
+import { courses, chapters, lessons, users } from "@/drizzle/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
+import { verifyCourseAccess } from "./courses";
 
 // Get course outline (Chapters & Lessons) for sidebar
 export async function getCourseOutline(courseId: string) {
@@ -54,10 +55,8 @@ export async function getLessonWithAccess(courseId: string, lessonId: string) {
     throw new Error("User not found");
   }
 
-  // Check if user purchased the course
-  const purchase = await db.query.purchases.findFirst({
-    where: and(eq(purchases.userId, user.id), eq(purchases.courseId, courseId)),
-  });
+  // Check if user purchased the course OR is enrolled via bundle
+  const ownsCourse = await verifyCourseAccess(user.id, courseId);
 
   // Get the Lesson
   const lesson = await db.query.lessons.findFirst({
@@ -82,7 +81,7 @@ export async function getLessonWithAccess(courseId: string, lessonId: string) {
   });
 
   const isOwner = course?.tutorId === user.id;
-  const hasAccess = !!purchase || lesson.isFreePreview || isOwner;
+  const hasAccess = ownsCourse || lesson.isFreePreview || isOwner;
 
   if (!hasAccess) {
     throw new Error("Access Denied");
