@@ -11,6 +11,7 @@ import {
 import { eq, desc, and, ilike } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { chapters, lessons } from "@/drizzle/schema";
 
 export async function createLearningPath(title: string, description: string) {
   try {
@@ -83,7 +84,13 @@ export async function getLearningPathDetails(pathId: string) {
       .where(eq(learningPathCourses.learningPathId, pathId))
       .orderBy(learningPathCourses.position);
 
-    return { ...path, attachedCourses: mapping };
+    const attachedCourses = mapping;
+    const totalPrice = attachedCourses.reduce(
+      (acc, course) => acc + (course.price || 0),
+      0,
+    );
+
+    return { ...path, attachedCourses, totalPrice };
   } catch (error) {
     console.error("[GET_LEARNING_PATH_DETAILS]", error);
     throw error;
@@ -307,5 +314,73 @@ export async function unpublishLearningPath(pathId: string) {
   } catch (error) {
     console.error("[UNPUBLISH_LEARNING_PATH]", error);
     return { success: false, error: "Failed to unpublish learning path" };
+  }
+}
+
+export async function getPathLessons(pathId: string) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) throw new Error("Unauthorized");
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkId),
+    });
+
+    if (!user) throw new Error("User not found");
+
+    // Check enrollment
+    const enrollment = await db.query.userLearningPaths.findFirst({
+      where: and(
+        eq(userLearningPaths.userId, user.id),
+        eq(userLearningPaths.learningPathId, pathId),
+      ),
+    });
+
+    if (!enrollment) return null;
+
+    const path = await db.query.learningPaths.findFirst({
+      where: eq(learningPaths.id, pathId),
+    });
+
+    if (!path) return null;
+
+    // Fetch all courses in path
+    const trackCourses = await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+      })
+      .from(learningPathCourses)
+      .innerJoin(courses, eq(learningPathCourses.courseId, courses.id))
+      .where(eq(learningPathCourses.learningPathId, pathId))
+      .orderBy(learningPathCourses.position);
+
+    // For each course, fetch chapters and lessons
+    const fullTrack = await Promise.all(
+      trackCourses.map(async (course) => {
+        const courseChapters = await db.query.chapters.findMany({
+          where: eq(chapters.courseId, course.id),
+          orderBy: [chapters.position],
+          with: {
+            lessons: {
+              orderBy: [lessons.position],
+            },
+          },
+        });
+
+        return {
+          ...course,
+          chapters: courseChapters,
+        };
+      }),
+    );
+
+    return {
+      path,
+      courses: fullTrack,
+    };
+  } catch (error) {
+    console.error("[GET_PATH_LESSONS]", error);
+    return null;
   }
 }
