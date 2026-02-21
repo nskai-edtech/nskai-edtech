@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, ChevronRight, Sparkles } from "lucide-react";
-import { getMarketplaceCourses } from "@/actions/courses";
+import { getRecommendedCourses } from "@/actions/recommendations";
 import { getLearnerStats } from "@/actions/profile";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { ContinueLearningWidget } from "@/components/learner/continue-learning-widget";
 import { LearnerGreeting } from "@/components/learner/learner-greeting";
 
-// Mock Data Types (to be replaced with real backend data later)
 interface Session {
   id: string;
   title: string;
@@ -46,7 +45,7 @@ const UPCOMING_SESSIONS: Session[] = [
 
 export default async function LearnerDashboard() {
   const user = await currentUser();
-  const { courses: recommendedCourses } = await getMarketplaceCourses(1, 3); // Fetch 3 top courses
+  const recommendedCourses = await getRecommendedCourses(4);
   const statsResult = await getLearnerStats();
 
   // Get stats or use defaults
@@ -160,7 +159,7 @@ export default async function LearnerDashboard() {
               {recommendedCourses.map((course) => (
                 <Link
                   key={course.id}
-                  href={`/learner/marketplace/${course.id}`}
+                  href={`/learner/${course.id}`}
                   className="block group"
                 >
                   <div className="bg-surface rounded-3xl p-4 border border-border hover:-translate-y-1 transition-transform">

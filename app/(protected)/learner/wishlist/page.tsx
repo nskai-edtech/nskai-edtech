@@ -62,7 +62,7 @@ async function WishlistContent() {
         <CourseCard
           key={course.id}
           course={course}
-          href={`/learner/marketplace/${course.id}`}
+          href={`/learner/${course.id}`}
         />
       ))}
     </div>

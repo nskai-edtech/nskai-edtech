@@ -26,7 +26,7 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
     course.progressPercentage !== undefined && course.progressPercentage > 0;
 
   return (
-    <Link href={href} className="group">
+    <div className="group relative h-full">
       <div className="flex flex-col h-full overflow-hidden transition-all duration-300 border rounded-2xl bg-surface border-border hover:shadow-xl hover:shadow-brand/5 hover:-translate-y-1">
         {/* Cover Image */}
         <div className="relative aspect-video overflow-hidden">
@@ -89,34 +89,46 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
-            <div className="flex items-center gap-2">
-              <div className="relative w-8 h-8 overflow-hidden rounded-full bg-surface-muted ring-2 ring-border">
-                {course.tutor?.imageUrl ? (
-                  <Image
-                    src={course.tutor.imageUrl}
-                    alt={`${course.tutor.firstName} ${course.tutor.lastName}`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full">
-                    <User className="w-4 h-4 text-secondary-text" />
-                  </div>
-                )}
+          <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 overflow-hidden rounded-full bg-surface-muted ring-2 ring-border">
+                  {course.tutor?.imageUrl ? (
+                    <Image
+                      src={course.tutor.imageUrl}
+                      alt={`${course.tutor.firstName} ${course.tutor.lastName}`}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full">
+                      <User className="w-4 h-4 text-secondary-text" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-xs font-medium text-primary-text truncate max-w-[120px]">
+                  {course.tutor?.firstName} {course.tutor?.lastName}
+                </span>
               </div>
-              <span className="text-xs font-medium text-primary-text truncate max-w-[120px]">
-                {course.tutor?.firstName} {course.tutor?.lastName}
-              </span>
+
+              <div className="flex items-center gap-1 text-xs text-secondary-text">
+                <BookOpen className="w-4 h-4" />
+                <span>Lessons</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1 text-xs text-secondary-text">
-              <BookOpen className="w-4 h-4" />
-              <span>Lessons</span>
+            {/* Course Action */}
+            <div className="mt-2 text-center w-full">
+              <Link
+                href={href}
+                className="flex items-center justify-center w-full py-2.5 text-xs font-bold text-white transition-colors rounded-xl bg-brand hover:bg-brand-dark"
+              >
+                View Course
+              </Link>
             </div>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };

@@ -33,7 +33,7 @@ export async function CourseRelated({
           <CourseCard
             key={relatedCourse.id}
             course={relatedCourse}
-            href={`/learner/marketplace/${relatedCourse.id}`}
+            href={`/learner/${relatedCourse.id}`}
           />
         ))}
       </div>

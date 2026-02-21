@@ -94,6 +94,42 @@ export const courses = pgTable("course", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// 3a. LEARNING PATHS (Bundles)
+export const learningPaths = pgTable("learning_path", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  price: integer("price"),
+  isPublished: boolean("is_published").default(false),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 3b. LEARNING PATH COURSES (Join Table)
+export const learningPathCourses = pgTable("learning_path_course", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  learningPathId: uuid("learning_path_id")
+    .references(() => learningPaths.id, { onDelete: "cascade" })
+    .notNull(),
+  courseId: uuid("course_id")
+    .references(() => courses.id, { onDelete: "cascade" })
+    .notNull(),
+  position: integer("position").notNull(),
+});
+
+// 3c. USER ENROLLED LEARNING PATHS
+export const userLearningPaths = pgTable("user_learning_path", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  learningPathId: uuid("learning_path_id")
+    .references(() => learningPaths.id, { onDelete: "cascade" })
+    .notNull(),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // 4. MODULES (Chapters)
 export const chapters = pgTable("chapter", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -464,7 +500,7 @@ export const userAssessmentResults = pgTable("user_assessment_result", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// RELATIONS (New Tables)
+// RELATIONS
 
 export const skillRelations = relations(skills, ({ many }) => ({
   dependencies: many(skillDependencies, { relationName: "skillPrerequisites" }),
@@ -601,3 +637,36 @@ export const answerRelations = relations(answers, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const learningPathRelations = relations(learningPaths, ({ many }) => ({
+  courses: many(learningPathCourses),
+  enrollments: many(userLearningPaths),
+}));
+
+export const learningPathCoursesRelations = relations(
+  learningPathCourses,
+  ({ one }) => ({
+    learningPath: one(learningPaths, {
+      fields: [learningPathCourses.learningPathId],
+      references: [learningPaths.id],
+    }),
+    course: one(courses, {
+      fields: [learningPathCourses.courseId],
+      references: [courses.id],
+    }),
+  }),
+);
+
+export const userLearningPathsRelations = relations(
+  userLearningPaths,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userLearningPaths.userId],
+      references: [users.id],
+    }),
+    learningPath: one(learningPaths, {
+      fields: [userLearningPaths.learningPathId],
+      references: [learningPaths.id],
+    }),
+  }),
+);

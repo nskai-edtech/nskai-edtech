@@ -165,10 +165,7 @@ export default async function TutorProfilePage({ params }: PageProps) {
                   key={course.id}
                   className="transform hover:-translate-y-2 transition-transform duration-300"
                 >
-                  <CourseCard
-                    course={course}
-                    href={`/learner/marketplace/${course.id}`}
-                  />
+                  <CourseCard course={course} href={`/learner/${course.id}`} />
                 </div>
               ))
             ) : (

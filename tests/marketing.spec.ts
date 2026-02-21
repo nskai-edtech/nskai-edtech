@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Marketing Pages", () => {
   test("Home page should load", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/NSK\.AI/);
+    await expect(page).toHaveTitle(/Zerra/);
     await expect(
       page.getByRole("button", { name: /Start Learning for Free/i }),
     ).toBeVisible();
