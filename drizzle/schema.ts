@@ -32,6 +32,12 @@ export const courseStatusEnum = pgEnum("course_status", [
 
 export const lessonTypeEnum = pgEnum("lesson_type", ["VIDEO", "QUIZ"]);
 
+export const pointReasonEnum = pgEnum("point_reason", [
+  "MODULE_COMPLETED",
+  "MODULE_QUIZZES_PASSED",
+  "STREAK_7_DAYS",
+]);
+
 // 2. USERS
 export const users = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -58,6 +64,12 @@ export const users = pgTable("user", {
   // Interests for learners
   interests: text("interests").array(),
   learningGoal: text("learning_goal"),
+
+  // Gamification (Points & Streaks)
+  points: integer("points").default(0).notNull(),
+  currentStreak: integer("current_streak").default(0).notNull(),
+  longestStreak: integer("longest_streak").default(0).notNull(),
+  streakLastActiveDate: timestamp("streak_last_active_date"),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -217,6 +229,45 @@ export const userProgress = pgTable(
   ],
 );
 
+// 8b. GAMIFICATION TRANSACTIONS
+export const pointTransactions = pgTable(
+  "point_transaction",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    amount: integer("amount").notNull(),
+    reason: pointReasonEnum("reason").notNull(),
+    referenceId: text("reference_id"), // e.g. chapterId or date string
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  // Ensure we don't accidentally double-award for the exact same reason/reference
+  (t) => [
+    uniqueIndex("point_tx_user_reason_ref_idx").on(
+      t.userId,
+      t.reason,
+      t.referenceId,
+    ),
+  ],
+);
+
+// 8c. DAILY WATCH TIME
+export const dailyWatchTime = pgTable(
+  "daily_watch_time",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    date: text("date").notNull(), // Format: YYYY-MM-DD
+    minutesWatched: integer("minutes_watched").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("daily_watch_time_user_date_idx").on(t.userId, t.date)],
+);
+
 // 9. RELATIONS (For Drizzle Querying)
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -228,6 +279,8 @@ export const userRelations = relations(users, ({ many }) => ({
   answers: many(answers),
   reviews: many(reviews),
   courseLikes: many(courseLikes),
+  pointTransactions: many(pointTransactions),
+  dailyWatchTimes: many(dailyWatchTime),
 }));
 
 export const courseRelations = relations(courses, ({ one, many }) => ({
@@ -331,6 +384,23 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   lesson: one(lessons, {
     fields: [userProgress.lessonId],
     references: [lessons.id],
+  }),
+}));
+
+export const pointTransactionRelations = relations(
+  pointTransactions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [pointTransactions.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const dailyWatchTimeRelations = relations(dailyWatchTime, ({ one }) => ({
+  user: one(users, {
+    fields: [dailyWatchTime.userId],
+    references: [users.id],
   }),
 }));
 

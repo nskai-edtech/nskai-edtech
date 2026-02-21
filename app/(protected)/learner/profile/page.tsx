@@ -8,6 +8,8 @@ import {
   Calendar,
   User,
   Loader2,
+  Trophy,
+  Flame,
 } from "lucide-react";
 import { ProfileForm } from "@/components/learner/profile-form";
 import { redirect } from "next/navigation";
@@ -161,6 +163,53 @@ async function ProfileContent() {
             </div>
             <div className="text-xs font-bold text-secondary-text uppercase tracking-wider">
               Completion
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gamification Statistics (Achievements) */}
+      <div>
+        <h2 className="text-xl font-bold text-primary-text mb-4">
+          Achievements
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Points */}
+          <div className="bg-linear-to-br from-brand/10 to-transparent border border-brand/20 rounded-2xl p-6 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-brand uppercase tracking-wider mb-1">
+                Total XP
+              </div>
+              <div className="text-4xl font-black text-primary-text">
+                {(stats.points || 0).toLocaleString()}
+              </div>
+              <p className="text-sm text-secondary-text mt-2 font-medium">
+                Keep learning to earn more Points!
+              </p>
+            </div>
+            <div className="w-16 h-16 rounded-full bg-brand/10 text-brand flex items-center justify-center border border-brand/20 shadow-sm">
+              <Trophy className="w-8 h-8" />
+            </div>
+          </div>
+
+          {/* Streaks */}
+          <div className="bg-linear-to-br from-orange-500/10 to-transparent border border-orange-500/20 rounded-2xl p-6 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-orange-500 uppercase tracking-wider mb-1">
+                Learning Streak
+              </div>
+              <div className="text-4xl font-black text-primary-text flex items-baseline gap-2">
+                {stats.currentStreak || 0}
+                <span className="text-lg text-secondary-text font-bold">
+                  Days
+                </span>
+              </div>
+              <p className="text-sm text-secondary-text mt-2 font-medium">
+                Longest Streak: {stats.longestStreak || 0} Days
+              </p>
+            </div>
+            <div className="w-16 h-16 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20 shadow-sm">
+              <Flame className="w-8 h-8 fill-current" />
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ import {
 import { eq, and, count, desc, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { checkModuleCompletion } from "./gamification";
 
 /**
  * Mark a lesson as completed for the current user
@@ -45,9 +46,16 @@ export async function markLessonComplete(lessonId: string) {
         set: { isCompleted: true, lastAccessedAt: new Date() },
       });
 
-    // Revalidate relevant paths
     revalidatePath("/learner/enrolled");
     revalidatePath("/learner");
+
+    // GAMIFICATION: Trigger Module completion check
+    const lessonData = await db.query.lessons.findFirst({
+      where: eq(lessons.id, lessonId),
+    });
+    if (lessonData?.chapterId) {
+      await checkModuleCompletion(user.id, lessonData.chapterId);
+    }
 
     return { success: true };
   } catch (error) {

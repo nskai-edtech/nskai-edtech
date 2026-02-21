@@ -1,8 +1,10 @@
 "use client";
 
 import MuxPlayer from "@mux/mux-player-react";
-import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useState, useRef } from "react";
 import { markLessonComplete, updateLastAccessed } from "@/actions/progress";
+import { logVideoWatchTime } from "@/actions/gamification";
 
 interface VideoPlayerProps {
   playbackId: string;
@@ -17,6 +19,8 @@ export const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const [hasMarkedComplete, setHasMarkedComplete] = useState(false);
   const [hasUpdatedAccess, setHasUpdatedAccess] = useState(false);
+  const lastPingTimeRef = useRef(0);
+  const { userId } = useAuth();
 
   const handlePlay = async () => {
     if (!lessonId || hasUpdatedAccess) return;
@@ -30,6 +34,13 @@ export const VideoPlayer = ({
     const video = event.target as HTMLVideoElement;
     const currentTime = video.currentTime;
     const duration = video.duration;
+
+    // Gamification Ping: Log every 60 seconds of watch time safely
+    if (userId && currentTime - lastPingTimeRef.current >= 60) {
+      lastPingTimeRef.current = currentTime;
+      // Fire and forget (don't block the video thread)
+      logVideoWatchTime(userId).catch(console.error);
+    }
 
     // Mark complete when 90% watched
     if (duration && currentTime / duration >= 0.9) {

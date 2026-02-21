@@ -73,7 +73,9 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
             <UserButton />
           </ClerkLoaded>
         </div>
-        <ThemeToggle />
+        <div>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

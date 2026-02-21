@@ -15,7 +15,9 @@ function Navbar() {
         <Link href="/">ZERRA</Link>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
-        <ThemeToggle />
+        <div>
+          <ThemeToggle />
+        </div>
         <SignedOut>
           <SignInButton />
           <SignUpButton>
@@ -25,7 +27,9 @@ function Navbar() {
           </SignUpButton>
         </SignedOut>
         <SignedIn>
-          <UserButton />
+          <div className="flex items-center justify-center">
+            <UserButton />
+          </div>
         </SignedIn>
       </div>
     </nav>
