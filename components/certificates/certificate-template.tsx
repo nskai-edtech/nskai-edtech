@@ -1,17 +1,25 @@
-import { Award, CheckCircle } from "lucide-react";
+"use client";
 
-interface CertificateTemplateProps {
+import { Award } from "lucide-react";
+
+export interface CertificateTemplateProps {
   learnerName: string;
   courseTitle: string;
   tutorName: string;
   completionDate: Date;
+  /** Used to give each instance a unique DOM id when multiple certs are on one page */
+  instanceId?: string;
 }
+
+export const CERT_WIDTH = 1122;
+export const CERT_HEIGHT = 794;
 
 export function CertificateTemplate({
   learnerName,
   courseTitle,
   tutorName,
   completionDate,
+  instanceId,
 }: CertificateTemplateProps) {
   const formattedDate = completionDate.toLocaleDateString("en-US", {
     month: "long",
@@ -21,104 +29,323 @@ export function CertificateTemplate({
 
   return (
     <div
-      id="certificate-template"
-      className="relative w-[1122px] h-[794px] bg-white p-16 overflow-hidden"
+      id={
+        instanceId
+          ? `certificate-template-${instanceId}`
+          : "certificate-template"
+      }
       style={{
+        width: CERT_WIDTH,
+        height: CERT_HEIGHT,
+        backgroundColor: "#ffffff",
         fontFamily: "Georgia, serif",
+        position: "relative",
+        overflow: "hidden",
+        flexShrink: 0,
       }}
     >
-      {/* Decorative Border */}
-      <div className="absolute inset-8 border-4 border-double border-gray-800" />
-      <div className="absolute inset-12 border border-gray-400" />
+      <div
+        style={{
+          position: "absolute",
+          inset: 32,
+          border: "4px double #1f2937",
+        }}
+      />
+      <div
+        style={{ position: "absolute", inset: 48, border: "1px solid #9ca3af" }}
+      />
 
-      {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center">
-        {/* Logo and Brand */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="w-16 h-16 rounded-xl bg-[#ff0004] flex items-center justify-center">
-              <span className="text-3xl font-black text-white">N</span>
-            </div>
-            <span className="text-4xl font-black text-gray-900">NSK.AI</span>
-          </div>
-          <p className="text-sm text-gray-600 tracking-widest uppercase">
+      <div
+        style={{
+          position: "absolute",
+          top: 64,
+          left: 64,
+          width: 48,
+          height: 48,
+          borderTop: "4px solid #ff0004",
+          borderLeft: "4px solid #ff0004",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: 64,
+          right: 64,
+          width: 48,
+          height: 48,
+          borderTop: "4px solid #ff0004",
+          borderRight: "4px solid #ff0004",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 64,
+          left: 64,
+          width: 48,
+          height: 48,
+          borderBottom: "4px solid #ff0004",
+          borderLeft: "4px solid #ff0004",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 64,
+          right: 64,
+          width: 48,
+          height: 48,
+          borderBottom: "4px solid #ff0004",
+          borderRight: "4px solid #ff0004",
+        }}
+      />
+
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          height: "100%",
+          textAlign: "center",
+          padding: "48px 80px 32px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ marginBottom: 20 }}>
+          <span
+            style={{
+              fontSize: 38,
+              fontWeight: 900,
+              color: "#111827",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            NSK AI
+          </span>
+          <p
+            style={{
+              fontSize: 11,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              color: "#4b5563",
+              margin: "4px 0 0",
+            }}
+          >
             EdTech Platform
           </p>
         </div>
 
-        {/* Certificate Title */}
-        <div className="mb-8">
-          <Award className="w-16 h-16 text-[#ff0004] mx-auto mb-4" />
-          <h1 className="text-5xl font-bold text-gray-900 mb-2">
+        <div style={{ marginBottom: 20 }}>
+          <Award
+            style={{
+              width: 40,
+              height: 40,
+              color: "#ff0004",
+              display: "block",
+              margin: "0 auto 8px",
+            }}
+          />
+          <h1
+            style={{
+              fontSize: 44,
+              fontWeight: 700,
+              color: "#111827",
+              margin: "0 0 10px",
+              lineHeight: 1.1,
+            }}
+          >
             Certificate of Completion
           </h1>
-          <div className="w-32 h-1 bg-[#ff0004] mx-auto" />
+          <div
+            style={{
+              width: 160,
+              height: 4,
+              backgroundColor: "#ff0004",
+              margin: "0 auto",
+            }}
+          />
         </div>
 
-        {/* Certificate Body */}
-        <div className="max-w-2xl mb-8">
-          <p className="text-lg text-gray-700 mb-6">This is to certify that</p>
-
-          {/* Learner Name */}
-          <h2 className="text-4xl font-bold text-gray-900 mb-2 border-b-2 border-gray-300 pb-2">
-            {learnerName}
-          </h2>
-
-          <p className="text-lg text-gray-700 mb-6 mt-6">
-            has successfully completed the course
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            maxWidth: 760,
+            width: "100%",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 18,
+              color: "#374151",
+              fontStyle: "italic",
+              margin: "0 0 16px",
+            }}
+          >
+            This is to certify that
           </p>
 
-          {/* Course Title */}
-          <h3 className="text-2xl font-semibold text-[#ff0004] mb-8">
+          <div style={{ width: "100%", marginBottom: 16 }}>
+            <h2
+              style={{
+                fontSize: 56,
+                fontWeight: 900,
+                color: "#111827",
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                margin: "0 0 10px",
+              }}
+            >
+              {learnerName}
+            </h2>
+            <div
+              style={{
+                height: 3,
+                background:
+                  "linear-gradient(to right, transparent, #d1d5db, #d1d5db, transparent)",
+              }}
+            />
+          </div>
+
+          <p style={{ fontSize: 18, color: "#374151", margin: "0 0 16px" }}>
+            has successfully completed the professional curriculum for
+          </p>
+
+          <h3
+            style={{
+              fontSize: 28,
+              fontWeight: 900,
+              color: "#ff0004",
+              letterSpacing: 1,
+              textTransform: "uppercase",
+              margin: "0 0 16px",
+            }}
+          >
             {courseTitle}
           </h3>
 
-          <p className="text-base text-gray-600">
-            Demonstrating dedication, commitment, and mastery of the course
-            material.
+          <p
+            style={{
+              fontSize: 13,
+              color: "#6b7280",
+              maxWidth: 520,
+              lineHeight: 1.6,
+              margin: 0,
+            }}
+          >
+            In recognition of fulfilling all academic requirements,
+            demonstrating dedication, and mastering the requisite skills in the
+            field of study.
           </p>
         </div>
 
-        {/* Footer Section */}
-        <div className="flex items-center justify-between w-full max-w-2xl mt-auto">
-          {/* Date */}
-          <div className="text-left">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-[#ff0004]" />
-              <p className="text-sm font-semibold text-gray-900">
-                Completion Date
-              </p>
-            </div>
-            <p className="text-base text-gray-700 border-t-2 border-gray-300 pt-2">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: 760,
+            paddingTop: 12,
+          }}
+        >
+          <div style={{ textAlign: "left", width: 220 }}>
+            <p
+              style={{
+                fontSize: 9,
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                color: "#9ca3af",
+                margin: "0 0 4px",
+              }}
+            >
+              Dated
+            </p>
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: "#111827",
+                margin: "0 0 6px",
+              }}
+            >
               {formattedDate}
             </p>
+            <div style={{ height: 1, backgroundColor: "#e5e7eb" }} />
           </div>
 
-          {/* Instructor */}
-          <div className="text-right">
-            <p className="text-sm font-semibold text-gray-900 mb-2">
-              Course Instructor
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: "50%",
+                border: "2px solid rgba(255,0,4,0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Award
+                style={{ width: 30, height: 30, color: "rgba(255,0,4,0.3)" }}
+              />
+            </div>
+          </div>
+
+          <div style={{ textAlign: "right", width: 220 }}>
+            <p
+              style={{
+                fontSize: 9,
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                color: "#9ca3af",
+                margin: "0 0 4px",
+              }}
+            >
+              Verified By
             </p>
-            <p className="text-base text-gray-700 border-t-2 border-gray-300 pt-2">
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: "#111827",
+                margin: "0 0 6px",
+              }}
+            >
               {tutorName}
             </p>
+            <div style={{ height: 1, backgroundColor: "#e5e7eb" }} />
           </div>
         </div>
 
-        {/* Certificate ID (Optional) */}
-        <div className="mt-6">
-          <p className="text-xs text-gray-500 tracking-wider">
+        <div style={{ marginBottom: 14 }}>
+          <p
+            style={{
+              fontSize: 9,
+              color: "#9ca3af",
+              textTransform: "uppercase",
+              fontWeight: 700,
+              letterSpacing: 1,
+              margin: 0,
+            }}
+          >
             Certificate ID: NSK-
             {completionDate.getTime().toString(36).toUpperCase()}
           </p>
         </div>
       </div>
-
-      {/* Decorative Corner Elements */}
-      <div className="absolute top-16 left-16 w-12 h-12 border-l-4 border-t-4 border-[#ff0004]" />
-      <div className="absolute top-16 right-16 w-12 h-12 border-r-4 border-t-4 border-[#ff0004]" />
-      <div className="absolute bottom-16 left-16 w-12 h-12 border-l-4 border-b-4 border-[#ff0004]" />
-      <div className="absolute bottom-16 right-16 w-12 h-12 border-r-4 border-b-4 border-[#ff0004]" />
     </div>
   );
 }
