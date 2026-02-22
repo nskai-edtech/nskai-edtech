@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Course Image Upload", () => {
   test("should navigate to home page", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/NSK\.AI/);
+    await expect(page).toHaveTitle(/Zerra/);
   });
 
   test("should show upload button in course editor", async ({ page }) => {

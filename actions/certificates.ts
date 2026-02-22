@@ -111,6 +111,83 @@ export async function getCompletedCourses(): Promise<
 }
 
 /**
+ * Get all certificates the user has earned
+ */
+export async function getUserCertificates(): Promise<
+  { error: string } | CertificateData[]
+> {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return { error: "Unauthorized" };
+    }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.clerkId, userId),
+    });
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    const purchasedCourses = await db
+      .select({ courseId: purchases.courseId })
+      .from(purchases)
+      .where(eq(purchases.userId, user.id));
+
+    const purchasedCourseIds = purchasedCourses
+      .map((p) => p.courseId)
+      .filter((id): id is string => !!id);
+
+    if (purchasedCourseIds.length === 0) {
+      return [];
+    }
+
+    const allCourses = await db.query.courses.findMany({
+      where: inArray(courses.id, purchasedCourseIds),
+      with: {
+        chapters: { with: { lessons: true } },
+        tutor: true,
+      },
+    });
+
+    const earnedCertificates: CertificateData[] = [];
+    const learnerName =
+      `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Learner";
+
+    for (const course of allCourses) {
+      const { lessonIds, completedCount, completionDate } =
+        await getCourseCompletionStatus(user.id, course);
+
+      if (
+        completedCount === lessonIds.length &&
+        lessonIds.length > 0 &&
+        completionDate
+      ) {
+        earnedCertificates.push({
+          courseId: course.id,
+          courseTitle: course.title,
+          courseImageUrl: course.imageUrl,
+          learnerName,
+          tutorName: course.tutor
+            ? `${course.tutor.firstName || ""} ${course.tutor.lastName || ""}`.trim() ||
+              "NSK AI Instructor"
+            : "NSK AI Instructor",
+          completionDate,
+        });
+      }
+    }
+
+    return earnedCertificates.sort(
+      (a, b) => b.completionDate.getTime() - a.completionDate.getTime(),
+    );
+  } catch (error) {
+    console.error("[GET_USER_CERTIFICATES]", error);
+    return { error: "Failed to fetch certificates" };
+  }
+}
+
+/**
  * Get certificate data for a specific course
  */
 export async function getCertificateData(
