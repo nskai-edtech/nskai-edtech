@@ -1,4 +1,3 @@
-import { getLearningPathDetails } from "@/actions/learning-paths";
 import { ArrowLeft, BookOpen, Layers } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,6 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { userLearningPaths, users } from "@/drizzle/schema";
 import { and, eq } from "drizzle-orm";
+import { getLearningPathDetails } from "@/actions/learning-paths/actions";
 
 export default async function LearnerPathDetailsPage({
   params,

@@ -330,7 +330,7 @@ export function CertificateTemplate({
           </div>
         </div>
 
-        <div style={{ marginBottom: 14 }}>
+        <div style={{ marginBottom: 18 }}>
           <p
             style={{
               fontSize: 9,

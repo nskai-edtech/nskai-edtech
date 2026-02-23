@@ -1,5 +1,5 @@
+import { getRelatedCourses } from "@/actions/courses/marketplace";
 import { CourseCard } from "@/components/courses/course-card";
-import { getRelatedCourses } from "@/actions/courses";
 
 export async function CourseRelated({
   courseId,

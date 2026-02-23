@@ -13,7 +13,8 @@ import { VideoPlayer } from "@/components/video-player";
 import { Editor } from "@/components/editor";
 import { MuxVideoUploader } from "./mux-uploader";
 import { QuizEditor } from "../tutor/quiz-editor";
-import { getQuizQuestionsAdmin, QuizQuestionWithAnswer } from "@/actions/quiz";
+import { getQuizQuestionsAdmin } from "@/actions/quiz/queries";
+import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
 
 interface LessonEditorProps {
   lesson: Lesson;
@@ -340,7 +341,9 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
         </p>
         <Editor
           value={formData.notes}
-          onChange={(val) => setFormData((prev) => ({ ...prev, notes: val }))}
+          onChange={(value) =>
+            setFormData((prev) => ({ ...prev, notes: value }))
+          }
         />
       </div>
     </div>

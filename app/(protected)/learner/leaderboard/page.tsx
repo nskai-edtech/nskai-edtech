@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { getLeaderboard } from "@/actions/gamification";
 import { Trophy, Flame, Medal, Star } from "lucide-react";
 import Image from "next/image";
+import { getLeaderboardData } from "@/actions/gamification/queries";
 
 export default function LeaderboardPage() {
   return (
@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
 }
 
 async function LeaderboardFeed() {
-  const users = await getLeaderboard();
+  const users = await getLeaderboardData();
 
   if (users.length === 0) {
     return (

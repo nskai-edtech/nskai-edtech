@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Power, PowerOff } from "lucide-react";
+import { toast } from "react-hot-toast";
 import {
   publishLearningPath,
   unpublishLearningPath,
-} from "@/actions/learning-paths";
+} from "@/actions/learning-paths/actions";
 
 interface PathActionsProps {
   pathId: string;
@@ -29,27 +30,29 @@ export function PathActions({
       if (isPublished) {
         const res = await unpublishLearningPath(pathId);
         if (res.success) {
+          toast.success("Learning path unpublished");
           router.refresh();
         } else {
-          alert(res.error || "Something went wrong");
+          toast.error(res.error || "Something went wrong");
         }
       } else {
         if (!hasCourses) {
-          alert(
+          toast.error(
             "Cannot publish an empty learning path. Add at least one course.",
           );
           return;
         }
         const res = await publishLearningPath(pathId);
         if (res.success) {
+          toast.success("Learning path published!");
           router.refresh();
         } else {
-          alert(res.error || "Something went wrong");
+          toast.error(res.error || "Something went wrong");
         }
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { approveCourse, rejectCourse } from "@/actions/courses";
 import { Check, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { approveCourse, rejectCourse } from "@/actions/courses/admin";
 
 interface ReviewActionsProps {
   courseId: string;
@@ -34,6 +34,7 @@ export default function ReviewActions({ courseId }: ReviewActionsProps) {
         router.push("/org/approvals");
       }
     } catch (error) {
+      console.error("Error approving course:", error);
       toast.error("An error occurred during approval");
       setIsApproving(false);
     }
@@ -54,6 +55,7 @@ export default function ReviewActions({ courseId }: ReviewActionsProps) {
         router.push("/org/approvals");
       }
     } catch (error) {
+      console.error("Error rejecting course:", error);
       toast.error("An error occurred during rejection");
       setIsRejecting(false);
     }

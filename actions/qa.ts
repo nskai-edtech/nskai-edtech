@@ -19,12 +19,26 @@ export async function getQuestions(
       where: eq(questions.lessonId, lessonId),
       orderBy: [desc(questions.createdAt)],
       with: {
-        user: true,
-        answers: {
-          with: {
-            user: true,
+        user: {
+          columns: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            imageUrl: true,
           },
+        },
+        answers: {
           orderBy: [desc(answers.createdAt)],
+          with: {
+            user: {
+              columns: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                imageUrl: true,
+              },
+            },
+          },
         },
       },
     });
@@ -43,6 +57,7 @@ export async function askQuestion(lessonId: string, content: string) {
 
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
+      columns: { id: true },
     });
 
     if (!user) return { error: "User not found" };
@@ -68,6 +83,7 @@ export async function answerQuestion(questionId: string, content: string) {
 
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
+      columns: { id: true },
     });
 
     if (!user) return { error: "User not found" };
@@ -93,18 +109,20 @@ export async function deleteQuestion(questionId: string) {
 
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
+      columns: { id: true },
     });
 
     if (!user) return { error: "User not found" };
 
-    // Check ownership or admin status (simplified to start)
-    const question = await db.query.questions.findFirst({
-      where: and(eq(questions.id, questionId), eq(questions.userId, user.id)),
-    });
+    const [deletedQuestion] = await db
+      .delete(questions)
+      .where(and(eq(questions.id, questionId), eq(questions.userId, user.id)))
+      .returning({ id: questions.id });
 
-    if (!question) return { error: "Unauthorized" };
+    if (!deletedQuestion) {
+      return { error: "Unauthorized or Question not found" };
+    }
 
-    await db.delete(questions).where(eq(questions.id, questionId));
     revalidatePath(`/watch`);
     return { success: true };
   } catch (error) {

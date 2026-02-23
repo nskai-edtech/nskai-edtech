@@ -1,6 +1,8 @@
 import { getTutorProfile } from "@/actions/tutor-settings";
 import { SettingsForm } from "@/components/tutor/settings-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function TutorSettingsPage() {
   const profile = await getTutorProfile();
 

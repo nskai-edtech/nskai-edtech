@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, ChevronRight, Sparkles } from "lucide-react";
-import { getRecommendedCourses } from "@/actions/recommendations";
-import { getLearnerStats } from "@/actions/profile";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { ContinueLearningWidget } from "@/components/learner/continue-learning-widget";
 import { LearnerGreeting } from "@/components/learner/learner-greeting";
+import { getLearnerStats } from "@/actions/profile/actions";
+import { getRecommendedCourses } from "@/actions/recommendations/actions";
 
 interface Session {
   id: string;

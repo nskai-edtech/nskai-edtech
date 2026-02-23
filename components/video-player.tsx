@@ -3,8 +3,11 @@
 import MuxPlayer from "@mux/mux-player-react";
 import { useAuth } from "@clerk/nextjs";
 import { useState, useRef } from "react";
-import { markLessonComplete, updateLastAccessed } from "@/actions/progress";
-import { logVideoWatchTime } from "@/actions/gamification";
+import { logVideoWatchTime } from "@/actions/gamification/points";
+import {
+  markLessonComplete,
+  updateLastAccessed,
+} from "@/actions/progress/actions";
 
 interface VideoPlayerProps {
   playbackId: string;
@@ -35,14 +38,11 @@ export const VideoPlayer = ({
     const currentTime = video.currentTime;
     const duration = video.duration;
 
-    // Gamification Ping: Log every 60 seconds of watch time safely
     if (userId && currentTime - lastPingTimeRef.current >= 60) {
       lastPingTimeRef.current = currentTime;
-      // Fire and forget (don't block the video thread)
       logVideoWatchTime(userId).catch(console.error);
     }
 
-    // Mark complete when 90% watched
     if (duration && currentTime / duration >= 0.9) {
       await markLessonComplete(lessonId);
       setHasMarkedComplete(true);

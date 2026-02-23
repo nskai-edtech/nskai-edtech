@@ -1,10 +1,10 @@
 import { Star, Globe, GraduationCap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getTutorRatingStats } from "@/actions/reviews";
 import { db } from "@/lib/db";
 import { purchases, courses as schemaCourses } from "@/drizzle/schema";
 import { eq, sql } from "drizzle-orm";
+import { getTutorRatingStats } from "@/actions/reviews/queries";
 
 interface CourseInstructorProps {
   tutor: {

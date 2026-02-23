@@ -59,7 +59,7 @@ export default async function TutorLayout({
         {/* Mobile Header */}
         <div className="xl:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
           <MobileSidebar role="TUTOR" />
-          <div className="font-bold text-xl text-brand ml-4">NSKAI</div>
+          <div className="font-bold text-xl text-brand ml-4">ZERRA</div>
         </div>
         <div className="flex-1 p-4" suppressHydrationWarning>
           {children}

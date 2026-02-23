@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
-import { CourseWithTutor } from "@/actions/courses";
+import { CourseWithTutor } from "@/actions/courses/types";
 
 interface CourseCardProps {
   course: CourseWithTutor & {
@@ -82,7 +82,7 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
               </div>
               <div className="w-full h-2 overflow-hidden rounded-full bg-surface-muted">
                 <div
-                  className="h-full transition-all duration-500 bg-linear-to-r from-brand to-brand-dark"
+                  className="h-full transition-all duration-500 bg-green-600"
                   style={{ width: `${course.progressPercentage}%` }}
                 />
               </div>

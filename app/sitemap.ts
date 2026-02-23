@@ -22,14 +22,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1,
   }));
 
-  // Fetch published courses (assuming all in DB are valid for now)
+  // Fetch published courses using the new STATUS enum
   const allCourses = await db
     .select({
       id: courses.id,
       createdAt: courses.createdAt,
     })
     .from(courses)
-    .where(eq(courses.isPublished, true));
+    .where(eq(courses.status, "PUBLISHED"));
 
   const courseRoutes = allCourses.map((course) => ({
     url: `${baseUrl}/courses/${course.id}`,

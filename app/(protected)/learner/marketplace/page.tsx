@@ -1,9 +1,9 @@
-import { getMarketplaceCourses } from "@/actions/courses";
-import { getPublishedLearningPaths } from "@/actions/learning-paths";
 import { CourseCard } from "@/components/courses/course-card";
 import { Layers, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { DebouncedSearch } from "@/components/debounced-search";
+import { getMarketplaceCourses } from "@/actions/courses/marketplace";
+import { getPublishedLearningPaths } from "@/actions/learning-paths/actions";
 
 export default async function CourseMarketplace({
   searchParams,

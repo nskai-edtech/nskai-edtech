@@ -11,7 +11,6 @@ interface Course {
   imageUrl: string | null;
   status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
   price: number | null;
-  isPublished: boolean | null;
   createdAt: Date;
   studentsEnrolled: number;
 }

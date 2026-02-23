@@ -6,8 +6,6 @@ import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
 export interface TutorProfile {
   id: string;
   email: string;
@@ -27,36 +25,37 @@ export interface UpdateTutorProfileData {
   expertise?: string;
 }
 
-// ─── Actions ────────────────────────────────────────────────────────────────
-
 export async function getTutorProfile(): Promise<
   { error: string } | TutorProfile
 > {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
       return { error: "Unauthorized" };
     }
 
     const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId),
+      where: eq(users.clerkId, clerkId),
+      columns: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        bio: true,
+        expertise: true,
+        imageUrl: true,
+        paystackCustomerCode: true,
+        createdAt: true,
+        role: true,
+      },
     });
 
     if (!user || user.role !== "TUTOR") {
       return { error: "Tutor profile not found" };
     }
 
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      bio: user.bio,
-      expertise: user.expertise,
-      imageUrl: user.imageUrl,
-      paystackCustomerCode: user.paystackCustomerCode,
-      createdAt: user.createdAt,
-    };
+    const { ...profileData } = user;
+    return profileData;
   } catch (error) {
     console.error("[GET_TUTOR_PROFILE]", error);
     return { error: "Failed to fetch profile" };
@@ -67,28 +66,30 @@ export async function updateTutorProfile(
   data: UpdateTutorProfileData,
 ): Promise<{ error?: string; success?: boolean }> {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
       return { error: "Unauthorized" };
     }
 
     const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId),
+      where: eq(users.clerkId, clerkId),
+      columns: { id: true, role: true },
     });
 
     if (!user || user.role !== "TUTOR") {
       return { error: "Tutor profile not found" };
     }
 
-    await db
-      .update(users)
-      .set({
-        firstName: data.firstName ?? user.firstName,
-        lastName: data.lastName ?? user.lastName,
-        bio: data.bio ?? user.bio,
-        expertise: data.expertise ?? user.expertise,
-      })
-      .where(eq(users.id, user.id));
+    const updateData = {
+      ...(data.firstName !== undefined && { firstName: data.firstName }),
+      ...(data.lastName !== undefined && { lastName: data.lastName }),
+      ...(data.bio !== undefined && { bio: data.bio }),
+      ...(data.expertise !== undefined && { expertise: data.expertise }),
+    };
+
+    if (Object.keys(updateData).length > 0) {
+      await db.update(users).set(updateData).where(eq(users.id, user.id));
+    }
 
     revalidatePath("/tutor/settings");
     return { success: true };

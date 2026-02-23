@@ -89,7 +89,7 @@ export const Editor = ({ value, onChange }: EditorProps) => {
       const res = await startUpload([file]);
 
       if (res && res[0]) {
-        const url = res[0].url;
+        const url = res[0].ufsUrl;
         const name = res[0].name;
         const type = file.type;
 

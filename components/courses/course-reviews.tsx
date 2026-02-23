@@ -6,14 +6,13 @@ import { Heart, MessageSquare, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { StarRatingInput } from "./star-rating-input";
+import { cn } from "@/lib/utils";
 import {
-  submitReview,
   getReviewsByCourse,
-  toggleCourseLike,
   getUserReview,
   isCourseLiked,
-} from "@/actions/reviews";
-import { cn } from "@/lib/utils";
+} from "@/actions/reviews/queries";
+import { submitReview, toggleCourseLike } from "@/actions/reviews/actions";
 
 interface ReviewUser {
   id: string;
@@ -26,7 +25,7 @@ interface Review {
   id: string;
   rating: number;
   comment: string | null;
-  createdAt: Date;
+  createdAt: Date | string | null;
   user: ReviewUser;
 }
 
@@ -45,23 +44,19 @@ export function CourseReviews({
   isEnrolled,
   initialStats,
 }: CourseReviewsProps) {
-  // State for fetching & paginating reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  // State for user's own review
   const [userRating, setUserRating] = useState(0);
   const [userComment, setUserComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
 
-  // State for likes
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialStats.totalLikes);
 
-  // Load initial data
   useEffect(() => {
     let mounted = true;
 
@@ -74,8 +69,8 @@ export function CourseReviews({
         ]);
 
         if (mounted) {
-          if (reviewsRes && !reviewsRes.error && reviewsRes.reviews) {
-            setReviews(reviewsRes.reviews);
+          if (reviewsRes && !("error" in reviewsRes) && reviewsRes.reviews) {
+            setReviews(reviewsRes.reviews as Review[]);
             setHasMore(reviewsRes.hasNextPage ?? false);
           }
 
@@ -104,28 +99,29 @@ export function CourseReviews({
   const fetchMoreReviews = async () => {
     const nextPage = page + 1;
     const res = await getReviewsByCourse(courseId, nextPage, 10);
-    if (res && !res.error && res.reviews) {
-      setReviews((prev) => [...prev, ...res.reviews!]);
+
+    if (res && !("error" in res) && res.reviews) {
+      setReviews((prev) => [...prev, ...(res.reviews as Review[])]);
       setHasMore(res.hasNextPage ?? false);
       setPage(nextPage);
     }
   };
 
   const handleLikeToggle = async () => {
-    // Optimistic UI update
     const previousState = isLiked;
     setIsLiked(!previousState);
     setLikeCount((prev) => (previousState ? prev - 1 : prev + 1));
 
     const res = await toggleCourseLike(courseId);
-    if (res && res.error) {
-      // Revert if failed
+
+    if (res && "error" in res) {
       setIsLiked(previousState);
       setLikeCount((prev) => (previousState ? prev + 1 : prev - 1));
+
       if (res.error === "Unauthorized") {
         toast.error("Please log in to like a course");
       } else {
-        toast.error(res.error);
+        toast.error(res.error as string);
       }
     }
   };
@@ -147,8 +143,8 @@ export function CourseReviews({
     try {
       const res = await submitReview(courseId, userRating, userComment);
 
-      if (res && res.error) {
-        toast.error(res.error);
+      if (res && "error" in res) {
+        toast.error(res.error as string);
       } else {
         toast.success(
           hasReviewed
@@ -156,11 +152,11 @@ export function CourseReviews({
             : "Review submitted successfully",
         );
         setHasReviewed(true);
-        // Reset and fetch reviews to show the newly submitted one at top
         setPage(1);
+
         const reviewsRes = await getReviewsByCourse(courseId, 1, 10);
-        if (reviewsRes && !reviewsRes.error && reviewsRes.reviews) {
-          setReviews(reviewsRes.reviews);
+        if (reviewsRes && !("error" in reviewsRes) && reviewsRes.reviews) {
+          setReviews(reviewsRes.reviews as Review[]);
           setHasMore(reviewsRes.hasNextPage ?? false);
         }
       }
@@ -341,14 +337,16 @@ export function CourseReviews({
                             {review.user.firstName} {review.user.lastName}
                           </h4>
                           <span className="text-xs text-secondary-text font-medium">
-                            {new Date(review.createdAt).toLocaleDateString(
-                              undefined,
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              },
-                            )}
+                            {review.createdAt
+                              ? new Date(review.createdAt).toLocaleDateString(
+                                  undefined,
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  },
+                                )
+                              : "Recently"}
                           </span>
                         </div>
                         <StarRatingInput

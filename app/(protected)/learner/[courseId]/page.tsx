@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { getCourseById } from "@/actions/courses";
 import { CourseCurriculum } from "@/components/courses/course-curriculum";
 import { CourseVideoPreview } from "@/components/courses/course-video-preview";
 
@@ -10,6 +9,7 @@ import { CourseSidebar } from "./_components/course-sidebar";
 import { CourseInstructor } from "./_components/course-instructor";
 import { CourseRelated } from "./_components/course-related";
 import { CourseReviewsWrapper } from "./_components/course-reviews-wrapper";
+import { getCourseById } from "@/actions/courses/marketplace";
 
 export default async function CourseDetailsPage({
   params,
@@ -19,7 +19,7 @@ export default async function CourseDetailsPage({
   const { courseId } = await params;
   const course = await getCourseById(courseId);
 
-  if (!course || !course.isPublished) {
+  if (!course || course.status !== "PUBLISHED") {
     return redirect("/learner/marketplace");
   }
 

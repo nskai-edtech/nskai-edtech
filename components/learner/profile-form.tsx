@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { updateLearnerProfile } from "@/actions/profile";
 import { toast } from "sonner";
 import { InterestsSelector } from "./interests-selector";
 import { FileUpload } from "@/components/file-upload";
 import Image from "next/image";
 import { X } from "lucide-react";
+import { updateLearnerProfile } from "@/actions/profile/actions";
 
 interface ProfileFormProps {
   initialFirstName: string | null;

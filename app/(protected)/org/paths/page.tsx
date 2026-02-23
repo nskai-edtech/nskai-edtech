@@ -1,8 +1,8 @@
-import { getAdminLearningPaths } from "@/actions/learning-paths";
 import { Layers, Calendar } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { CreatePathModal } from "./_components/create-path-modal";
+import { getAdminLearningPaths } from "@/actions/learning-paths/actions";
 
 export default async function OrgPathsPage() {
   const paths = await getAdminLearningPaths();

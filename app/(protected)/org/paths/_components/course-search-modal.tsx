@@ -3,18 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle, Loader2, Search, BookOpen } from "lucide-react";
-import {
-  searchCoursesForPath,
-  addCourseToPath,
-} from "@/actions/learning-paths";
 import Image from "next/image";
+import {
+  addCourseToPath,
+  searchCoursesForPath,
+} from "@/actions/learning-paths/actions";
 
 interface CourseResult {
   id: string;
   title: string;
   imageUrl: string | null;
-  isPublished: boolean | null;
-  tutor: { firstName: string | null; lastName: string | null } | null;
+  status: "PENDING" | "REJECTED" | "DRAFT" | "PUBLISHED";
+  tutorFirstName: string | null;
+  tutorLastName: string | null;
 }
 
 export function CourseSearchModal({ pathId }: { pathId: string }) {
@@ -25,7 +26,6 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
   const [results, setResults] = useState<CourseResult[]>([]);
   const [addingCourseId, setAddingCourseId] = useState<string | null>(null);
 
-  // Simple initial fetch of top available courses
   useEffect(() => {
     if (isOpen) {
       loadCourses();
@@ -37,7 +37,7 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
     try {
       setIsLoading(true);
       const data = await searchCoursesForPath(searchQuery);
-      setResults(data);
+      setResults(data as CourseResult[]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -49,6 +49,7 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
     try {
       setAddingCourseId(courseId);
       const res = await addCourseToPath(pathId, courseId);
+
       if (res.success) {
         router.refresh();
       } else {
@@ -100,11 +101,11 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
               <input
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  // In a real app we would strictly debounce this
+                  const val = e.target.value;
+                  setSearchQuery(val);
                   setIsLoading(true);
-                  searchCoursesForPath(e.target.value).then((res) => {
-                    setResults(res);
+                  searchCoursesForPath(val).then((res) => {
+                    setResults(res as CourseResult[]);
                     setIsLoading(false);
                   });
                 }}
@@ -153,7 +154,7 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
                           {course.title}
                         </h4>
                         <p className="text-[10px] text-secondary-text font-medium uppercase tracking-wider">
-                          {course.tutor?.firstName || "Unknown"}
+                          {course.tutorFirstName} {course.tutorLastName}
                         </p>
                       </div>
 

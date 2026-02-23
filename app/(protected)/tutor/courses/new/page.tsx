@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createCourse } from "@/actions/courses";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { createCourse } from "@/actions/courses/tutor";
 
 export default function NewCoursePage() {
   const router = useRouter();

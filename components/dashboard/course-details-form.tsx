@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { useDebounce } from "@/hooks/use-debounce";
-import { updateCourse } from "@/actions/courses";
 import { Course } from "@/types";
 import { Loader2, Image as ImageIcon, Cloud } from "lucide-react";
 import { FileUpload } from "@/components/file-upload";
+import { updateCourse } from "@/actions/courses/tutor";
 
 interface CourseDetailsFormProps {
   course: Course;
@@ -24,11 +24,9 @@ export default function CourseDetailsForm({
     imageUrl: course.imageUrl || "",
   });
 
-  // Debounce the form data
   const debouncedData = useDebounce(formData, 1000);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Update form data when course prop changes
   useEffect(() => {
     setFormData({
       title: course.title,
@@ -46,7 +44,6 @@ export default function CourseDetailsForm({
     if (!isMounted) return;
 
     const save = async () => {
-      // Deep comparison to prevent auto-save if nothing changed
       const currentPrice = course.price ? (course.price / 100).toString() : "";
       const isTitleSame = debouncedData.title === course.title;
       const isDescriptionSame =
