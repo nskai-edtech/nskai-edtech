@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getCourseOutline, getLessonWithAccess } from "@/actions/lesson-viewer";
 import { VideoPlayer } from "@/components/video-player";
 import { CourseSidebar } from "@/components/watch/course-sidebar";
@@ -16,6 +15,7 @@ import {
   getQuizQuestionsAdmin,
 } from "@/actions/quiz/queries";
 import { CustomAccordion } from "@/components/ui/custom-accordion";
+import { CourseMobileSidebar } from "@/components/watch/course-mobile-sidebar";
 
 export default async function LessonPage({
   params,
@@ -55,6 +55,7 @@ export default async function LessonPage({
 
   const safeQuizQuestions = rawQuizQuestions.map((q) => {
     if (!quizAttempt?.passed) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { correctOption: _, ...safeQuestion } = q;
       return safeQuestion;
     }
@@ -75,31 +76,41 @@ export default async function LessonPage({
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
-      <div className="h-16 border-b border-border bg-surface flex items-center justify-between px-6 shrink-0 z-10">
-        <div className="flex items-center gap-4">
+      <div className="h-16 border-b border-border bg-surface flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
+        <div className="flex items-center gap-3 md:gap-4">
           <Link
             href="/learner/enrolled"
-            className="p-2 hover:bg-surface-muted rounded-full transition-colors text-secondary-text hover:text-primary-text"
+            className="flex items-center gap-2 p-2 md:px-4 md:py-2 hover:bg-surface-muted rounded-full md:rounded-xl transition-colors text-secondary-text hover:text-primary-text"
+            title="Back to enrolled courses"
           >
             <ArrowLeft className="w-5 h-5" />
+            <span className="hidden md:inline-block font-bold">Courses</span>
           </Link>
+
+          <div className="hidden sm:block border-l border-border h-8 mx-1" />
+
           <div>
-            <h1 className="font-bold text-sm text-secondary-text uppercase tracking-wider">
+            <h1 className="font-bold text-[10px] md:text-sm text-secondary-text uppercase tracking-wider hidden md:block">
               Course
             </h1>
-            <h2 className="font-bold text-lg text-primary-text leading-none">
+            <h2 className="font-bold text-sm md:text-lg text-primary-text leading-tight line-clamp-1 max-w-[150px] sm:max-w-xs md:max-w-md">
               {course.title}
             </h2>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <Link
             href="/learner"
-            className="text-sm font-bold text-brand hover:underline"
+            className="text-sm font-bold text-brand hover:underline hidden sm:block mr-2"
           >
             Dashboard
           </Link>
+          <CourseMobileSidebar
+            course={course}
+            currentLessonId={lessonId}
+            purchase={true}
+          />
         </div>
       </div>
 
@@ -214,8 +225,8 @@ export default async function LessonPage({
           </div>
         </div>
 
-        {/* Sidebar (List of Lessons) */}
-        <div className="w-[350px] shrink-0 lg:block h-full overflow-hidden border-l border-border bg-surface flex flex-col">
+        {/* Sidebar (List of Lessons) - Hidden on mobile */}
+        <div className="hidden lg:flex w-[350px] shrink-0 h-full overflow-hidden border-l border-border bg-surface flex-col">
           <div className="flex-1 overflow-y-auto">
             <CourseSidebar
               course={course}

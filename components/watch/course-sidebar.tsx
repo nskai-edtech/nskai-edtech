@@ -27,30 +27,34 @@ interface CourseSidebarProps {
   course: SidebarCourse;
   currentLessonId: string;
   purchase: boolean; // whether user has access
+  hideHeader?: boolean;
 }
 
 export const CourseSidebar = ({
   course,
   currentLessonId,
   purchase,
+  hideHeader,
 }: CourseSidebarProps) => {
   return (
     <div className="h-full border-r border-border bg-surface flex flex-col overflow-y-auto">
-      <div className="p-6 border-b border-border">
-        <h2 className="font-bold text-lg text-primary-text line-clamp-2">
-          {course.title}
-        </h2>
-        {/* Progress Bar Placeholder */}
-        <div className="mt-4">
-          <div className="flex justify-between text-xs mb-1 text-secondary-text font-semibold">
-            <span>Course Progress</span>
-            <span>0%</span>
-          </div>
-          <div className="h-2 w-full bg-surface-muted rounded-full overflow-hidden">
-            <div className="h-full bg-brand w-0 rounded-full" />
+      {!hideHeader && (
+        <div className="p-6 border-b border-border">
+          <h2 className="font-bold text-lg text-primary-text line-clamp-2">
+            {course.title}
+          </h2>
+          {/* Progress Bar Placeholder */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs mb-1 text-secondary-text font-semibold">
+              <span>Course Progress</span>
+              <span>0%</span>
+            </div>
+            <div className="h-2 w-full bg-surface-muted rounded-full overflow-hidden">
+              <div className="h-full bg-brand w-0 rounded-full" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="flex-1 overflow-y-auto py-2">
         {course.chapters.map((chapter) => (
