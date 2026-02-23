@@ -1,4 +1,3 @@
-import { getTutorCourses } from "@/actions/courses";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,6 +11,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { getTutorCourses } from "@/actions/courses/tutor";
 
 interface PageProps {
   searchParams: Promise<{ page?: string; search?: string }>;
@@ -92,7 +92,7 @@ export default async function TutorCoursesPage({ searchParams }: PageProps) {
             </div>
             <div>
               <p className="text-2xl font-bold text-primary-text">
-                {courses.filter((c) => c.isPublished).length}
+                {courses.filter((c) => c.status === "PUBLISHED").length}
               </p>
               <p className="text-sm text-secondary-text">Published</p>
             </div>
@@ -105,9 +105,9 @@ export default async function TutorCoursesPage({ searchParams }: PageProps) {
             </div>
             <div>
               <p className="text-2xl font-bold text-primary-text">
-                {courses.filter((c) => !c.isPublished).length}
+                {courses.filter((c) => c.status === "DRAFT").length}
               </p>
-              <p className="text-sm text-secondary-text">Draft</p>
+              <p className="text-sm text-secondary-text">Drafts</p>
             </div>
           </div>
         </div>
@@ -156,8 +156,8 @@ export default async function TutorCoursesPage({ searchParams }: PageProps) {
                       Published
                     </span>
                   ) : course.status === "PENDING" ? (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400">
-                      Pending
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400">
+                      Pending Review
                     </span>
                   ) : course.status === "REJECTED" ? (
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400">

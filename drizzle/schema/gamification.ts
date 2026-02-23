@@ -5,6 +5,8 @@ import {
   timestamp,
   integer,
   uniqueIndex,
+  index,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
@@ -19,16 +21,18 @@ export const pointTransactions = pgTable(
       .notNull(),
     amount: integer("amount").notNull(),
     reason: pointReasonEnum("reason").notNull(),
-    referenceId: text("reference_id"), // e.g. chapterId or date string
+    referenceId: text("reference_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  // Ensure we don't accidentally double-award for the exact same reason/reference
   (t) => [
+    // Prevents double-awarding
     uniqueIndex("point_tx_user_reason_ref_idx").on(
       t.userId,
       t.reason,
       t.referenceId,
     ),
+
+    index("point_tx_user_created_idx").on(t.userId, t.createdAt),
   ],
 );
 
@@ -39,13 +43,23 @@ export const dailyWatchTime = pgTable(
     userId: uuid("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    date: text("date").notNull(), // Format: YYYY-MM-DD
+
+    recordDate: date("record_date").notNull(),
+
     minutesWatched: integer("minutes_watched").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
-  (t) => [uniqueIndex("daily_watch_time_user_date_idx").on(t.userId, t.date)],
+  (t) => [
+    uniqueIndex("daily_watch_time_user_date_idx").on(t.userId, t.recordDate),
+  ],
 );
+
+// --- RELATIONS ---
 
 export const pointTransactionRelations = relations(
   pointTransactions,

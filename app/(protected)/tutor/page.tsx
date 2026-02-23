@@ -1,4 +1,3 @@
-import { getTutorDashboardStats } from "@/actions/courses";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -9,6 +8,7 @@ import {
   BookOpen,
   ArrowUpRight,
 } from "lucide-react";
+import { getTutorDashboardStats } from "@/actions/courses/tutor";
 
 export default async function TutorDashboard() {
   const stats = await getTutorDashboardStats();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getCourseOutline, getLessonWithAccess } from "@/actions/lesson-viewer";
 import { VideoPlayer } from "@/components/video-player";
 import { CourseSidebar } from "@/components/watch/course-sidebar";
@@ -7,9 +8,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getQuestions } from "@/actions/qa";
-import { getQuizQuestions, getLastQuizAttempt } from "@/actions/quiz";
+
 import { QuestionWithRelations } from "@/types";
 import { QuizPlayer } from "@/components/watch/quiz-player";
+import {
+  getLastQuizAttempt,
+  getQuizQuestionsAdmin,
+} from "@/actions/quiz/queries";
+import { CustomAccordion } from "@/components/ui/custom-accordion";
 
 export default async function LessonPage({
   params,
@@ -25,7 +31,7 @@ export default async function LessonPage({
   );
 
   const questionsPromise = getQuestions(lessonId);
-  const quizQuestionsPromise = getQuizQuestions(lessonId);
+  const quizQuestionsPromise = getQuizQuestionsAdmin(lessonId);
   const quizAttemptPromise = getLastQuizAttempt(lessonId);
 
   const [
@@ -43,15 +49,24 @@ export default async function LessonPage({
   ]);
 
   const questions: QuestionWithRelations[] = questionsResult?.questions || [];
-  const quizQuestions =
+
+  const rawQuizQuestions =
     "questions" in quizQuestionsResult ? quizQuestionsResult.questions : [];
+
+  const safeQuizQuestions = rawQuizQuestions.map((q) => {
+    if (!quizAttempt?.passed) {
+      const { correctOption: _, ...safeQuestion } = q;
+      return safeQuestion;
+    }
+    return q;
+  });
 
   if (!course) {
     return redirect("/learner/enrolled");
   }
 
   if (!lessonData) {
-    return redirect(`/watch/${courseId}`); // Or 404
+    return redirect(`/watch/${courseId}`);
   }
 
   const { lesson, muxData, nextLessonId, prevLessonId } = lessonData;
@@ -92,49 +107,54 @@ export default async function LessonPage({
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto bg-surface-muted/30">
           <div className="max-w-5xl mx-auto p-6 md:p-10">
-            {/* Content Container (Video or Quiz) */}
-            <div className="aspect-video bg-surface rounded-2xl overflow-hidden shadow-2xl shadow-black/5 mb-8 border border-border/50 relative group">
-              {isQuiz ? (
-                <div className="w-full h-full overflow-y-auto p-6 md:p-12 bg-surface">
-                  <div className="max-w-2xl mx-auto">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-3 bg-brand/10 rounded-xl">
-                        <HelpCircle className="w-8 h-8 text-brand" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-primary-text">
-                          Quiz: {lesson.title}
-                        </h2>
-                        <p className="text-secondary-text">
-                          Test your knowledge.
-                        </p>
-                      </div>
-                    </div>
-                    {quizQuestions.length > 0 ? (
-                      <QuizPlayer
-                        lessonId={lessonId}
-                        questions={quizQuestions}
-                        lastAttempt={quizAttempt}
-                      />
-                    ) : (
-                      <div className="text-center py-12 text-secondary-text">
-                        No questions in this quiz yet.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : muxData?.playbackId ? (
+            {/* Content Container (Video) */}
+            {muxData?.playbackId ? (
+              <div className="aspect-video bg-surface rounded-2xl overflow-hidden shadow-2xl shadow-black/5 mb-8 border border-border/50 relative group">
                 <VideoPlayer
                   playbackId={muxData.playbackId}
                   title={lesson.title}
                   lessonId={lessonId}
                 />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white/50 bg-slate-900">
-                  <p>Video processing or not available</p>
+              </div>
+            ) : (
+              !isQuiz && (
+                <div className="aspect-video bg-surface rounded-2xl overflow-hidden shadow-2xl shadow-black/5 mb-8 border border-border/50 relative group">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-white/50 bg-slate-900">
+                    <p>Video processing or not available</p>
+                  </div>
                 </div>
-              )}
-            </div>
+              )
+            )}
+
+            {/* Quiz Container (Rendered below video if it exists) */}
+            {isQuiz && rawQuizQuestions.length > 0 && (
+              <div className="mb-8">
+                <CustomAccordion
+                  title={
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-brand/10 rounded-xl">
+                        <HelpCircle className="w-6 h-6 text-brand" />
+                      </div>
+                      <span className="text-xl font-bold">
+                        Take Quiz: {lesson.title}
+                      </span>
+                    </div>
+                  }
+                  defaultOpen={!quizAttempt?.passed}
+                >
+                  <QuizPlayer
+                    lessonId={lessonId}
+                    questions={safeQuizQuestions}
+                    lastAttempt={quizAttempt}
+                  />
+                </CustomAccordion>
+              </div>
+            )}
+            {isQuiz && rawQuizQuestions.length === 0 && (
+              <div className="mb-8 text-center py-12 text-secondary-text bg-surface rounded-2xl border border-border">
+                No questions in this quiz yet.
+              </div>
+            )}
 
             {/* Lesson Title & Controls */}
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-8">
@@ -160,12 +180,26 @@ export default async function LessonPage({
 
                 {/* Next Lesson Button */}
                 {nextLessonId && (
-                  <Link
-                    href={`/watch/${courseId}/${nextLessonId}`}
-                    className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-xl hover:bg-brand-dark transition-colors shadow-lg shadow-brand/20"
-                  >
-                    Next Lesson <ChevronRight className="w-5 h-5" />
-                  </Link>
+                  <>
+                    {isQuiz &&
+                    rawQuizQuestions.length > 0 &&
+                    !quizAttempt?.passed ? (
+                      <button
+                        disabled
+                        className="flex items-center gap-2 px-6 py-3 bg-surface-muted text-secondary-text font-bold rounded-xl cursor-not-allowed opacity-50"
+                        title="You must pass the quiz to continue"
+                      >
+                        Next Lesson <ChevronRight className="w-5 h-5" />
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/watch/${courseId}/${nextLessonId}`}
+                        className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-xl hover:bg-brand-dark transition-colors shadow-lg shadow-brand/20"
+                      >
+                        Next Lesson <ChevronRight className="w-5 h-5" />
+                      </Link>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -181,7 +215,7 @@ export default async function LessonPage({
         </div>
 
         {/* Sidebar (List of Lessons) */}
-        <div className="w-[350px] shrink-0 hidden lg:block h-full overflow-hidden border-l border-border bg-surface flex flex-col">
+        <div className="w-[350px] shrink-0 lg:block h-full overflow-hidden border-l border-border bg-surface flex flex-col">
           <div className="flex-1 overflow-y-auto">
             <CourseSidebar
               course={course}

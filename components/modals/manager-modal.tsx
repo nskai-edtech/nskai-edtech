@@ -1,16 +1,17 @@
 "use client";
 
 import { useModalStore } from "@/hooks/use-modal-store";
-import {
-  suspendTutor,
-  unsuspendTutor,
-  banTutor,
-  unbanTutor,
-} from "@/actions/admin";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, ShieldAlert, Ban } from "lucide-react";
 import toast from "react-hot-toast";
+import {
+  banTutor,
+  suspendTutor,
+  unbanTutor,
+  unsuspendTutor,
+} from "../../actions/admin/tutors";
 
 export const ManagerModal = () => {
   const { isOpen, onClose, type, data } = useModalStore();

@@ -1,10 +1,10 @@
 import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getCourseRatingStats } from "@/actions/reviews";
 import { db } from "@/lib/db";
 import { purchases } from "@/drizzle/schema";
 import { eq, sql } from "drizzle-orm";
+import { getCourseRatingStats } from "@/actions/reviews/queries";
 
 interface CourseHeroProps {
   courseId: string;

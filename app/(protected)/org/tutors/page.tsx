@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getTutorsWithCourseCount } from "@/actions/admin";
-import { getTutorRatingStats } from "@/actions/reviews";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
@@ -13,6 +11,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getTutorsWithCourseCount } from "@/actions/admin/tutors";
+import { getTutorRatingStats } from "@/actions/reviews/queries";
 
 export default async function TutorsPage() {
   const { sessionClaims } = await auth();

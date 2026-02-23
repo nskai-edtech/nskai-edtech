@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { LearnerSidebar } from "@/components/layout/learner-sidebar";
-import { UserButton, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ModeToggle";
 
 export default function LearnerLayout({ children }: { children: ReactNode }) {
@@ -12,10 +11,7 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
         <div className="fixed top-4 right-4 md:right-8 z-50 flex items-center gap-4 bg-background/50 backdrop-blur-sm p-2 rounded-full border border-border/50 shadow-sm">
           <ThemeToggle />
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface">
-            <ClerkLoading>
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </ClerkLoading>
-            <ClerkLoaded>
+            <div suppressHydrationWarning>
               <UserButton
                 appearance={{
                   elements: {
@@ -23,7 +19,7 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
                   },
                 }}
               />
-            </ClerkLoaded>
+            </div>
           </div>
         </div>
         <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-16 pt-24 sm:pt-16 md:pt-16">

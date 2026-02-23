@@ -1,7 +1,4 @@
-import {
-  type RecentEnrollment,
-  type QuizPerformance,
-} from "@/actions/analytics";
+import { QuizPerformance, RecentEnrollment } from "@/actions/analytics/types";
 import { formatPrice } from "@/lib/format";
 import { Clock, BrainCircuit, CheckCircle2, XCircle } from "lucide-react";
 

@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {
-  saveQuizQuestion,
-  deleteQuizQuestion,
-  type QuizQuestionWithAnswer,
-} from "@/actions/quiz";
 import { PlusCircle, Trash2, Save, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
+import { deleteQuizQuestion, saveQuizQuestion } from "@/actions/quiz/actions";
 
 interface QuizEditorProps {
   lessonId: string;

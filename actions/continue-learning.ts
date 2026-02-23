@@ -1,8 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { userProgress, lessons, chapters, courses } from "@/drizzle/schema";
-import { eq, and, desc, count } from "drizzle-orm";
+import {
+  userProgress,
+  lessons,
+  chapters,
+  courses,
+  users,
+} from "@/drizzle/schema";
+import { eq, and, desc, count, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 interface ContinueLearningCourse {
@@ -23,128 +29,121 @@ export async function getContinueLearningCourses(
 ): Promise<ContinueLearningCourse[]> {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      return [];
-    }
+    if (!userId) return [];
 
     const user = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.clerkId, userId),
+      where: eq(users.clerkId, userId),
     });
 
-    if (!user) {
-      return [];
-    }
+    if (!user) return [];
 
-    // Get all progress records for this user, ordered by last accessed
     const recentProgress = await db
       .select({
         lessonId: userProgress.lessonId,
         lastAccessedAt: userProgress.lastAccessedAt,
-        isCompleted: userProgress.isCompleted,
         lessonTitle: lessons.title,
-        chapterId: lessons.chapterId,
+        courseId: chapters.courseId,
+        courseTitle: courses.title,
+        courseImageUrl: courses.imageUrl,
       })
       .from(userProgress)
       .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .innerJoin(courses, eq(chapters.courseId, courses.id))
       .where(eq(userProgress.userId, user.id))
       .orderBy(desc(userProgress.lastAccessedAt))
       .limit(20);
 
-    if (recentProgress.length === 0) {
-      return [];
-    }
+    if (recentProgress.length === 0) return [];
 
-    // Get unique courses from recent progress
+    // Extract unique courses (first appearance is the most recent)
     const uniqueCourseIds = new Set<string>();
+
     const courseLessons: Array<{
       courseId: string;
+      courseTitle: string;
+      courseImageUrl: string | null;
       lessonId: string;
       lessonTitle: string;
       lastAccessedAt: Date | null;
     }> = [];
 
     for (const progress of recentProgress) {
-      // Skip if chapterId is null
-      if (!progress.chapterId) continue;
+      if (!progress.courseId || !progress.lessonId) continue;
 
-      // Get course ID for this lesson
-      const chapter = await db.query.chapters.findFirst({
-        where: eq(chapters.id, progress.chapterId),
-      });
+      if (!uniqueCourseIds.has(progress.courseId)) {
+        uniqueCourseIds.add(progress.courseId);
 
-      if (!chapter || !chapter.courseId) continue;
-
-      // Skip if lessonId is null
-      if (!progress.lessonId) continue;
-
-      // Only add if we haven't seen this course yet
-      if (!uniqueCourseIds.has(chapter.courseId)) {
-        uniqueCourseIds.add(chapter.courseId);
         courseLessons.push({
-          courseId: chapter.courseId,
+          courseId: progress.courseId,
+          courseTitle: progress.courseTitle,
+          courseImageUrl: progress.courseImageUrl,
           lessonId: progress.lessonId,
           lessonTitle: progress.lessonTitle,
           lastAccessedAt: progress.lastAccessedAt,
         });
 
-        // Stop when we have enough courses
         if (courseLessons.length >= limit) break;
       }
     }
 
-    // Get course details and calculate progress for each
-    const continueLearningData = await Promise.all(
-      courseLessons.map(async (item) => {
-        const course = await db.query.courses.findFirst({
-          where: eq(courses.id, item.courseId),
-        });
+    const courseIdsArray = Array.from(uniqueCourseIds);
+    if (courseIdsArray.length === 0) return [];
 
-        if (!course) return null;
+    const totalLessonsData = await db
+      .select({
+        courseId: chapters.courseId,
+        total: count(lessons.id),
+      })
+      .from(lessons)
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(inArray(chapters.courseId, courseIdsArray))
+      .groupBy(chapters.courseId);
 
-        // Calculate progress percentage
-        const totalLessonsResult = await db
-          .select({ count: count() })
-          .from(lessons)
-          .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
-          .where(eq(chapters.courseId, course.id));
-
-        const totalLessons = totalLessonsResult[0]?.count ?? 0;
-
-        const completedLessonsResult = await db
-          .select({ count: count() })
-          .from(userProgress)
-          .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
-          .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
-          .where(
-            and(
-              eq(userProgress.userId, user.id),
-              eq(userProgress.isCompleted, true),
-              eq(chapters.courseId, course.id),
-            ),
-          );
-
-        const completedLessons = completedLessonsResult[0]?.count ?? 0;
-        const progressPercentage =
-          totalLessons > 0
-            ? Math.round((completedLessons / totalLessons) * 100)
-            : 0;
-
-        return {
-          courseId: course.id,
-          courseTitle: course.title,
-          courseImageUrl: course.imageUrl,
-          lessonId: item.lessonId,
-          lessonTitle: item.lessonTitle,
-          lastAccessedAt: item.lastAccessedAt,
-          progressPercentage,
-        };
-      }),
+    const totalLessonsMap = new Map(
+      totalLessonsData.map((t) => [t.courseId, t.total]),
     );
 
-    // Filter out nulls and return
-    return continueLearningData.filter(
-      (item): item is ContinueLearningCourse => item !== null,
+    const completedLessonsData = await db
+      .select({
+        courseId: chapters.courseId,
+        completed: count(userProgress.id),
+      })
+      .from(userProgress)
+      .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(
+        and(
+          eq(userProgress.userId, user.id),
+          eq(userProgress.isCompleted, true),
+          inArray(chapters.courseId, courseIdsArray),
+        ),
+      )
+      .groupBy(chapters.courseId);
+
+    const completedLessonsMap = new Map(
+      completedLessonsData.map((c) => [c.courseId, c.completed]),
     );
+
+    return courseLessons.map((item) => {
+      const totalLessons = totalLessonsMap.get(item.courseId) ?? 0;
+      const completedLessons = completedLessonsMap.get(item.courseId) ?? 0;
+
+      const progressPercentage =
+        totalLessons > 0
+          ? Math.round((completedLessons / totalLessons) * 100)
+          : 0;
+
+      return {
+        courseId: item.courseId,
+        courseTitle: item.courseTitle,
+        courseImageUrl: item.courseImageUrl,
+        lessonId: item.lessonId,
+        lessonTitle: item.lessonTitle,
+        lastAccessedAt: item.lastAccessedAt,
+        progressPercentage,
+      };
+    });
   } catch (error) {
     console.error("[GET_CONTINUE_LEARNING_COURSES]", error);
     return [];

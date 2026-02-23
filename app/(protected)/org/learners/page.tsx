@@ -10,9 +10,9 @@ import {
   Eye,
 } from "lucide-react";
 import Image from "next/image";
-import { getLearners } from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getLearners } from "@/actions/admin/learners";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

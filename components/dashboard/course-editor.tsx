@@ -21,13 +21,14 @@ import {
   deleteChapter,
   deleteLesson,
 } from "@/actions/chapters";
-import { submitCourseForReview, getCourseStatus } from "@/actions/courses";
 import toast from "react-hot-toast";
 import LessonEditor from "./lesson-editor";
 import CourseDetailsForm from "./course-details-form";
 import InputModal from "../ui/input-modal";
 
 import { Course, Lesson } from "@/types";
+import { getCourseStatus } from "@/actions/courses/marketplace";
+import { submitCourseForReview } from "@/actions/courses/tutor";
 
 interface CourseEditorProps {
   course: Course;

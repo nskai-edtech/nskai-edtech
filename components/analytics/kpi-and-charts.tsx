@@ -1,4 +1,4 @@
-import { type MonthlyDataPoint } from "@/actions/analytics";
+import { MonthlyDataPoint } from "@/actions/analytics/types";
 import { formatPrice } from "@/lib/format";
 import {
   DollarSign,
@@ -8,8 +8,6 @@ import {
   TrendingUp,
   UserPlus,
 } from "lucide-react";
-
-// ─── KPI Card ───────────────────────────────────────────────────────────────
 
 function KpiCard({
   label,
@@ -45,8 +43,6 @@ function KpiCard({
     </div>
   );
 }
-
-// ─── Exported Section ───────────────────────────────────────────────────────
 
 export function KpiCards({
   totalRevenue,
@@ -100,8 +96,6 @@ export function KpiCards({
     </div>
   );
 }
-
-// ─── Charts Section ────────────────────────────────────────────────────────
 
 function BarChart({
   data,

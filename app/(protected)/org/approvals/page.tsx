@@ -1,7 +1,7 @@
-import { getPendingCourses } from "@/actions/courses";
 import { BookOpen, Clock, User, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getPendingCourses } from "@/actions/courses/admin";
 
 export default async function ApprovalsPage() {
   const pendingCourses = await getPendingCourses();

@@ -1,4 +1,4 @@
-import { getEnrolledCourses } from "@/actions/courses";
+import { getEnrolledCourses } from "@/actions/courses/student";
 import { CourseCard } from "@/components/courses/course-card";
 
 export default async function EnrolledCourses() {

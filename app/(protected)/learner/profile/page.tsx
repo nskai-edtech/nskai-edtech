@@ -1,4 +1,3 @@
-import { getLearnerProfile, getLearnerStats } from "@/actions/profile";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import {
@@ -14,6 +13,7 @@ import {
 import { ProfileForm } from "@/components/learner/profile-form";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getLearnerProfile, getLearnerStats } from "@/actions/profile/actions";
 
 export default function ProfilePage() {
   return (

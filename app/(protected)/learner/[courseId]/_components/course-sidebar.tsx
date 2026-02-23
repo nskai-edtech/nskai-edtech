@@ -1,6 +1,6 @@
 import { Video, Download, Globe, Star } from "lucide-react";
 import { CourseEnrollButton } from "@/components/courses/course-enroll-button";
-import { checkEnrollment } from "@/actions/courses";
+import { checkEnrollment } from "@/actions/courses/student";
 
 interface CourseSidebarProps {
   courseId: string;

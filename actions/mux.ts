@@ -3,16 +3,15 @@
 import Mux from "@mux/mux-node";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { lessons, users, muxData } from "@/drizzle/schema";
+import { lessons, muxData } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 const getMuxClient = () => {
   const tokenId = process.env.MUX_TOKEN_ID;
   const tokenSecret = process.env.MUX_TOKEN_SECRET;
 
-  if (!tokenId || !tokenSecret) {
-    return null;
-  }
+  if (!tokenId || !tokenSecret) return null;
 
   return new Mux({
     tokenId,
@@ -20,60 +19,45 @@ const getMuxClient = () => {
   });
 };
 
-/**
- * Generate a secure Mux direct upload URL for a specific lesson.
- * Verifies that the user is a tutor and owns the course.
- */
+// DIRECT UPLOAD CONFIGURATION
 export async function getDirectUploadUrl(lessonId: string) {
   try {
     const { userId: clerkId } = await auth();
-
-    if (!clerkId) {
-      return { error: "Unauthorized" };
-    }
+    if (!clerkId) return { error: "Unauthorized" };
 
     const mux = getMuxClient();
-
     if (!mux) {
-      console.error(
-        "[MUX_ACTION_ERROR] Mux client configuration missing. Check MUX_TOKEN_ID and MUX_TOKEN_SECRET in .env.local",
-      );
-      return {
-        error:
-          "Video service is not configured (Missing Mux Keys). Please contact the administrator.",
-      };
+      console.error("[MUX_ACTION_ERROR] Configuration missing.");
+      return { error: "Video service not configured." };
     }
 
-    // Get user for permission check
-    const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, clerkId),
-    });
-
-    if (!user || user.role !== "TUTOR") {
-      return { error: "Permission denied. Only tutors can upload videos." };
-    }
-
-    // Verify ownership: lesson -> chapter -> course -> tutorId
+    // AUTHENTICATION AND OWNERSHIP CHECK
     const lessonData = await db.query.lessons.findFirst({
       where: eq(lessons.id, lessonId),
       with: {
         chapter: {
           with: {
-            course: true,
+            course: {
+              with: {
+                tutor: true,
+              },
+            },
           },
         },
       },
     });
 
-    if (!lessonData || !lessonData.chapter?.course) {
-      return { error: "Lesson not found" };
+    if (!lessonData || !lessonData.chapter?.course?.tutor) {
+      return { error: "Lesson not found." };
     }
 
-    if (lessonData.chapter.course.tutorId !== user.id) {
+    const tutor = lessonData.chapter.course.tutor;
+
+    if (tutor.clerkId !== clerkId) {
       return { error: "Permission denied. You do not own this course." };
     }
 
-    // Create Mux Direct Upload
+    // MUX UPLOAD CREATION
     const upload = await mux.video.uploads.create({
       new_asset_settings: {
         playback_policy: ["public"],
@@ -82,7 +66,7 @@ export async function getDirectUploadUrl(lessonId: string) {
       cors_origin: "*",
     });
 
-    // Saving the assetId immediately so polling can work even without webhooks
+    // ASSET ID SYNCHRONIZATION
     if (upload.asset_id) {
       await db
         .insert(muxData)
@@ -94,7 +78,7 @@ export async function getDirectUploadUrl(lessonId: string) {
           target: muxData.lessonId,
           set: {
             assetId: upload.asset_id,
-            playbackId: null, // Reset if re-uploading
+            playbackId: null,
           },
         });
     }
@@ -105,15 +89,12 @@ export async function getDirectUploadUrl(lessonId: string) {
       id: upload.id,
     };
   } catch (error) {
-    console.error("[MUX_ACTION_ERROR]", error);
+    console.error("[MUX_UPLOAD_ERROR]", error);
     return { error: "Internal Error" };
   }
 }
 
-/**
- * Checks if a lesson has an associated Mux asset.
- * Fallback: If no DB record exists, it checks the Mux Upload ID directly.
- */
+// VIDEO STATUS POLLING AND SYNC
 export async function checkLessonVideoStatus(
   lessonId: string,
   uploadId?: string,
@@ -122,12 +103,10 @@ export async function checkLessonVideoStatus(
     const { userId: clerkId } = await auth();
     if (!clerkId) return { error: "Unauthorized" };
 
-    // 1. Try to find it in our database first
+    // DATABASE LOOKUP
     const data = await db.query.lessons.findFirst({
       where: eq(lessons.id, lessonId),
-      with: {
-        muxData: true,
-      },
+      with: { muxData: true },
     });
 
     if (data?.muxData?.playbackId) {
@@ -137,15 +116,13 @@ export async function checkLessonVideoStatus(
       };
     }
 
-    // FALLBACK: If DB is empty or missing playbackId, check Mux directly
+    // EXTERNAL STATUS CHECK
     const idToPoll = data?.muxData?.assetId || uploadId;
-
     if (idToPoll) {
       const mux = getMuxClient();
       if (mux) {
         let assetId = data?.muxData?.assetId;
 
-        // If only uploadId exists, get assetId from the upload object
         if (!assetId && uploadId) {
           const upload = await mux.video.uploads.retrieve(uploadId);
           assetId = upload.asset_id || undefined;
@@ -157,7 +134,6 @@ export async function checkLessonVideoStatus(
           if (asset.status === "ready" && asset.playback_ids?.[0]) {
             const playbackId = asset.playback_ids[0].id;
 
-            // Sync the DB manually
             const updatedMuxData = await db
               .insert(muxData)
               .values({
@@ -173,6 +149,9 @@ export async function checkLessonVideoStatus(
                 },
               })
               .returning();
+
+            // REVALIDATION
+            revalidatePath(`/watch/${data?.chapterId}`);
 
             return {
               muxData: updatedMuxData[0],
@@ -190,5 +169,25 @@ export async function checkLessonVideoStatus(
   } catch (error) {
     console.error("[MUX_STATUS_ERROR]", error);
     return { error: "Internal Error" };
+  }
+}
+
+export async function deleteMuxAsset(assetId: string) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return { error: "Unauthorized" };
+
+    const mux = getMuxClient();
+    if (!mux) return { error: "Service not configured" };
+
+    await mux.video.assets.delete(assetId);
+
+    await db.delete(muxData).where(eq(muxData.assetId, assetId));
+
+    revalidatePath("/tutor/courses");
+    return { success: true };
+  } catch (error) {
+    console.error("[MUX_DELETE_ERROR]", error);
+    return { error: "Failed to delete video" };
   }
 }

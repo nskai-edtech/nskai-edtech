@@ -6,25 +6,34 @@ import {
   boolean,
   integer,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { courses, lessons } from "./courses";
 
-export const purchases = pgTable("purchase", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-  courseId: uuid("course_id").references(() => courses.id, {
-    onDelete: "cascade",
-  }),
+export const purchases = pgTable(
+  "purchase",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    courseId: uuid("course_id").references(() => courses.id, {
+      onDelete: "cascade",
+    }),
 
-  // Paystack Verification
-  paystackReference: text("paystack_reference").unique().notNull(),
-  amount: integer("amount").notNull(),
-  status: text("status").default("success"),
+    // Paystack Verification
+    paystackReference: text("paystack_reference").unique().notNull(),
+    amount: integer("amount").notNull(),
+    status: text("status").default("success"),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("purchase_user_course_idx").on(table.userId, table.courseId),
+
+    index("purchase_course_id_idx").on(table.courseId),
+  ],
+);
 
 export const reviews = pgTable(
   "review",
@@ -40,7 +49,11 @@ export const reviews = pgTable(
     comment: text("comment"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("review_user_course_idx").on(t.userId, t.courseId)],
+  (table) => [
+    uniqueIndex("review_user_course_idx").on(table.userId, table.courseId),
+
+    index("review_course_id_idx").on(table.courseId),
+  ],
 );
 
 export const courseLikes = pgTable(
@@ -55,7 +68,11 @@ export const courseLikes = pgTable(
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("course_like_user_course_idx").on(t.userId, t.courseId)],
+  (table) => [
+    uniqueIndex("course_like_user_course_idx").on(table.userId, table.courseId),
+
+    index("course_like_course_id_idx").on(table.courseId),
+  ],
 );
 
 export const userProgress = pgTable(
@@ -71,12 +88,22 @@ export const userProgress = pgTable(
       })
       .notNull(),
     isCompleted: boolean("is_completed").default(false),
-    lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+
+    lastAccessedAt: timestamp("last_accessed_at")
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
-  (t) => [
-    uniqueIndex("user_progress_user_lesson_idx").on(t.userId, t.lessonId),
+  (table) => [
+    uniqueIndex("user_progress_user_lesson_idx").on(
+      table.userId,
+      table.lessonId,
+    ),
+
+    index("user_progress_lesson_id_idx").on(table.lessonId),
   ],
 );
+
+// --- RELATIONS ---
 
 export const purchaseRelations = relations(purchases, ({ one }) => ({
   user: one(users, {

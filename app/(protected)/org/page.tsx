@@ -1,9 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  getOrgOverviewStats,
-  getRecentPendingActivity,
-  getAdminPendingCounts,
-} from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
@@ -18,6 +13,11 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  getAdminPendingCounts,
+  getOrgOverviewStats,
+  getRecentPendingActivity,
+} from "@/actions/admin/dashboard";
 
 export default async function OrgDashboard() {
   const { sessionClaims } = await auth();

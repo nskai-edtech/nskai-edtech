@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { removeCourseFromPath } from "@/actions/learning-paths";
 import { Loader2 } from "lucide-react";
+import { removeCourseFromPath } from "@/actions/learning-paths/actions";
 
 export function RemoveCourseButton({ mappingId }: { mappingId: string }) {
   const router = useRouter();

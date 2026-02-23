@@ -7,10 +7,10 @@ import {
 } from "@/components/certificates/certificate-download-button";
 import { Award, BookOpen, Calendar, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { getUserCertificates } from "@/actions/certificates";
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { getUserCertificates } from "@/actions/certificates/actions";
 
 interface CertificateListItem extends CertificateDownloadData {
   courseId: string;

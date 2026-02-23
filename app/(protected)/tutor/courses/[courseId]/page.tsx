@@ -1,10 +1,10 @@
-import { getCourseById } from "@/actions/courses";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import CourseEditor from "@/components/dashboard/course-editor";
+import { getCourseById } from "@/actions/courses/marketplace";
 
 interface CoursePageProps {
   params: Promise<{ courseId: string }>;

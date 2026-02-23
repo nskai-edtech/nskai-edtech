@@ -1,11 +1,11 @@
 "use client";
 
 import { useModalStore } from "@/hooks/use-modal-store";
-import { approveTutor } from "@/actions/admin";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
+import { approveTutor } from "../../actions/admin/tutors";
 
 export const ApproveModal = () => {
   const { isOpen, onClose, type, data } = useModalStore();

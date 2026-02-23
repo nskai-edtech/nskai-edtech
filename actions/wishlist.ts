@@ -4,17 +4,18 @@ import { db } from "@/lib/db";
 import { courses, users, courseLikes } from "@/drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
-import { CourseWithTutor } from "./courses";
+import { CourseWithTutor } from "./courses/types";
 
 export async function getWishlistCourses(): Promise<CourseWithTutor[]> {
-  const { userId } = await auth();
+  const { userId: clerkId } = await auth();
 
-  if (!userId) {
+  if (!clerkId) {
     throw new Error("Unauthorized");
   }
 
   const student = await db.query.users.findFirst({
-    where: eq(users.clerkId, userId),
+    where: eq(users.clerkId, clerkId),
+    columns: { id: true },
   });
 
   if (!student) {
@@ -28,7 +29,6 @@ export async function getWishlistCourses(): Promise<CourseWithTutor[]> {
       title: courses.title,
       description: courses.description,
       price: courses.price,
-      isPublished: courses.isPublished,
       status: courses.status,
       imageUrl: courses.imageUrl,
       createdAt: courses.createdAt,
@@ -43,9 +43,9 @@ export async function getWishlistCourses(): Promise<CourseWithTutor[]> {
     .innerJoin(courseLikes, eq(courses.id, courseLikes.courseId))
     .leftJoin(users, eq(courses.tutorId, users.id))
     .where(
-      and(eq(courseLikes.userId, student.id), eq(courses.isPublished, true)),
+      and(eq(courseLikes.userId, student.id), eq(courses.status, "PUBLISHED")),
     )
     .orderBy(desc(courseLikes.createdAt));
 
-  return wishlistCourses as CourseWithTutor[];
+  return wishlistCourses as unknown as CourseWithTutor[];
 }

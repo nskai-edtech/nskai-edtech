@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getTutors } from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { BadgeCheck, Clock, Shield, UserCheck } from "lucide-react";
 import { TutorActionCell } from "../_components/tutor-action-cell";
+import { getTutors } from "@/actions/admin/tutors";
 
 export default async function TutorApprovalsPage() {
   const { sessionClaims } = await auth();

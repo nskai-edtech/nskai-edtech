@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSidebarRoutes } from "./sidebar-routes";
-import { UserButton, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import ThemeToggle from "../ModeToggle";
 import { cn } from "@/lib/utils";
 
@@ -23,9 +23,9 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
       <div className="p-6">
         <div className="flex items-center gap-2 font-bold text-xl text-brand">
           <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white">
-            N
+            Z
           </div>
-          NSKAI
+          ZERRA
         </div>
       </div>
 
@@ -66,12 +66,7 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
         suppressHydrationWarning
       >
         <div suppressHydrationWarning>
-          <ClerkLoading>
-            <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
-          </ClerkLoading>
-          <ClerkLoaded>
-            <UserButton />
-          </ClerkLoaded>
+          <UserButton />
         </div>
         <div>
           <ThemeToggle />

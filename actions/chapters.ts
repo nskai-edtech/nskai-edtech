@@ -2,27 +2,21 @@
 
 import { db } from "@/lib/db";
 import { chapters, lessons } from "@/drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 export async function createChapter(courseId: string, title: string) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
-    // Get the max position for this course
-    const existingChapters = await db
-      .select({ position: chapters.position })
+    // PERFORMANCE: Use SQL aggregate to find max position instead of fetching all rows into memory
+    const [result] = await db
+      .select({ max: sql<number>`max(${chapters.position})` })
       .from(chapters)
-      .where(eq(chapters.courseId, courseId))
-      .orderBy(chapters.position);
+      .where(eq(chapters.courseId, courseId));
 
-    const maxPosition =
-      existingChapters.length > 0
-        ? Math.max(...existingChapters.map((c) => c.position))
-        : 0;
+    const maxPosition = result?.max || 0;
 
     const [newChapter] = await db
       .insert(chapters)
@@ -45,9 +39,7 @@ export async function updateChapter(
   data: { title?: string; position?: number },
 ) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
     const [updatedChapter] = await db
@@ -65,9 +57,7 @@ export async function updateChapter(
 
 export async function deleteChapter(chapterId: string) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
     await db.delete(chapters).where(eq(chapters.id, chapterId));
@@ -80,12 +70,9 @@ export async function deleteChapter(chapterId: string) {
 
 export async function reorderChapters(courseId: string, chapterIds: string[]) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
-    // Update positions for each chapter
     await Promise.all(
       chapterIds.map((id, index) =>
         db
@@ -102,26 +89,17 @@ export async function reorderChapters(courseId: string, chapterIds: string[]) {
   }
 }
 
-// Lesson Actions
-
 export async function createLesson(chapterId: string, title: string) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
-    // Get the max position for this chapter
-    const existingLessons = await db
-      .select({ position: lessons.position })
+    const [result] = await db
+      .select({ max: sql<number>`max(${lessons.position})` })
       .from(lessons)
-      .where(eq(lessons.chapterId, chapterId))
-      .orderBy(lessons.position);
+      .where(eq(lessons.chapterId, chapterId));
 
-    const maxPosition =
-      existingLessons.length > 0
-        ? Math.max(...existingLessons.map((l) => l.position))
-        : 0;
+    const maxPosition = result?.max || 0;
 
     const [newLesson] = await db
       .insert(lessons)
@@ -153,9 +131,7 @@ export async function updateLesson(
   },
 ) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
     const [updatedLesson] = await db
@@ -173,9 +149,7 @@ export async function updateLesson(
 
 export async function deleteLesson(lessonId: string) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
     await db.delete(lessons).where(eq(lessons.id, lessonId));
@@ -188,12 +162,9 @@ export async function deleteLesson(lessonId: string) {
 
 export async function reorderLessons(chapterId: string, lessonIds: string[]) {
   const { userId } = await auth();
-  if (!userId) {
-    return { error: "Unauthorized" };
-  }
+  if (!userId) return { error: "Unauthorized" };
 
   try {
-    // Update positions for each lesson
     await Promise.all(
       lessonIds.map((id, index) =>
         db

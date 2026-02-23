@@ -4,12 +4,12 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { lessons } from "./courses";
 
-// 15. NOTES (User Private Notes)
 export const userNotes = pgTable(
   "user_notes",
   {
@@ -22,38 +22,64 @@ export const userNotes = pgTable(
       .notNull(),
     content: text("content"), // Rich Text HTML
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
-  (t) => [uniqueIndex("user_notes_user_lesson_idx").on(t.userId, t.lessonId)],
+  (table) => [
+    uniqueIndex("user_notes_user_lesson_idx").on(table.userId, table.lessonId),
+  ],
 );
 
-// 16. Q&A QUESTIONS
-export const questions = pgTable("question", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  lessonId: uuid("lesson_id")
-    .references(() => lessons.id, { onDelete: "cascade" })
-    .notNull(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const questions = pgTable(
+  "question",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    lessonId: uuid("lesson_id")
+      .references(() => lessons.id, { onDelete: "cascade" })
+      .notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 
-// 17. Q&A ANSWERS
-export const answers = pgTable("answer", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  questionId: uuid("question_id")
-    .references(() => questions.id, { onDelete: "cascade" })
-    .notNull(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("question_lesson_id_idx").on(table.lessonId),
+
+    index("question_user_id_idx").on(table.userId),
+  ],
+);
+
+export const answers = pgTable(
+  "answer",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    questionId: uuid("question_id")
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("answer_question_id_idx").on(table.questionId)],
+);
+
+// --- RELATIONS ---
 
 export const userNoteRelations = relations(userNotes, ({ one }) => ({
   user: one(users, {

@@ -27,123 +27,80 @@ export async function completeOnboarding(
   const { userId } = await auth();
 
   if (!userId) {
-    console.log("--> Error: No User ID found in session.");
     return { error: "No Logged In User" };
   }
 
   const client = await clerkClient();
 
   try {
-    console.log(`--> Starting Onboarding for User: ${userId}`);
-    console.log(`--> Role Selected: ${data.role}`);
-
     const isTutor = data.role === "TUTOR";
-    const status = isTutor ? "PENDING" : "ACTIVE";
 
-    const updateData: Record<string, string | string[] | undefined> = {
+    const status: "PENDING" | "ACTIVE" = isTutor ? "PENDING" : "ACTIVE";
+
+    const updatePayload = {
       role: data.role,
-      status: status,
+      status,
+      ...(isTutor && {
+        firstName: (data as TutorOnboardingData).firstName,
+        lastName: (data as TutorOnboardingData).lastName,
+        bio: (data as TutorOnboardingData).bio,
+        expertise: (data as TutorOnboardingData).expertise,
+      }),
+      ...(!isTutor && {
+        interests: (data as LearnerOnboardingData).interests,
+        learningGoal: (data as LearnerOnboardingData).learningGoal,
+      }),
     };
 
-    if (isTutor) {
-      const tutorData = data as TutorOnboardingData;
-      updateData.firstName = tutorData.firstName;
-      updateData.lastName = tutorData.lastName;
-      updateData.bio = tutorData.bio;
-      updateData.expertise = tutorData.expertise;
-    } else {
-      const learnerData = data as LearnerOnboardingData;
-      if (learnerData.interests) {
-        updateData.interests = learnerData.interests;
-      }
-      if (learnerData.learningGoal) {
-        updateData.learningGoal = learnerData.learningGoal;
-      }
-    }
+    const clerkMetadataPayload = {
+      role: data.role,
+      status,
+      ...(!isTutor && {
+        interests: (data as LearnerOnboardingData).interests,
+        learningGoal: (data as LearnerOnboardingData).learningGoal,
+      }),
+    };
 
-    let updatedUsers = await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.clerkId, userId))
-      .returning({
-        email: users.email,
-        firstName: users.firstName,
-      });
+    const [updatedUsers] = await Promise.all([
+      db
+        .update(users)
+        .set(updatePayload)
+        .where(eq(users.clerkId, userId))
+        .returning({ email: users.email, firstName: users.firstName }),
+      client.users.updateUserMetadata(userId, {
+        publicMetadata: clerkMetadataPayload,
+      }),
+    ]);
 
-    // FAILSAFE: If User not in DB (Webhook failed), Insert here now
+    let userEmail = updatedUsers[0]?.email;
+    let userName = updatedUsers[0]?.firstName || "User";
+
     if (updatedUsers.length === 0) {
-      console.log(
-        "--> User not found in DB update. Attempting Manual Insert...",
-      );
-
+      console.log("--> Webhook missed user. Failsafe activated.");
       const clerkUser = await client.users.getUser(userId);
-      const email = clerkUser.emailAddresses[0].emailAddress;
-      const image = clerkUser.imageUrl;
 
-      updatedUsers = await db
-        .insert(users)
-        .values({
-          clerkId: userId,
-          email: email,
-          imageUrl: image,
-          ...updateData,
-        })
-        .returning({
-          email: users.email,
-          firstName: users.firstName,
-        });
+      userEmail = clerkUser.emailAddresses[0].emailAddress;
+      userName = updatePayload.firstName || clerkUser.firstName || "User";
 
-      console.log("--> Manual Insert Success.");
-    } else {
-      console.log("--> DB Update Success.");
-    }
-
-    const userEmail = updatedUsers[0]?.email;
-    const userName = updatedUsers[0]?.firstName || "User";
-
-    // Update Clerk Metadata
-    const publicMetadata: Record<string, string | string[] | undefined> = {
-      role: data.role,
-      status: status,
-    };
-
-    if (data.role === "LEARNER") {
-      if (data.interests) {
-        publicMetadata.interests = data.interests;
-      }
-      if (data.learningGoal) {
-        publicMetadata.learningGoal = data.learningGoal;
-      }
-    }
-
-    await client.users.updateUserMetadata(userId, {
-      publicMetadata,
-    });
-    console.log("--> Clerk Metadata Synced.");
-
-    // Send Welcome Email
-    if (userEmail) {
-      console.log(`--> Attempting to send email to: ${userEmail}`);
-
-      const result = await sendEmail({
-        to: userEmail,
-        subject: "Welcome to NSKAI",
-        react: WelcomeEmail({ name: userName, role: data.role }),
+      await db.insert(users).values({
+        clerkId: userId,
+        email: userEmail,
+        imageUrl: clerkUser.imageUrl,
+        ...updatePayload,
       });
-
-      if (result.error) {
-        console.error("--> EMAIL ERROR:", result.error);
-      } else {
-        console.log("--> EMAIL SENT SUCCESSFULLY ✅ ID:", result.id);
-      }
-    } else {
-      console.log("--> SKIPPED EMAIL: No email address found in DB record.");
     }
 
-    // Return Success
+    if (userEmail) {
+      sendEmail({
+        to: userEmail,
+        subject: "Welcome to Zerra",
+        react: WelcomeEmail({ name: userName, role: data.role }),
+      }).catch((err) => console.error("[EMAIL_ERROR]", err));
+    }
+
     return { success: true };
   } catch (err) {
-    console.error("--> FATAL ONBOARDING ERROR:", err);
+    console.error("[ONBOARDING_ERROR]", err);
     return { error: "Something went wrong" };
   }
 }

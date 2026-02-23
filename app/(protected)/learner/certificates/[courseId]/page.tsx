@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { getCertificateData } from "@/actions/certificates";
 import {
   CertificateTemplate,
   CERT_WIDTH,
@@ -13,6 +12,7 @@ import { CertificateDownloadButton } from "@/components/certificates/certificate
 import { ArrowLeft, Loader2, Info } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { getCertificateData } from "@/actions/certificates/actions";
 
 interface CertificateData {
   courseTitle: string;
@@ -28,10 +28,7 @@ const MOCK_CERTIFICATE: CertificateData = {
   completionDate: new Date(),
 };
 
-// ─── Scaler ──────────────────────────────────────────────────────────────────
-// Separate component so its ref is attached to a real DOM node before
-// useEffect fires. offsetWidth is always valid at that point.
-// Uses padding-top % trick so height auto-follows width — no JS needed for height.
+// ─── Scaler
 
 type CertScalerProps = Omit<CertificateTemplateProps, "instanceId">;
 

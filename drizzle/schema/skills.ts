@@ -5,71 +5,107 @@ import {
   timestamp,
   boolean,
   integer,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 
-// 10. SKILLS (Graph Nodes)
-export const skills = pgTable("skill", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(), // e.g., "Frontend", "Backend"
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// --- SKILLS (Graph Nodes) ---
+export const skills = pgTable(
+  "skill",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: text("title").notNull(),
+    category: text("category").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("skill_category_idx").on(table.category)],
+);
 
-// 11. SKILL DEPENDENCIES (Edges)
-export const skillDependencies = pgTable("skill_dependency", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  skillId: uuid("skill_id")
-    .references(() => skills.id, { onDelete: "cascade" })
-    .notNull(),
-  prerequisiteSkillId: uuid("prerequisite_skill_id")
-    .references(() => skills.id, { onDelete: "cascade" })
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// --- SKILL DEPENDENCIES (Edges) ---
+export const skillDependencies = pgTable(
+  "skill_dependency",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    skillId: uuid("skill_id")
+      .references(() => skills.id, { onDelete: "cascade" })
+      .notNull(),
+    prerequisiteSkillId: uuid("prerequisite_skill_id")
+      .references(() => skills.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("skill_dep_unique_idx").on(
+      table.skillId,
+      table.prerequisiteSkillId,
+    ),
+    index("skill_dep_prereq_idx").on(table.prerequisiteSkillId),
+  ],
+);
 
-// 12. USER SKILLS (Mastery)
-export const userSkills = pgTable("user_skill", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  skillId: uuid("skill_id")
-    .references(() => skills.id, { onDelete: "cascade" })
-    .notNull(),
-  masteryScore: integer("mastery_score").default(0).notNull(), // 0-100
-  lastAssessedAt: timestamp("last_assessed_at").defaultNow(),
-});
+// --- USER SKILLS (Mastery) ---
+export const userSkills = pgTable(
+  "user_skill",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    skillId: uuid("skill_id")
+      .references(() => skills.id, { onDelete: "cascade" })
+      .notNull(),
+    masteryScore: integer("mastery_score").default(0).notNull(),
+    lastAssessedAt: timestamp("last_assessed_at")
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex("user_skill_unique_idx").on(table.userId, table.skillId),
+    index("user_skill_skill_idx").on(table.skillId),
+  ],
+);
 
-// 13. ASSESSMENTS (Diagnostic)
-export const assessments = pgTable("assessment", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  skillId: uuid("skill_id")
-    .references(() => skills.id, { onDelete: "cascade" })
-    .notNull(),
-  questionText: text("question_text").notNull(),
-  options: text("options").array().notNull(), // Postgres Array
-  correctOption: integer("correct_option").notNull(), // Index
-  difficulty: text("difficulty").default("BEGINNER"), // BEGINNER, INTERMEDIATE, ADVANCED
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// --- ASSESSMENTS (Diagnostic) ---
+export const assessments = pgTable(
+  "assessment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    skillId: uuid("skill_id")
+      .references(() => skills.id, { onDelete: "cascade" })
+      .notNull(),
+    questionText: text("question_text").notNull(),
+    options: text("options").array().notNull(),
+    correctOption: integer("correct_option").notNull(),
+    difficulty: text("difficulty").default("BEGINNER"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("assessment_skill_idx").on(table.skillId)],
+);
 
-// 14. USER ASSESSMENT RESULTS
-export const userAssessmentResults = pgTable("user_assessment_result", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  assessmentId: uuid("assessment_id")
-    .references(() => assessments.id, { onDelete: "cascade" })
-    .notNull(),
-  isCorrect: boolean("is_correct").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// --- USER ASSESSMENT RESULTS ---
+export const userAssessmentResults = pgTable(
+  "user_assessment_result",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    assessmentId: uuid("assessment_id")
+      .references(() => assessments.id, { onDelete: "cascade" })
+      .notNull(),
+    isCorrect: boolean("is_correct").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("user_assessment_user_idx").on(table.userId),
+    index("user_assessment_assessment_idx").on(table.assessmentId),
+  ],
+);
 
-// RELATIONS
+// --- RELATIONS ---
 
 export const skillRelations = relations(skills, ({ many }) => ({
   dependencies: many(skillDependencies, { relationName: "skillPrerequisites" }),

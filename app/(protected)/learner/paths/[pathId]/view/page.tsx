@@ -1,4 +1,4 @@
-import { getPathLessons } from "@/actions/learning-paths";
+import { getPathLessons } from "@/actions/learning-paths/actions";
 import {
   ArrowLeft,
   ChevronRight,
@@ -19,8 +19,7 @@ export default async function PathViewPage({
   const { pathId } = await params;
   const data = await getPathLessons(pathId);
 
-  if (!data) {
-    // If not enrolled or not found
+  if (!data || !data.path) {
     redirect(`/learner/paths/${pathId}`);
   }
 
@@ -87,7 +86,7 @@ export default async function PathViewPage({
               </div>
 
               <div className="bg-surface border border-border rounded-3xl overflow-hidden shadow-sm">
-                {course.chapters.length === 0 ? (
+                {!course.chapters || course.chapters.length === 0 ? (
                   <div className="p-8 text-center text-secondary-text font-medium">
                     No curriculum content added yet for this course.
                   </div>
@@ -101,12 +100,12 @@ export default async function PathViewPage({
                             {chapter.title}
                           </h3>
                           <span className="text-[10px] font-black text-secondary-text uppercase tracking-widest bg-surface-muted px-2 py-1 rounded">
-                            {chapter.lessons.length} Lessons
+                            {chapter.lessons?.length || 0} Lessons
                           </span>
                         </div>
 
                         <div className="grid gap-3">
-                          {chapter.lessons.map((lesson) => (
+                          {chapter.lessons?.map((lesson) => (
                             <Link
                               key={lesson.id}
                               href={`/watch/${course.id}?lessonId=${lesson.id}`}

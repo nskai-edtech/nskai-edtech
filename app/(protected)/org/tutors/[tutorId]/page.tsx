@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getTutorById, getTutorCoursesForAdmin } from "@/actions/admin";
+
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { CourseTabs } from "./_components/course-tabs";
+import { getTutorById, getTutorCoursesForAdmin } from "@/actions/admin/tutors";
 
 interface PageProps {
   params: Promise<{ tutorId: string }>;

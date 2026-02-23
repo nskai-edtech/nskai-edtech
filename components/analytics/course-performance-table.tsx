@@ -1,8 +1,8 @@
-import { type CoursePerformance } from "@/actions/analytics";
 import { formatPrice } from "@/lib/format";
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, BarChart3, ArrowUpRight } from "lucide-react";
+import { CoursePerformance } from "@/actions/analytics/types";
 
 function CourseRow({ course }: { course: CoursePerformance }) {
   return (

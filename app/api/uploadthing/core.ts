@@ -13,9 +13,18 @@ export const ourFileRouter = {
   courseImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(() => handleAuth())
     .onUploadComplete(() => {}),
-  courseAttachment: f(["text", "image", "video", "audio", "pdf"])
+
+  courseAttachment: f({
+    pdf: { maxFileSize: "32MB", maxFileCount: 4 },
+    image: { maxFileSize: "8MB", maxFileCount: 4 },
+    video: { maxFileSize: "256MB", maxFileCount: 1 },
+    audio: { maxFileSize: "32MB", maxFileCount: 1 },
+    text: { maxFileSize: "8MB", maxFileCount: 4 },
+    blob: { maxFileSize: "32MB", maxFileCount: 4 }, // Catches .docx, .zip, .csv, etc.
+  })
     .middleware(() => handleAuth())
     .onUploadComplete(() => {}),
+
   chapterVideo: f({ video: { maxFileSize: "512GB", maxFileCount: 1 } })
     .middleware(() => handleAuth())
     .onUploadComplete(() => {}),

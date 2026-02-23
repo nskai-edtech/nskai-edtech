@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { getLearnerById } from "@/actions/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import {
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getLearnerById } from "@/actions/admin/learners";
 
 interface PageProps {
   params: Promise<{ learnerId: string }>;

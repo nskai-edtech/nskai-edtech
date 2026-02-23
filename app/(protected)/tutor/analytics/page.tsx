@@ -1,10 +1,12 @@
-import { getTutorAnalytics } from "@/actions/analytics";
 import { KpiCards, TrendCharts } from "@/components/analytics/kpi-and-charts";
 import { CoursePerformanceTable } from "@/components/analytics/course-performance-table";
 import {
   RecentEnrollmentsFeed,
   QuizPerformancePanel,
 } from "@/components/analytics/activity-panels";
+import { getTutorAnalytics } from "@/actions/analytics/tutor";
+
+export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const analytics = await getTutorAnalytics();

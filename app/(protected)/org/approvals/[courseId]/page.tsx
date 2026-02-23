@@ -1,8 +1,8 @@
-import { getCourseReviewData } from "@/actions/courses";
 import { notFound } from "next/navigation";
 import { BookOpen, Video, Users, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import ReviewActions from "./_components/review-actions";
+import { getCourseReviewData } from "@/actions/courses/admin";
 
 interface ReviewPageProps {
   params: Promise<{ courseId: string }>;
