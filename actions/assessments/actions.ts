@@ -98,14 +98,26 @@ export async function submitAssignment(assignmentId: string, fileUrl: string) {
         eq(assignmentSubmissions.assignmentId, assignmentId),
         eq(assignmentSubmissions.userId, user.id),
       ),
+      with: { assignment: true },
     });
 
-    if (existingSubmission && existingSubmission.status !== "REJECTED") {
-      return { error: "You already have an active submission." };
+    const isPassing =
+      existingSubmission?.status === "GRADED" &&
+      (existingSubmission.score ?? 0) >=
+        (existingSubmission.assignment?.maxScore ?? 100) * 0.7;
+
+    if (existingSubmission && existingSubmission.status === "PENDING") {
+      return {
+        error: "You already have an active submission waiting for review.",
+      };
     }
 
-    if (existingSubmission && existingSubmission.status === "REJECTED") {
-      // update existing
+    if (existingSubmission && isPassing) {
+      return { error: "You have already passed this assessment." };
+    }
+
+    if (existingSubmission) {
+      // update existing record
       const [updated] = await db
         .update(assignmentSubmissions)
         .set({

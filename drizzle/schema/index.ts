@@ -7,3 +7,4 @@ export * from "./gamification";
 export * from "./skills";
 export * from "./qa";
 export * from "./assessments";
+export * from "./requests";

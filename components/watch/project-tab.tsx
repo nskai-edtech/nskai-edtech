@@ -33,6 +33,12 @@ export const ProjectTab = ({ assignment }: ProjectTabProps) => {
   if (!assignment) return null;
 
   const status = submission?.status;
+  const isPassing =
+    status === "GRADED" &&
+    (submission?.score ?? 0) >= assignment.maxScore * 0.7;
+  const isRejected = status === "REJECTED";
+  const isFailed = status === "GRADED" && !isPassing;
+  const canSubmit = !submission || isRejected || isFailed;
 
   return (
     <div className="space-y-6">
@@ -58,13 +64,31 @@ export const ProjectTab = ({ assignment }: ProjectTabProps) => {
             Your Submission
           </h4>
 
-          {!submission || status === "REJECTED" ? (
+          {canSubmit ? (
             <div className="space-y-4">
-              {status === "REJECTED" && (
+              {isRejected && (
                 <div className="p-4 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 text-sm">
-                  <strong>Revision Required:</strong> Your previous submission
-                  was rejected. Please review feedback if any, and submit a new
-                  file.
+                  <strong>Rejected:</strong> Your submission was rejected and
+                  not graded. Kindly read the tutor&apos;s review below and
+                  submit a new file.
+                  {submission?.feedback && (
+                    <div className="mt-3 p-3 bg-red-500/10 rounded-md border border-red-500/20 text-red-600 whitespace-pre-wrap font-medium">
+                      {submission.feedback}
+                    </div>
+                  )}
+                </div>
+              )}
+              {isFailed && (
+                <div className="p-4 bg-amber-500/10 text-amber-600 rounded-lg border border-amber-500/20 text-sm">
+                  <strong>Assessment Graded:</strong> You scored{" "}
+                  {submission?.score} / {assignment.maxScore}, but the pass mark
+                  is {Math.ceil(assignment.maxScore * 0.7)}. Read the
+                  tutor&apos;s review to help improve your grade.
+                  {submission?.feedback && (
+                    <div className="mt-3 p-3 bg-amber-500/10 rounded-md border border-amber-500/20 text-amber-700 whitespace-pre-wrap font-medium">
+                      {submission.feedback}
+                    </div>
+                  )}
                 </div>
               )}
               {(isUploading || isSubmitting) && (
@@ -128,9 +152,10 @@ export const ProjectTab = ({ assignment }: ProjectTabProps) => {
                 <CheckCircle className="w-8 h-8 text-green-500" />
                 <div>
                   <h5 className="font-bold text-green-500">
-                    Graded successfully
+                    Assessment passed: You reached the cut-off mark for passing.
+                    Congratulations
                   </h5>
-                  <p className="text-sm font-medium text-primary-text">
+                  <p className="text-sm font-medium text-primary-text mt-1">
                     Score: {submission.score} / {assignment.maxScore}
                   </p>
                 </div>

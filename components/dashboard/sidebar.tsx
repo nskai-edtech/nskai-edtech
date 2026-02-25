@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSidebarRoutes } from "./sidebar-routes";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 import ThemeToggle from "../ModeToggle";
 import { cn } from "@/lib/utils";
 
@@ -19,10 +19,7 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
   const routes = useSidebarRoutes(role, counts);
 
   return (
-    <div
-      className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm"
-      suppressHydrationWarning
-    >
+    <div className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm">
       {/* Header  */}
       <div className="p-6">
         <div className="flex items-center gap-2 font-bold text-xl text-brand">
@@ -65,12 +62,14 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
       </div>
 
       {/* Footer (Toggle & User) */}
-      <div
-        className="p-6 mt-auto border-t border-border flex items-center justify-between"
-        suppressHydrationWarning
-      >
-        <div suppressHydrationWarning>
-          <UserButton />
+      <div className="p-6 mt-auto border-t border-border flex items-center justify-between">
+        <div>
+          <ClerkLoading>
+            <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
+          </ClerkLoading>
+          <ClerkLoaded>
+            <UserButton afterSignOutUrl="/" />
+          </ClerkLoaded>
         </div>
         <div>
           <ThemeToggle />

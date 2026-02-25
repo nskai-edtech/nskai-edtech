@@ -89,6 +89,12 @@ export const useSidebarRoutes = (
       badgeCount: counts?.pendingCourses,
     },
     {
+      icon: FileText,
+      label: "Course Requests",
+      href: "/org/requests",
+      active: pathname.includes("/org/requests"),
+    },
+    {
       icon: GraduationCap,
       label: "Tutors",
       href: "/org/tutors",

@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import LessonEditor from "./lesson-editor";
 import CourseDetailsForm from "./course-details-form";
 import InputModal from "../ui/input-modal";
+import { CourseRequestModal } from "../modals/course-request-modal";
 
 import { Course, Lesson } from "@/types";
 import { getCourseStatus } from "@/actions/courses/marketplace";
@@ -32,10 +33,12 @@ import { submitCourseForReview } from "@/actions/courses/tutor";
 
 interface CourseEditorProps {
   course: Course;
+  hasPendingRequest?: boolean;
 }
 
 export default function CourseEditor({
   course: initialCourse,
+  hasPendingRequest = false,
 }: CourseEditorProps) {
   const router = useRouter();
   const [course, setCourse] = useState(initialCourse);
@@ -45,6 +48,9 @@ export default function CourseEditor({
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [hasPendingRequestState, setHasPendingRequestState] =
+    useState(hasPendingRequest);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     type: "chapter" | "lesson" | null;
@@ -411,7 +417,23 @@ export default function CourseEditor({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
+            {hasPendingRequestState && (
+              <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-500/10 text-amber-500 rounded-md border border-amber-500/20">
+                <AlertCircle className="w-3.5 h-3.5" />
+                Pending Status Change
+              </span>
+            )}
+            {!hasPendingRequestState &&
+              (course.status === "PUBLISHED" ||
+                course.status === "PENDING") && (
+                <button
+                  onClick={() => setIsRequestModalOpen(true)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg font-medium transition-colors bg-surface-muted text-primary-text hover:bg-surface border border-border"
+                >
+                  Request Change
+                </button>
+              )}
             <button className="px-4 py-2 text-sm font-medium text-secondary-text hover:text-primary-text transition-colors">
               Preview
             </button>
@@ -481,7 +503,7 @@ export default function CourseEditor({
         {/* Floating View Courses Button */}
         <button
           onClick={() => router.push("/tutor/courses")}
-          className="fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
+          className="fixed z-80 bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
         >
           <List className="w-5 h-5" />
           <span className="hidden sm:inline">View All Courses</span>
@@ -504,6 +526,14 @@ export default function CourseEditor({
             : "Enter lesson title..."
         }
         submitLabel="Create"
+      />
+
+      <CourseRequestModal
+        courseId={course.id}
+        courseTitle={course.title}
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        onSuccess={() => setHasPendingRequestState(true)}
       />
     </div>
   );
