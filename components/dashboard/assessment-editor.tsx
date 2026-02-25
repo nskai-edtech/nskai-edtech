@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { upsertAssignment } from "@/actions/assessments/actions";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
@@ -16,6 +17,7 @@ export const AssessmentEditor = ({
   lessonId,
   initialAssignment,
 }: AssessmentEditorProps) => {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     title: initialAssignment?.title || "",
@@ -33,7 +35,10 @@ export const AssessmentEditor = ({
     try {
       const result = await upsertAssignment(lessonId, formData);
       if (result.error) toast.error(result.error);
-      else toast.success("Assessment saved successfully!");
+      else {
+        toast.success("Assessment saved successfully!");
+        router.refresh();
+      }
     } catch {
       toast.error("Something went wrong");
     } finally {

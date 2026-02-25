@@ -32,3 +32,10 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "MODULE_QUIZZES_PASSED",
   "STREAK_7_DAYS",
 ]);
+
+export const requestTypeEnum = pgEnum("request_type", ["DRAFT", "DELETE"]);
+export const requestStatusEnum = pgEnum("request_status", [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+]);

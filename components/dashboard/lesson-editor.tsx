@@ -351,6 +351,7 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
       {/* Assessment Editor */}
       <div className="bg-surface p-6 rounded-xl border border-border">
         <AssessmentEditor
+          key={lesson.id}
           lessonId={lesson.id}
           initialAssignment={lesson.assignment}
         />

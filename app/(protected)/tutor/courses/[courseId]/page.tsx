@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { users } from "@/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { users, courseRequests } from "@/drizzle/schema";
+import { eq, and } from "drizzle-orm";
 import CourseEditor from "@/components/dashboard/course-editor";
 import { getCourseById } from "@/actions/courses/marketplace";
 
@@ -39,5 +39,12 @@ export default async function CoursePage({ params }: CoursePageProps) {
     redirect("/tutor/courses");
   }
 
-  return <CourseEditor course={course} />;
+  const pendingRequest = await db.query.courseRequests.findFirst({
+    where: and(
+      eq(courseRequests.courseId, course.id),
+      eq(courseRequests.status, "PENDING"),
+    ),
+  });
+
+  return <CourseEditor course={course} hasPendingRequest={!!pendingRequest} />;
 }
