@@ -88,6 +88,9 @@ export const userProgress = pgTable(
       })
       .notNull(),
     isCompleted: boolean("is_completed").default(false),
+    lastPlaybackPosition: integer("last_playback_position")
+      .default(0)
+      .notNull(),
 
     lastAccessedAt: timestamp("last_accessed_at")
       .defaultNow()

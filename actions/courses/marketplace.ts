@@ -73,7 +73,7 @@ export async function getCourseById(courseId: string) {
         with: {
           lessons: {
             orderBy: (lessons, { asc }) => [asc(lessons.position)],
-            with: { muxData: true },
+            with: { muxData: true, assignment: true },
           },
         },
       },

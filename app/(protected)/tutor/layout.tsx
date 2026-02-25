@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
+import { getPendingSubmissionsCount } from "@/actions/assessments/queries";
 
 export default async function TutorLayout({
   children,
@@ -11,6 +12,7 @@ export default async function TutorLayout({
   const { sessionClaims } = await auth();
 
   const status = sessionClaims?.metadata?.status as string;
+  const pendingSubmissions = await getPendingSubmissionsCount();
 
   // IF PENDING: Show the blocking screen
   if (status === "PENDING") {
@@ -51,14 +53,14 @@ export default async function TutorLayout({
     <div className="h-full bg-surface-muted" suppressHydrationWarning>
       {/* Desktop Sidebar */}
       <div className="hidden xl:flex h-full w-64 flex-col fixed inset-y-0 z-50">
-        <Sidebar role="TUTOR" />
+        <Sidebar role="TUTOR" counts={{ pendingSubmissions }} />
       </div>
 
       {/* Main Content Area */}
       <main className="xl:pl-64 h-full flex flex-col">
         {/* Mobile Header */}
         <div className="xl:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
-          <MobileSidebar role="TUTOR" />
+          <MobileSidebar role="TUTOR" counts={{ pendingSubmissions }} />
           <div className="font-bold text-xl text-brand ml-4">ZERRA</div>
         </div>
         <div className="flex-1 p-4" suppressHydrationWarning>

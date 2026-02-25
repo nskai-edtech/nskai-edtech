@@ -28,6 +28,7 @@ interface CourseSidebarProps {
   currentLessonId: string;
   purchase: boolean; // whether user has access
   hideHeader?: boolean;
+  progressCount?: number;
 }
 
 export const CourseSidebar = ({
@@ -35,6 +36,7 @@ export const CourseSidebar = ({
   currentLessonId,
   purchase,
   hideHeader,
+  progressCount = 0,
 }: CourseSidebarProps) => {
   return (
     <div className="h-full border-r border-border bg-surface flex flex-col overflow-y-auto">
@@ -47,10 +49,13 @@ export const CourseSidebar = ({
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1 text-secondary-text font-semibold">
               <span>Course Progress</span>
-              <span>0%</span>
+              <span>{Math.round(progressCount)}%</span>
             </div>
             <div className="h-2 w-full bg-surface-muted rounded-full overflow-hidden">
-              <div className="h-full bg-brand w-0 rounded-full" />
+              <div
+                className="h-full bg-brand rounded-full transition-all duration-500 ease-in-out"
+                style={{ width: `${Math.round(progressCount)}%` }}
+              />
             </div>
           </div>
         </div>

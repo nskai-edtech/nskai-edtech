@@ -22,6 +22,11 @@ export const courseStatusEnum = pgEnum("course_status", [
 
 export const lessonTypeEnum = pgEnum("lesson_type", ["VIDEO", "QUIZ"]);
 
+export const assignmentSubmissionStatusEnum = pgEnum(
+  "assignment_submission_status",
+  ["PENDING", "GRADED", "REJECTED"],
+);
+
 export const pointReasonEnum = pgEnum("point_reason", [
   "MODULE_COMPLETED",
   "MODULE_QUIZZES_PASSED",

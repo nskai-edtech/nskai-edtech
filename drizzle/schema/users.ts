@@ -12,6 +12,7 @@ import { courses } from "./courses";
 import { purchases, userProgress, courseLikes, reviews } from "./interactions";
 import { pointTransactions, dailyWatchTime } from "./gamification";
 import { userNotes, questions, answers } from "./qa";
+import { assignmentSubmissions } from "./assessments";
 
 export const users = pgTable(
   "user",
@@ -66,4 +67,5 @@ export const userRelations = relations(users, ({ many }) => ({
   courseLikes: many(courseLikes),
   pointTransactions: many(pointTransactions),
   dailyWatchTimes: many(dailyWatchTime),
+  assignmentSubmissions: many(assignmentSubmissions),
 }));

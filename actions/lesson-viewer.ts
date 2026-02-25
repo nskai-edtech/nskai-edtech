@@ -7,6 +7,7 @@ import {
   lessons,
   users,
   userProgress,
+  assignmentSubmissions,
 } from "@/drizzle/schema";
 import { eq, asc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
@@ -66,10 +67,20 @@ export async function getLessonWithAccess(courseId: string, lessonId: string) {
     where: eq(lessons.id, lessonId),
     with: {
       muxData: true,
+      userProgress: {
+        where: eq(userProgress.userId, user.id),
+      },
       chapter: {
         with: {
           course: {
             columns: { tutorId: true, id: true },
+          },
+        },
+      },
+      assignment: {
+        with: {
+          submissions: {
+            where: eq(assignmentSubmissions.userId, user.id),
           },
         },
       },
@@ -100,6 +111,7 @@ export async function getLessonWithAccess(courseId: string, lessonId: string) {
     muxData: lesson.muxData,
     nextLessonId: allLessons[currentIndex + 1]?.id || null,
     prevLessonId: allLessons[currentIndex - 1]?.id || null,
+    userProgress: lesson.userProgress?.[0] || null,
     user,
   };
 }

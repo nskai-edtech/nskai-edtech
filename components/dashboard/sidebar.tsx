@@ -8,7 +8,11 @@ import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   role: "TUTOR" | "ORG_ADMIN";
-  counts?: { pendingCourses?: number; pendingTutors?: number };
+  counts?: {
+    pendingCourses?: number;
+    pendingTutors?: number;
+    pendingSubmissions?: number;
+  };
 }
 
 export const Sidebar = ({ role, counts }: SidebarProps) => {

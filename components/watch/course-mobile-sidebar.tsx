@@ -26,12 +26,14 @@ interface CourseMobileSidebarProps {
   course: SidebarCourse;
   currentLessonId: string;
   purchase: boolean;
+  progressCount?: number;
 }
 
 export function CourseMobileSidebar({
   course,
   currentLessonId,
   purchase,
+  progressCount = 0,
 }: CourseMobileSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -46,15 +48,15 @@ export function CourseMobileSidebar({
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
+        <div className="fixed inset-0 z-99 flex lg:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-98 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Sidebar Drawer */}
-          <div className="relative w-4/5 max-w-sm ml-auto h-full bg-surface shadow-2xl animate-in slide-in-from-right flex flex-col">
+          <div className="relative z-99 w-4/5 max-w-sm ml-auto h-full bg-surface shadow-2xl animate-in slide-in-from-right flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <span className="font-bold text-lg text-primary-text">
                 Course Content
@@ -71,6 +73,7 @@ export function CourseMobileSidebar({
                 course={course}
                 currentLessonId={currentLessonId}
                 purchase={purchase}
+                progressCount={progressCount}
                 hideHeader
               />
             </div>

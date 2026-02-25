@@ -13,6 +13,7 @@ import {
   Award,
   Heart,
   Trophy,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,11 @@ const navItems = [
     label: "Dashboard",
     href: "/learner",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Portfolio",
+    href: "/learner/portfolio",
+    icon: Briefcase,
   },
   {
     label: "Leaderboard",

@@ -16,6 +16,7 @@ import {
 } from "@/actions/quiz/queries";
 import { CustomAccordion } from "@/components/ui/custom-accordion";
 import { CourseMobileSidebar } from "@/components/watch/course-mobile-sidebar";
+import { getUserProgress } from "@/actions/progress/queries";
 
 export default async function LessonPage({
   params,
@@ -33,6 +34,7 @@ export default async function LessonPage({
   const questionsPromise = getQuestions(lessonId);
   const quizQuestionsPromise = getQuizQuestionsAdmin(lessonId);
   const quizAttemptPromise = getLastQuizAttempt(lessonId);
+  const progressPromise = getUserProgress(courseId);
 
   const [
     course,
@@ -40,15 +42,18 @@ export default async function LessonPage({
     questionsResult,
     quizQuestionsResult,
     quizAttempt,
+    progressData,
   ] = await Promise.all([
     courseOutlinePromise,
     lessonDataPromise,
     questionsPromise,
     quizQuestionsPromise,
     quizAttemptPromise,
+    progressPromise,
   ]);
 
   const questions: QuestionWithRelations[] = questionsResult?.questions || [];
+  const progressCount = "error" in progressData ? 0 : progressData.percentage;
 
   const rawQuizQuestions =
     "questions" in quizQuestionsResult ? quizQuestionsResult.questions : [];
@@ -70,7 +75,8 @@ export default async function LessonPage({
     return redirect(`/watch/${courseId}`);
   }
 
-  const { lesson, muxData, nextLessonId, prevLessonId } = lessonData;
+  const { lesson, muxData, nextLessonId, prevLessonId, userProgress } =
+    lessonData;
   const isQuiz = lesson.type === "QUIZ";
 
   return (
@@ -110,6 +116,7 @@ export default async function LessonPage({
             course={course}
             currentLessonId={lessonId}
             purchase={true}
+            progressCount={progressCount}
           />
         </div>
       </div>
@@ -120,11 +127,12 @@ export default async function LessonPage({
           <div className="max-w-5xl mx-auto p-6 md:p-10">
             {/* Content Container (Video) */}
             {muxData?.playbackId ? (
-              <div className="aspect-video bg-surface rounded-2xl overflow-hidden shadow-2xl shadow-black/5 mb-8 border border-border/50 relative group">
+              <div className="relative aspect-video w-full bg-slate-900 rounded-2xl overflow-hidden isolate shadow-2xl shadow-black/5 mb-8 border border-border/50 group">
                 <VideoPlayer
                   playbackId={muxData.playbackId}
                   title={lesson.title}
                   lessonId={lessonId}
+                  lastPlaybackPosition={userProgress?.lastPlaybackPosition || 0}
                 />
               </div>
             ) : (
@@ -232,6 +240,7 @@ export default async function LessonPage({
               course={course}
               currentLessonId={lessonId}
               purchase={true}
+              progressCount={progressCount}
             />
           </div>
         </div>
