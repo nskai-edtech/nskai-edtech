@@ -6,14 +6,16 @@ import { cn } from "@/lib/utils";
 import { NotesPanel } from "@/components/learner/notes-panel";
 
 import { QaSection } from "@/components/watch/qa-section";
+import { ProjectTab } from "@/components/watch/project-tab";
+
+import { QuestionWithRelations, AssignmentWithSubmissions } from "@/types";
 
 interface Lesson {
   id: string;
   description: string | null;
   notes: string | null;
+  assignment?: AssignmentWithSubmissions | null;
 }
-
-import { QuestionWithRelations } from "@/types";
 
 interface LessonTabsProps {
   lesson: Lesson;
@@ -28,9 +30,9 @@ export const LessonTabs = ({
   tutorNotes,
   questions,
 }: LessonTabsProps) => {
-  const [activeTab, setActiveTab] = useState<"overview" | "qa" | "notes">(
-    "overview",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "qa" | "notes" | "project"
+  >("overview");
 
   return (
     <div className="mt-8">
@@ -51,6 +53,13 @@ export const LessonTabs = ({
           isActive={activeTab === "notes"}
           onClick={() => setActiveTab("notes")}
         />
+        {lesson.assignment && (
+          <TabButton
+            label="Project"
+            isActive={activeTab === "project"}
+            onClick={() => setActiveTab("project")}
+          />
+        )}
       </div>
 
       <div className="min-h-[200px]">
@@ -79,6 +88,12 @@ export const LessonTabs = ({
         {activeTab === "notes" && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <NotesPanel lessonId={lessonId} tutorNotes={tutorNotes} />
+          </div>
+        )}
+
+        {activeTab === "project" && lesson.assignment && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <ProjectTab assignment={lesson.assignment} />
           </div>
         )}
       </div>

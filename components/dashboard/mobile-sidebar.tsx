@@ -8,7 +8,11 @@ import { usePathname } from "next/navigation";
 
 interface MobileSidebarProps {
   role: "TUTOR" | "ORG_ADMIN";
-  counts?: { pendingCourses?: number; pendingTutors?: number };
+  counts?: {
+    pendingCourses?: number;
+    pendingTutors?: number;
+    pendingSubmissions?: number;
+  };
 }
 
 export const MobileSidebar = ({ role, counts }: MobileSidebarProps) => {

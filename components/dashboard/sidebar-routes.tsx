@@ -11,6 +11,7 @@ import {
   CheckCircle,
   UserCheck,
   Layers,
+  FileText,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -24,7 +25,11 @@ interface SidebarRoute {
 
 export const useSidebarRoutes = (
   role: "TUTOR" | "ORG_ADMIN",
-  counts?: { pendingCourses?: number; pendingTutors?: number },
+  counts?: {
+    pendingCourses?: number;
+    pendingTutors?: number;
+    pendingSubmissions?: number;
+  },
 ): SidebarRoute[] => {
   const pathname = usePathname();
 
@@ -40,6 +45,13 @@ export const useSidebarRoutes = (
       label: "My Courses",
       href: "/tutor/courses",
       active: pathname.includes("/tutor/courses"),
+    },
+    {
+      icon: FileText,
+      label: "Submissions",
+      href: "/tutor/submissions",
+      active: pathname.includes("/tutor/submissions"),
+      badgeCount: counts?.pendingSubmissions,
     },
     {
       icon: BarChart,

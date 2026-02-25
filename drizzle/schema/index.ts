@@ -6,3 +6,4 @@ export * from "./interactions";
 export * from "./gamification";
 export * from "./skills";
 export * from "./qa";
+export * from "./assessments";

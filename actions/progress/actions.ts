@@ -29,10 +29,15 @@ export async function markLessonComplete(lessonId: string) {
         lessonId,
         isCompleted: true,
         lastAccessedAt: new Date(),
+        lastPlaybackPosition: 0, // Reset on completion
       })
       .onConflictDoUpdate({
         target: [userProgress.userId, userProgress.lessonId],
-        set: { isCompleted: true, lastAccessedAt: new Date() },
+        set: {
+          isCompleted: true,
+          lastAccessedAt: new Date(),
+          lastPlaybackPosition: 0,
+        },
       });
 
     revalidatePath("/learner/enrolled");
@@ -80,5 +85,34 @@ export async function updateLastAccessed(lessonId: string) {
   } catch (error) {
     console.error("[UPDATE_LAST_ACCESSED]", error);
     return { error: "Failed to update last accessed" };
+  }
+}
+
+export async function saveVideoPosition(lessonId: string, position: number) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return { error: "Unauthorized" };
+
+    const user = await getDbUser(clerkId);
+    if (!user) return { error: "User not found" };
+
+    await db
+      .insert(userProgress)
+      .values({
+        userId: user.id,
+        lessonId,
+        isCompleted: false,
+        lastAccessedAt: new Date(),
+        lastPlaybackPosition: position,
+      })
+      .onConflictDoUpdate({
+        target: [userProgress.userId, userProgress.lessonId],
+        set: { lastPlaybackPosition: position, lastAccessedAt: new Date() },
+      });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[SAVE_VIDEO_POSITION]", error);
+    return { error: "Failed to save video position" };
   }
 }

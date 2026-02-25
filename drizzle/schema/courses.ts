@@ -13,6 +13,7 @@ import { courseStatusEnum, lessonTypeEnum } from "./enums";
 import { users } from "./users";
 import { purchases, userProgress, reviews, courseLikes } from "./interactions";
 import { userNotes, questions } from "./qa";
+import { assignments } from "./assessments";
 
 export const courses = pgTable(
   "course",
@@ -127,6 +128,7 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
   purchases: many(purchases),
   reviews: many(reviews),
   courseLikes: many(courseLikes),
+  assignments: many(assignments),
 }));
 
 export const chapterRelations = relations(chapters, ({ one, many }) => ({
@@ -148,6 +150,7 @@ export const lessonRelations = relations(lessons, ({ one, many }) => ({
   questions: many(questions),
   quizQuestions: many(quizQuestions),
   quizAttempts: many(userQuizAttempts),
+  assignment: one(assignments),
 }));
 
 export const quizQuestionRelations = relations(quizQuestions, ({ one }) => ({

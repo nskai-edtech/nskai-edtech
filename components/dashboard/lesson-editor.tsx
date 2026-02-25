@@ -13,6 +13,7 @@ import { VideoPlayer } from "@/components/video-player";
 import { Editor } from "@/components/editor";
 import { MuxVideoUploader } from "./mux-uploader";
 import { QuizEditor } from "../tutor/quiz-editor";
+import { AssessmentEditor } from "./assessment-editor";
 import { getQuizQuestionsAdmin } from "@/actions/quiz/queries";
 import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
 
@@ -344,6 +345,14 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
           onChange={(value) =>
             setFormData((prev) => ({ ...prev, notes: value }))
           }
+        />
+      </div>
+
+      {/* Assessment Editor */}
+      <div className="bg-surface p-6 rounded-xl border border-border">
+        <AssessmentEditor
+          lessonId={lesson.id}
+          initialAssignment={lesson.assignment}
         />
       </div>
     </div>
