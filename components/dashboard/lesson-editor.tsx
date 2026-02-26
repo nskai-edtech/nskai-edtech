@@ -244,7 +244,7 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto mt-2 md:mt-0">
                   <button
                     onClick={() => router.refresh()}
                     className="p-2 hover:bg-surface-muted rounded-lg transition-colors text-secondary-text"
@@ -340,7 +340,7 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
 
       {/* Lesson Description (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
             <label className="block text-sm font-bold text-primary-text mb-1">
               Lesson Description
@@ -366,7 +366,7 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
 
       {/* Lesson Notes (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
             <label className="block text-sm font-bold text-primary-text mb-1">
               Lesson Notes & Resources

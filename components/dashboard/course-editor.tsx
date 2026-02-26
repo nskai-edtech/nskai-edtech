@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus,
@@ -56,6 +56,17 @@ export default function CourseEditor({
     type: "chapter" | "lesson" | null;
     chapterId?: string;
   }>({ isOpen: false, type: null });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [selectedLesson?.id]);
 
   // Sync internal state with prop from server
   useEffect(() => {
@@ -406,22 +417,24 @@ export default function CourseEditor({
       {/* Main Content */}
       <main className="flex-1 flex flex-col lg:ml-0">
         {/* Top Bar */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-surface">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-border bg-surface pl-14 lg:pl-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
             <h1 className="text-xl font-bold text-primary-text">
               {selectedLesson ? "Lesson Details" : "Course Overview"}
             </h1>
             {selectedLesson && (
-              <span className="text-sm text-secondary-text">
+              <span className="text-sm text-secondary-text truncate max-w-50 sm:max-w-none">
                 Editing: {selectedLesson.title}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3 relative">
+
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 relative">
             {hasPendingRequestState && (
               <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-500/10 text-amber-500 rounded-md border border-amber-500/20">
                 <AlertCircle className="w-3.5 h-3.5" />
-                Pending Status Change
+                <span className="hidden sm:inline">Pending Status Change</span>
+                <span className="sm:hidden">Pending</span>
               </span>
             )}
             {!hasPendingRequestState &&
@@ -429,12 +442,12 @@ export default function CourseEditor({
                 course.status === "PENDING") && (
                 <button
                   onClick={() => setIsRequestModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg font-medium transition-colors bg-surface-muted text-primary-text hover:bg-surface border border-border"
+                  className="flex items-center justify-center flex-1 sm:flex-none gap-2 px-3 py-2 text-sm rounded-lg font-medium transition-colors bg-surface-muted text-primary-text hover:bg-surface border border-border"
                 >
                   Request Change
                 </button>
               )}
-            <button className="px-4 py-2 text-sm font-medium text-secondary-text hover:text-primary-text transition-colors">
+            <button className="px-3 sm:px-4 py-2 text-sm font-medium text-secondary-text hover:text-primary-text transition-colors">
               Preview
             </button>
             <button
@@ -444,7 +457,7 @@ export default function CourseEditor({
                 course.status === "PENDING" ||
                 course.status === "PUBLISHED"
               }
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`flex items-center justify-center flex-1 sm:flex-none gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 course.status === "PUBLISHED"
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                   : course.status === "PENDING"
@@ -457,29 +470,34 @@ export default function CourseEditor({
               {isPublishing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Submitting...
+                  <span className="hidden sm:inline">Submitting...</span>
                 </>
               ) : (
                 <>
                   {course.status === "PUBLISHED" ? (
                     <>
                       <Eye className="w-4 h-4" />
-                      Published
+                      <span className="hidden sm:inline">Published</span>
                     </>
                   ) : course.status === "PENDING" ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Pending Approval
+                      <span className="hidden sm:inline">Pending Approval</span>
+                      <span className="sm:hidden">Pending</span>
                     </>
                   ) : course.status === "REJECTED" ? (
                     <>
                       <AlertCircle className="w-4 h-4" />
-                      Rejected - Resubmit
+                      <span className="hidden sm:inline">
+                        Rejected - Resubmit
+                      </span>
+                      <span className="sm:hidden">Resubmit</span>
                     </>
                   ) : (
                     <>
                       <Eye className="w-4 h-4" />
-                      Publish Course
+                      <span className="hidden sm:inline">Publish Course</span>
+                      <span className="sm:hidden">Publish</span>
                     </>
                   )}
                 </>
@@ -489,7 +507,7 @@ export default function CourseEditor({
         </div>
 
         {/* Editor Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div ref={mainContentRef} className="flex-1 overflow-y-auto p-6">
           {selectedLesson ? (
             <LessonEditor
               lesson={selectedLesson}
@@ -503,10 +521,10 @@ export default function CourseEditor({
         {/* Floating View Courses Button */}
         <button
           onClick={() => router.push("/tutor/courses")}
-          className="fixed z-80 bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
+          className="fixed z-99 bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
         >
           <List className="w-5 h-5" />
-          <span className="hidden sm:inline">View All Courses</span>
+          <span className=" sm:inline">View All Courses</span>
         </button>
       </main>
 
