@@ -16,6 +16,7 @@ import { QuizEditor } from "../tutor/quiz-editor";
 import { AssessmentEditor } from "./assessment-editor";
 import { getQuizQuestionsAdmin } from "@/actions/quiz/queries";
 import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
+import { AiGenerateButton } from "@/components/ui/ai-generate-button";
 
 interface LessonEditorProps {
   lesson: Lesson;
@@ -46,6 +47,28 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
 
   // Keep track of first render to avoid auto-saving on mount
   const [isMounted, setIsMounted] = useState(false);
+
+  const handleGenerateDescription = async () => {
+    // TODO: Replace with real Python API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const aiSuggestion =
+      "<p>In this comprehensive video lesson, we will break down the core concepts step-by-step. You will learn how to initialize the setup, configure the environment, and avoid common pitfalls that beginners often face.</p>";
+
+    setFormData((prev) => ({ ...prev, description: aiSuggestion }));
+    toast.success("Lesson description generated!");
+  };
+
+  const handleGenerateNotes = async () => {
+    // TODO: Replace with real Python API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const aiSuggestion =
+      "<h3>Key Takeaways</h3><ul><li>Always verify your environment variables before deployment.</li><li>Keep your component states localized when possible.</li></ul><p><strong>Resource:</strong> <a href='#'>Download the cheat sheet here</a></p>";
+
+    setFormData((prev) => ({ ...prev, notes: aiSuggestion }));
+    toast.success("Lesson notes generated!");
+  };
 
   useEffect(() => {
     const initialData = {
@@ -317,35 +340,55 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
 
       {/* Lesson Description (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">
-        <label className="block text-sm font-bold text-primary-text mb-2">
-          Lesson Description
-        </label>
-        <p className="text-xs text-secondary-text mb-4">
-          A detailed overview of what students will learn in this lesson.
-        </p>
-        <Editor
-          value={formData.description}
-          onChange={(val) =>
-            setFormData((prev) => ({ ...prev, description: val }))
-          }
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-bold text-primary-text mb-1">
+              Lesson Description
+            </label>
+            <p className="text-xs text-secondary-text">
+              A detailed overview of what students will learn in this lesson.
+            </p>
+          </div>
+          <AiGenerateButton
+            onGenerate={handleGenerateDescription}
+            label="Draft Description"
+          />
+        </div>
+        <div className="border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">
+          <Editor
+            value={formData.description}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, description: val }))
+            }
+          />
+        </div>
       </div>
 
       {/* Lesson Notes (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">
-        <label className="block text-sm font-bold text-primary-text mb-2">
-          Lesson Notes & Resources
-        </label>
-        <p className="text-xs text-secondary-text mb-4">
-          Add code snippets, downloadable resources (PDFs), or supplementary
-          links.
-        </p>
-        <Editor
-          value={formData.notes}
-          onChange={(value) =>
-            setFormData((prev) => ({ ...prev, notes: value }))
-          }
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-bold text-primary-text mb-1">
+              Lesson Notes & Resources
+            </label>
+            <p className="text-xs text-secondary-text">
+              Add code snippets, downloadable resources (PDFs), or supplementary
+              links.
+            </p>
+          </div>
+          <AiGenerateButton
+            onGenerate={handleGenerateNotes}
+            label="Generate Notes"
+          />
+        </div>
+        <div className="border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">
+          <Editor
+            value={formData.notes}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, notes: value }))
+            }
+          />
+        </div>
       </div>
 
       {/* Assessment Editor */}

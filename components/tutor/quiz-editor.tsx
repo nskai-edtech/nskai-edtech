@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { PlusCircle, Trash2, Save, CheckCircle2 } from "lucide-react";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { PlusCircle, Trash2, Save, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
 import { deleteQuizQuestion, saveQuizQuestion } from "@/actions/quiz/actions";
+import { AiGenerateButton } from "@/components/ui/ai-generate-button";
+import { getQuizQuestionsAdmin } from "@/actions/quiz/queries";
 
 interface QuizEditorProps {
   lessonId: string;
@@ -115,10 +118,86 @@ function QuestionForm({
 }
 
 export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
+  const router = useRouter();
   const [questions, setQuestions] =
     useState<QuizQuestionWithAnswer[]>(initialQuestions);
   const [adding, setAdding] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+
+  // Sync state with server changes
+  useEffect(() => {
+    setQuestions(initialQuestions);
+  }, [initialQuestions]);
+
+  const handleGenerateQuiz = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const forceRefreshQuestions = async () => {
+      const res = await getQuizQuestionsAdmin(lessonId);
+      if ("questions" in res) {
+        setQuestions(res.questions);
+      }
+    };
+
+    const aiGeneratedQuestions = [
+      {
+        questionText:
+          "What is the main advantage of Server-Side Rendering (SSR)?",
+        options: [
+          "Faster database writes",
+          "Improved SEO and initial load times",
+          "No need for CSS",
+          "Reduces server costs",
+        ],
+        correctOption: 1,
+      },
+      {
+        questionText: "Which hook is used to manage side effects in React?",
+        options: ["useState", "useContext", "useEffect", "useReducer"],
+        correctOption: 2,
+      },
+      {
+        questionText: "What does the 'key' prop do in React lists?",
+        options: [
+          "Defines the type of the element",
+          "Helps React identify which items have changed, are added, or removed",
+          "Specifies the CSS class for styling",
+          "Indicates that the element is a form input",
+        ],
+        correctOption: 1,
+      },
+      {
+        questionText: "What is the purpose of the 'useState' hook in React?",
+        options: [
+          "To manage side effects in functional components",
+          "To manage local state in functional components",
+          "To handle form submissions",
+          "To define component props",
+        ],
+        correctOption: 1,
+      },
+    ];
+
+    try {
+      for (let i = 0; i < aiGeneratedQuestions.length; i++) {
+        const q = aiGeneratedQuestions[i];
+        await saveQuizQuestion(lessonId, {
+          questionText: q.questionText,
+          options: q.options,
+          correctOption: q.correctOption,
+          position: questions.length + i,
+        });
+      }
+
+      toast.success("AI Quiz generated successfully!");
+      setAdding(false);
+      await forceRefreshQuestions();
+    } catch (error) {
+      console.error("Error generating quiz:", error);
+      toast.error("Failed to generate quiz");
+    }
+  };
 
   function handleDelete(questionId: string) {
     startTransition(async () => {
@@ -128,23 +207,73 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
       } else {
         setQuestions((prev) => prev.filter((q) => q.id !== questionId));
         toast.success("Question deleted.");
+        router.refresh();
       }
     });
   }
 
+  const handleDeleteAll = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete ALL questions? This cannot be undone.",
+      )
+    ) {
+      return;
+    }
+
+    setIsDeletingAll(true);
+    try {
+      // Fire all delete requests at the same time
+      await Promise.all(questions.map((q) => deleteQuizQuestion(q.id)));
+
+      setQuestions([]);
+      toast.success("All questions deleted.");
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting all questions:", error);
+      toast.error("Something went wrong while deleting.");
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+  // --------------------------------
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <h3 className="font-semibold text-primary-text">
           Quiz Questions ({questions.length})
         </h3>
-        <button
-          onClick={() => setAdding(true)}
-          className="flex items-center gap-2 text-sm text-brand font-medium hover:underline"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Add Question
-        </button>
+
+        <div className="flex items-center gap-3">
+          {/* --- NEW DELETE ALL BUTTON --- */}
+          {questions.length > 0 && (
+            <button
+              onClick={handleDeleteAll}
+              disabled={isDeletingAll || isPending}
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-red-500 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDeletingAll ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5" />
+              )}
+              {isDeletingAll ? "Deleting..." : "Clear All"}
+            </button>
+          )}
+
+          <AiGenerateButton
+            onGenerate={handleGenerateQuiz}
+            label="Generate Quiz"
+          />
+          <button
+            onClick={() => setAdding(true)}
+            className="flex items-center gap-2 text-sm text-brand font-medium hover:bg-brand/10 px-3 py-1.5 rounded-md transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Add Question
+          </button>
+        </div>
       </div>
 
       {questions.map((q, qi) => (
@@ -152,7 +281,7 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
           <div className="absolute top-4 right-4 z-10">
             <button
               onClick={() => handleDelete(q.id)}
-              disabled={isPending}
+              disabled={isPending || isDeletingAll}
               className="text-secondary-text hover:text-red-500 transition-colors"
               aria-label="Delete question"
             >
@@ -192,15 +321,14 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
           position={questions.length}
           onSaved={() => {
             setAdding(false);
-            // Could refresh server data here; for now we rely on revalidatePath
-            toast.success("Refresh to see latest questions.");
+            router.refresh();
           }}
         />
       )}
 
       {questions.length === 0 && !adding && (
         <div className="text-center py-8 text-secondary-text text-sm border border-dashed border-border rounded-2xl">
-          No questions yet. Add one to get started.
+          No questions yet. Add one or generate with AI to get started.
         </div>
       )}
     </div>

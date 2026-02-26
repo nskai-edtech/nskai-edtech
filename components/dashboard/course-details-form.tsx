@@ -6,6 +6,7 @@ import { Course } from "@/types";
 import { Loader2, Image as ImageIcon, Cloud } from "lucide-react";
 import { FileUpload } from "@/components/file-upload";
 import { updateCourse } from "@/actions/courses/tutor";
+import { AiGenerateButton } from "@/components/ui/ai-generate-button";
 
 interface CourseDetailsFormProps {
   course: Course;
@@ -88,6 +89,19 @@ export default function CourseDetailsForm({
     save();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedData]);
+
+  const handleGenerateDescription = async () => {
+    // TODO: actual call to the Python API when ready!
+    // simulating a 2-second network request for now.
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const aiSuggestion =
+      "This comprehensive course is designed to take you from absolute beginner to industry-ready professional. Through a series of hands-on projects and deep-dive lectures, you will master the core concepts, build real-world applications, and learn the best practices used by top engineers today. No prior experience required—just a willingness to learn and build!";
+
+    // Magically type it into the form!
+    setFormData((prev) => ({ ...prev, description: aiSuggestion }));
+    toast.success("Description generated!");
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -272,7 +286,7 @@ export default function CourseDetailsForm({
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-primary-text truncate max-w-[200px]">
+                <h4 className="text-sm font-bold text-primary-text truncate max-w-50">
                   {formData.title || "Course Title"}
                 </h4>
                 <p className="text-xs text-brand font-bold">
@@ -295,7 +309,8 @@ export default function CourseDetailsForm({
         >
           Detailed Description
         </label>
-        <div className="border border-border rounded-2xl overflow-hidden bg-surface shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">
+
+        <div className="relative border border-border rounded-2xl overflow-hidden bg-surface shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">
           <textarea
             id="description"
             value={formData.description}
@@ -304,9 +319,19 @@ export default function CourseDetailsForm({
             }
             placeholder="Introduce your course, what students will learn, and professional outcomes..."
             rows={10}
-            className="w-full px-6 py-4 bg-transparent text-primary-text placeholder:text-secondary-text focus:outline-none resize-none leading-relaxed"
+            className="w-full px-6 py-4 pb-14 bg-transparent text-primary-text placeholder:text-secondary-text focus:outline-none resize-none leading-relaxed"
           />
+
+          {/* --- GENERATE WITH AI BUTTON --- */}
+          <div className="absolute bottom-4 right-4">
+            <AiGenerateButton
+              onGenerate={handleGenerateDescription}
+              label="Draft with AI"
+              className="shadow-md"
+            />
+          </div>
         </div>
+
         <p className="text-[10px] text-secondary-text mt-3 text-right font-medium uppercase tracking-tight">
           Recommended length: 200-500 words for better conversion.
         </p>
