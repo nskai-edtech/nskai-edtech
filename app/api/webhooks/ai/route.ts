@@ -47,9 +47,6 @@ export async function POST(req: Request) {
 
     const courseId = lesson.chapter.courseId;
 
-    // --- REMOVED TRANSACTION, JUST DOING SEQUENTIAL AWAITS ---
-
-    // A. Update the Lesson Description & Notes
     if (summary || notes) {
       await db
         .update(lessons)

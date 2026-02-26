@@ -5,6 +5,7 @@ import "./globals.css";
 import { ApproveModal } from "@/components/modals/approve-modal";
 import { ManagerModal } from "@/components/modals/manager-modal";
 import { Toaster } from "react-hot-toast";
+import { ModalProvider } from "@/components/providers/modal-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,6 +101,7 @@ export default function RootLayout({
           <Toaster position="top-right" />
           <ApproveModal />
           <ManagerModal />
+          <ModalProvider />
           {children}
         </body>
       </html>

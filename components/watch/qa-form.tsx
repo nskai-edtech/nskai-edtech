@@ -77,7 +77,7 @@ export function QaForm({
       <div className="flex-1">
         <textarea
           {...form.register("content")}
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none custom-scrollbar"
+          className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none custom-scrollbar"
           placeholder={placeholder}
           disabled={isSubmitting}
           aria-invalid={!!form.formState.errors.content}
@@ -85,7 +85,7 @@ export function QaForm({
         />
         <p
           id="content-error"
-          className="text-xs text-red-500 mt-1 min-h-[1rem]"
+          className="text-xs text-red-500 mt-1 min-h-4"
           aria-live="polite"
         >
           {form.formState.errors.content?.message || ""}
