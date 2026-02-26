@@ -12,28 +12,23 @@ interface ModalData {
   lastName?: string | null;
   email?: string;
   expertise?: string | null;
+  lessonId?: string;
 }
 
+type ModalType =
+  | "approveTutor"
+  | "rejectTutor"
+  | "checkTutor"
+  | "suspendTutor"
+  | "banTutor"
+  | "aiMentor";
+
 interface ModalStore {
-  type:
-    | "approveTutor"
-    | "rejectTutor"
-    | "checkTutor"
-    | "suspendTutor"
-    | "banTutor"
-    | null;
+  type: ModalType | null;
   data: ModalData;
   isOpen: boolean;
 
-  onOpen: (
-    type:
-      | "approveTutor"
-      | "rejectTutor"
-      | "checkTutor"
-      | "suspendTutor"
-      | "banTutor",
-    data?: ModalData,
-  ) => void;
+  onOpen: (type: ModalType, data?: ModalData) => void;
   onClose: () => void;
 }
 
@@ -44,5 +39,5 @@ export const useModalStore = create<ModalStore>((set) => ({
 
   onOpen: (type, data = {}) => set({ isOpen: true, type, data }),
 
-  onClose: () => set({ isOpen: false, type: null }),
+  onClose: () => set({ isOpen: false, type: null, data: {} }),
 }));
