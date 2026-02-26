@@ -264,6 +264,7 @@
 | | |____activity-panels.tsx
 | | |____course-performance-table.tsx
 | | |____kpi-and-charts.tsx
+| | |____revenue-chart.tsx
 | |____certificates
 | | |____certificate-download-button.tsx
 | | |____certificate-template.tsx
@@ -276,12 +277,15 @@
 | | |____course-video-preview.tsx
 | | |____star-rating-input.tsx
 | |____dashboard
+| | |____activity-feed.tsx
 | | |____assessment-editor.tsx
 | | |____course-details-form.tsx
 | | |____course-editor.tsx
 | | |____lesson-editor.tsx
+| | |____low-performing-courses.tsx
 | | |____mobile-sidebar.tsx
 | | |____mux-uploader.tsx
+| | |____recent-submissions.tsx
 | | |____requests-table.tsx
 | | |____sidebar-routes.tsx
 | | |____sidebar.tsx

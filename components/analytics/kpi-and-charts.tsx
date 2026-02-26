@@ -1,5 +1,6 @@
 import { MonthlyDataPoint } from "@/actions/analytics/types";
 import { formatPrice } from "@/lib/format";
+import { RevenueChart } from "./revenue-chart";
 import {
   DollarSign,
   Users,
@@ -172,14 +173,21 @@ export function TrendCharts({
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <BarChart
-        data={revenueByMonth}
-        title="Revenue Trend"
-        subtitle="Monthly revenue over the last 6 months"
-        icon={TrendingUp}
-        barColor="bg-blue-500 dark:bg-blue-400"
-        formatValue={(val) => formatPrice(val)}
-      />
+      <div className="bg-surface border border-border rounded-xl p-6 flex flex-col">
+        <div className="flex items-center gap-2 mb-1">
+          <TrendingUp className="w-4 h-4 text-secondary-text" />
+          <h3 className="text-base font-semibold text-primary-text">
+            Revenue Trend
+          </h3>
+        </div>
+        <p className="text-sm text-secondary-text mb-4">
+          Monthly revenue over the last 6 months
+        </p>
+        <div className="h-80 flex-1">
+          <RevenueChart data={revenueByMonth} />
+        </div>
+      </div>
+
       <BarChart
         data={enrollmentsByMonth}
         title="New Enrollments"
