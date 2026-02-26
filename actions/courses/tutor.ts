@@ -2,7 +2,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { courses, users, purchases } from "@/drizzle/schema";
+import {
+  courses,
+  users,
+  purchases,
+  reviews,
+  assignments,
+} from "@/drizzle/schema";
+import { assignmentSubmissions } from "@/drizzle/schema/assessments";
 import { eq, desc, count, and, or, ilike, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -234,4 +241,150 @@ export async function getTutorDashboardStats() {
     totalCourses: coursesResult?.count ?? 0,
     topCourses,
   };
+}
+
+export async function getRecentSubmissions(take = 5) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const tutor = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId),
+  });
+  if (!tutor || tutor.role !== "TUTOR") throw new Error("Not a tutor");
+
+  const data = await db
+    .select({
+      id: assignmentSubmissions.id,
+      status: assignmentSubmissions.status,
+      score: assignmentSubmissions.score,
+      submittedAt: assignmentSubmissions.submittedAt,
+      assignment: {
+        id: assignments.id,
+        title: assignments.title,
+      },
+      course: {
+        id: courses.id,
+        title: courses.title,
+      },
+      user: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
+    })
+    .from(assignmentSubmissions)
+    .innerJoin(
+      assignments,
+      eq(assignmentSubmissions.assignmentId, assignments.id),
+    )
+    .innerJoin(courses, eq(assignments.courseId, courses.id))
+    .innerJoin(users, eq(assignmentSubmissions.userId, users.id))
+    .where(
+      and(
+        eq(courses.tutorId, tutor.id),
+        eq(assignmentSubmissions.status, "PENDING"),
+      ),
+    )
+    .orderBy(desc(assignmentSubmissions.submittedAt))
+    .limit(take);
+
+  return data;
+}
+
+export async function getTutorActivityFeed(take = 8) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const tutor = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId),
+  });
+  if (!tutor || tutor.role !== "TUTOR") throw new Error("Not a tutor");
+
+  const enrollments = await db
+    .select({
+      id: purchases.id,
+      type: sql<"enrollment">`'enrollment'`,
+      amount: purchases.amount,
+      createdAt: purchases.createdAt,
+      course: {
+        id: courses.id,
+        title: courses.title,
+      },
+      user: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
+    })
+    .from(purchases)
+    .innerJoin(courses, eq(purchases.courseId, courses.id))
+    .innerJoin(users, eq(purchases.userId, users.id))
+    .where(eq(courses.tutorId, tutor.id))
+    .orderBy(desc(purchases.createdAt))
+    .limit(take);
+
+  const reviews_ = await db
+    .select({
+      id: reviews.id,
+      type: sql<"review">`'review'`,
+      rating: reviews.rating,
+      comment: reviews.comment,
+      createdAt: reviews.createdAt,
+      course: {
+        id: courses.id,
+        title: courses.title,
+      },
+      user: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
+    })
+    .from(reviews)
+    .innerJoin(courses, eq(reviews.courseId, courses.id))
+    .innerJoin(users, eq(reviews.userId, users.id))
+    .where(eq(courses.tutorId, tutor.id))
+    .orderBy(desc(reviews.createdAt))
+    .limit(take);
+
+  const combined = [...enrollments, ...reviews_]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, take);
+
+  return combined;
+}
+
+export async function getLowPerformingCourses() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const tutor = await db.query.users.findFirst({
+    where: eq(users.clerkId, userId),
+  });
+  if (!tutor || tutor.role !== "TUTOR") throw new Error("Not a tutor");
+
+  const data = await db
+    .select({
+      id: courses.id,
+      title: courses.title,
+      imageUrl: courses.imageUrl,
+      enrollments: sql<number>`cast(count(distinct ${purchases.userId}) as integer)`,
+      avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)`,
+      revenue: sql<number>`coalesce(sum(${purchases.amount}), 0)`,
+    })
+    .from(courses)
+    .leftJoin(purchases, eq(courses.id, purchases.courseId))
+    .leftJoin(reviews, eq(courses.id, reviews.courseId))
+    .where(eq(courses.tutorId, tutor.id))
+    .groupBy(courses.id)
+    .orderBy(sql`coalesce(avg(${reviews.rating}), 0)`)
+    .limit(3);
+
+  return data;
 }

@@ -8,10 +8,28 @@ import {
   BookOpen,
   ArrowUpRight,
 } from "lucide-react";
-import { getTutorDashboardStats } from "@/actions/courses/tutor";
+import {
+  getTutorDashboardStats,
+  getRecentSubmissions,
+  getTutorActivityFeed,
+  getLowPerformingCourses,
+} from "@/actions/courses/tutor";
+import { RecentSubmissions } from "@/components/dashboard/recent-submissions";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { LowPerformingCourses } from "@/components/dashboard/low-performing-courses";
 
 export default async function TutorDashboard() {
   const stats = await getTutorDashboardStats();
+  const recentSubmissions = await getRecentSubmissions(5);
+  const activityFeedData = await getTutorActivityFeed(8);
+  const lowPerformingCourses = await getLowPerformingCourses();
+
+  // Transform null comments to undefined
+  const activityFeed = activityFeedData.map((item) => ({
+    ...item,
+    comment:
+      item.type !== "enrollment" ? (item.comment ?? undefined) : undefined,
+  }));
 
   // Format price from Kobo to Naira
   const formatPrice = (priceInKobo: number) => {
@@ -141,103 +159,84 @@ export default async function TutorDashboard() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue vs Student Growth Chart */}
-        <div className="lg:col-span-2 bg-surface border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-primary-text">
-                Revenue vs. Student Growth
-              </h3>
-              <p className="text-sm text-secondary-text">
-                Monthly tracking over the last 6 months
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="text-secondary-text">Revenue</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-cyan-400" />
-                <span className="text-secondary-text">Students</span>
-              </div>
-            </div>
-          </div>
-          {/* Chart Placeholder */}
-          <div className="h-64 flex items-center justify-center bg-surface-muted/50 rounded-lg border border-dashed border-border">
-            <p className="text-secondary-text text-sm">
-              Advanced analytics coming soon
-            </p>
-          </div>
+        {/* Recent Submissions */}
+        <div className="lg:col-span-2">
+          <RecentSubmissions submissions={recentSubmissions} />
         </div>
 
-        {/* Top Courses */}
-        <div className="bg-surface border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-primary-text">
-              Top Courses
-            </h3>
-            <Link
-              href="/tutor/courses"
-              className="text-sm text-brand hover:underline font-medium"
-            >
-              View All
-            </Link>
-          </div>
+        {/* Activity Feed */}
+        <ActivityFeed activities={activityFeed} />
+      </div>
 
-          {stats.topCourses.length > 0 ? (
-            <div className="space-y-4">
-              {stats.topCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-muted/50 transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-surface-muted shrink-0">
-                    {course.imageUrl ? (
-                      <Image
-                        src={course.imageUrl}
-                        alt={course.title}
-                        width={48}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen className="w-6 h-6 text-secondary-text" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-primary-text text-sm truncate">
-                      {course.title}
-                    </h4>
-                    <div className="flex items-center gap-1 text-xs text-secondary-text">
-                      <Users className="w-3 h-3" />
-                      <span>{course.students} enrolled</span>
+      {/* Low Performing Courses */}
+      <LowPerformingCourses courses={lowPerformingCourses} />
+
+      {/* Top Courses */}
+      <div className="bg-surface border border-border rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-primary-text">
+            Top Courses
+          </h3>
+          <Link
+            href="/tutor/courses"
+            className="text-sm text-brand hover:underline font-medium"
+          >
+            View All
+          </Link>
+        </div>
+
+        {stats.topCourses.length > 0 ? (
+          <div className="space-y-4">
+            {stats.topCourses.map((course) => (
+              <div
+                key={course.id}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-muted/50 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-surface-muted shrink-0">
+                  {course.imageUrl ? (
+                    <Image
+                      src={course.imageUrl}
+                      alt={course.title}
+                      width={48}
+                      height={48}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-secondary-text" />
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-primary-text">
-                      {formatPrice(course.price || 0)}
-                    </div>
-                    <div className="text-xs text-green-600 dark:text-green-400">
-                      {formatPrice(course.revenue)} earned
-                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-primary-text text-sm truncate">
+                    {course.title}
+                  </h4>
+                  <div className="flex items-center gap-1 text-xs text-secondary-text">
+                    <Users className="w-3 h-3" />
+                    <span>{course.students} enrolled</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-8 text-center bg-surface-muted/30 rounded-lg border border-dashed border-border">
-              <p className="text-secondary-text text-sm font-medium">
-                No course data yet
-              </p>
-              <p className="text-xs text-secondary-text mt-1">
-                Your top performing courses will appear here
-              </p>
-            </div>
-          )}
-        </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-primary-text">
+                    {formatPrice(course.price || 0)}
+                  </div>
+                  <div className="text-xs text-green-600 dark:text-green-400">
+                    {formatPrice(course.revenue)} earned
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center bg-surface-muted/30 rounded-lg border border-dashed border-border">
+            <p className="text-secondary-text text-sm font-medium">
+              No course data yet
+            </p>
+            <p className="text-xs text-secondary-text mt-1">
+              Your top performing courses will appear here
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}
