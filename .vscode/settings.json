@@ -13,12 +13,14 @@
     "headshot",
     "ilike",
     "jspdf",
+    "madelyne",
     "neondatabase",
     "nskai",
     "nums",
     "OSCP",
     "paystack",
     "prereq",
+    "Qeqbr",
     "Rebecca",
     "svix",
     "textnodes",
@@ -29,6 +31,7 @@
     "uploadthing",
     "utfs",
     "vercel",
+    "zemo",
     "ZERRA"
   ],
   "typescript.tsdk": "node_modules\\typescript\\lib"

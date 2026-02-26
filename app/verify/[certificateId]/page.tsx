@@ -15,8 +15,8 @@ import { format } from "date-fns";
 import { Suspense } from "react";
 import { Metadata } from "next";
 
-// --- Types ---
-type Certificate = NonNullable<Awaited<ReturnType<typeof verifyCertificate>>>;
+import { type VerificationRecord } from "@/actions/certificates/queries";
+type Certificate = VerificationRecord;
 
 // --- Dynamic Metadata ---
 
@@ -32,19 +32,19 @@ export async function generateMetadata({
 
     if (!certificate) {
       return {
-        title: "Certificate Not Found - NSK.AI",
+        title: "Certificate Not Found - NSK AI",
         description: "The certificate you are looking for does not exist.",
       };
     }
 
     return {
-      title: `Verified: ${certificate.courseTitle} - NSK.AI`,
+      title: `Verified: ${certificate.courseTitle} - NSK AI`,
       description: `Official certificate of completion for ${certificate.learnerFirstName} ${certificate.learnerLastName}.`,
     };
   } catch (error) {
     console.error("Metadata generation error:", error);
     return {
-      title: "Verification Error - NSK.AI",
+      title: "Verification Error - NSK AI",
       description: "An error occurred while verifying the certificate.",
     };
   }
@@ -163,7 +163,7 @@ function VerifiedState({
             {certificate.courseImageUrl ? (
               <Image
                 src={certificate.courseImageUrl}
-                alt="" // decorative, screen readers already get course title from heading
+                alt=""
                 fill
                 sizes="(max-width: 768px) 100vw, 800px"
                 className="object-cover"
@@ -205,7 +205,7 @@ function VerifiedState({
   );
 }
 
-// --- Error State (with optional error message) ---
+// --- Error State ---
 function ErrorState({
   certificateId,
   error,
@@ -272,7 +272,7 @@ function DetailCard({
   );
 }
 
-// --- Simple Loading Skeleton (optional) ---
+// --- Simple Loading Skeleton ---
 function LoadingSkeleton() {
   return (
     <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800 p-8 animate-pulse">
