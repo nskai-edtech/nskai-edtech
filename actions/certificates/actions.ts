@@ -1,11 +1,11 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { users } from "@/drizzle/schema";
+import { fetchUserCourseProgress } from "./queries";
 import { auth } from "@clerk/nextjs/server";
 import { CompletedCourse, CertificateData } from "./types";
-import { fetchUserCourseProgress } from "./queries";
 
 // --- HELPER: AUTH & USER FETCH ---
 async function getAuthenticatedUser() {
@@ -48,7 +48,7 @@ export async function getCompletedCourses(): Promise<
 }
 
 export async function getUserCertificates(): Promise<
-  { error: string } | CertificateData[]
+  { error: string } | (CertificateData & { id: string })[]
 > {
   try {
     const user = await getAuthenticatedUser();
@@ -56,16 +56,25 @@ export async function getUserCertificates(): Promise<
     const learnerName =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Learner";
 
-    return completedData.map((c) => ({
-      courseId: c.courseId,
-      courseTitle: c.courseTitle,
-      courseImageUrl: c.courseImageUrl,
-      learnerName,
-      tutorName:
-        `${c.tutorFirstName || ""} ${c.tutorLastName || ""}`.trim() ||
-        "NSK.AI Instructor",
-      completionDate: c.completionDate || new Date(),
-    }));
+    // We only fetch DB certs so we can get IDs
+    const dbCerts = await db.query.certificates.findMany({
+      where: eq(db._.fullSchema.certificates.userId, user.clerkId),
+    });
+
+    return completedData.map((c) => {
+      const dbRecord = dbCerts.find((dbC) => dbC.courseId === c.courseId);
+      return {
+        id: dbRecord?.id || "",
+        courseId: c.courseId,
+        courseTitle: c.courseTitle,
+        courseImageUrl: c.courseImageUrl,
+        learnerName,
+        tutorName:
+          `${c.tutorFirstName || ""} ${c.tutorLastName || ""}`.trim() ||
+          "NSK.AI Instructor",
+        completionDate: c.completionDate || new Date(),
+      };
+    });
   } catch (error) {
     console.error("[GET_USER_CERTIFICATES]", error);
     return { error: "Failed to fetch certificates" };
@@ -74,7 +83,7 @@ export async function getUserCertificates(): Promise<
 
 export async function getCertificateData(
   courseId: string,
-): Promise<{ error: string } | CertificateData> {
+): Promise<{ error: string } | (CertificateData & { id: string })> {
   try {
     const user = await getAuthenticatedUser();
     const completedData = await fetchUserCourseProgress(user.id, courseId);
@@ -87,7 +96,28 @@ export async function getCertificateData(
     const learnerName =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Learner";
 
+    // 1. CHECK IF CERTIFICATE ALREADY EXISTS OR CREATE ONE
+    let certificateRecord = await db.query.certificates.findFirst({
+      where: (certificates, { and, eq }) =>
+        and(
+          eq(certificates.userId, user.clerkId),
+          eq(certificates.courseId, courseId),
+        ),
+    });
+
+    if (!certificateRecord) {
+      const [newCert] = await db
+        .insert(db._.fullSchema.certificates)
+        .values({
+          userId: user.clerkId,
+          courseId: courseId,
+        })
+        .returning();
+      certificateRecord = newCert;
+    }
+
     return {
+      id: certificateRecord.id, // This is the public verification ID
       courseId: course.courseId,
       courseTitle: course.courseTitle,
       courseImageUrl: course.courseImageUrl,
