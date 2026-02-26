@@ -9,6 +9,8 @@ export interface CertificateTemplateProps {
   completionDate: Date;
   /** Used to give each instance a unique DOM id when multiple certs are on one page */
   instanceId?: string;
+  /** The unique DB verification ID */
+  certificateId: string;
 }
 
 export const CERT_WIDTH = 1122;
@@ -20,6 +22,7 @@ export function CertificateTemplate({
   tutorName,
   completionDate,
   instanceId,
+  certificateId,
 }: CertificateTemplateProps) {
   const formattedDate = completionDate.toLocaleDateString("en-US", {
     month: "long",
@@ -330,7 +333,7 @@ export function CertificateTemplate({
           </div>
         </div>
 
-        <div style={{ marginBottom: 18 }}>
+        <div style={{ marginBottom: 18, position: "relative", zIndex: 10 }}>
           <p
             style={{
               fontSize: 9,
@@ -338,12 +341,23 @@ export function CertificateTemplate({
               textTransform: "uppercase",
               fontWeight: 700,
               letterSpacing: 1,
-              margin: 0,
+              margin: "0 0 4px",
             }}
           >
-            Certificate ID: NSK-
-            {completionDate.getTime().toString(36).toUpperCase()}
+            Verify Authenticity Online
           </p>
+          <a
+            href={`${process.env.NEXT_PUBLIC_APP_URL || "https://nskai-edtech.vercel.app"}/verify/${certificateId}`}
+            style={{
+              fontSize: 10,
+              color: "#ff0004",
+              textDecoration: "none",
+              fontFamily: "monospace",
+              fontWeight: 500,
+            }}
+          >
+            nskai-edtech.vercel.app/verify/{certificateId}
+          </a>
         </div>
       </div>
     </div>

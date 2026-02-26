@@ -13,6 +13,7 @@ import {
 } from "./certificate-template";
 
 export interface CertificateDownloadData {
+  id: string;
   courseTitle: string;
   learnerName: string;
   tutorName: string;
@@ -115,6 +116,7 @@ async function downloadCertificateAsPDF(data: CertificateDownloadData) {
         courseTitle={data.courseTitle}
         tutorName={data.tutorName}
         completionDate={data.completionDate}
+        certificateId={data.id}
       />,
     );
 

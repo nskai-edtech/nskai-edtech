@@ -18,6 +18,7 @@ interface CertificateListItem extends CertificateDownloadData {
 }
 
 const MOCK_CERT: CertificateListItem = {
+  id: "demo-id",
   courseId: "demo-id",
   courseTitle: "Premium UX Design & Architecture Masterclass",
   learnerName: "Alex Rivera",
@@ -54,6 +55,7 @@ function CertificatesGalleryContent() {
 
         if (Array.isArray(result)) {
           loadedCerts = result.map((c) => ({
+            id: c.id,
             courseId: c.courseId,
             courseTitle: c.courseTitle,
             learnerName: c.learnerName,

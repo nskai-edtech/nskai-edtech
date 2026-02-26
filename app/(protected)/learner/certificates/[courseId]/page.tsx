@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import { getCertificateData } from "@/actions/certificates/actions";
 
 interface CertificateData {
+  id: string;
   courseTitle: string;
   learnerName: string;
   tutorName: string;
@@ -22,6 +23,7 @@ interface CertificateData {
 }
 
 const MOCK_CERTIFICATE: CertificateData = {
+  id: "demo-certificate-id",
   courseTitle: "Mastering Modern UX Architecture",
   learnerName: "Alex Rivera",
   tutorName: "Dr. Sarah Johnson",
@@ -63,9 +65,7 @@ function CertScaler(props: CertScalerProps) {
         boxShadow: "0 20px 40px -12px rgba(0,0,0,0.3)",
       }}
     >
-      {/* Absolute fill layer so the cert renders inside the aspect box */}
       <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-        {/* Scale the cert from top-left to fit the container width */}
         <div
           style={{
             width: CERT_WIDTH,
@@ -80,8 +80,6 @@ function CertScaler(props: CertScalerProps) {
     </div>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CertificateViewPage() {
   return (
@@ -121,6 +119,7 @@ function CertificateViewContent() {
           setError(result.error);
         } else if (result) {
           setCertificateData({
+            id: result.id,
             courseTitle: result.courseTitle,
             learnerName: result.learnerName,
             tutorName: result.tutorName,
@@ -214,6 +213,7 @@ function CertificateViewContent() {
             courseTitle={certificateData.courseTitle}
             tutorName={certificateData.tutorName}
             completionDate={certificateData.completionDate}
+            certificateId={certificateData.id}
           />
         </div>
       </div>

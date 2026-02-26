@@ -1,0 +1,424 @@
+.
+|____.env.example
+|____.env.local
+|____.env.sentry-build-plugin
+|____.github
+| |____workflows
+| | |____playwright.yml
+|____.gitignore
+|____.vscode
+| |____settings.json
+|____actions
+| |____admin
+| | |____auth.ts
+| | |____dashboard.ts
+| | |____learners.ts
+| | |____tutors.ts
+| |____analytics
+| | |____queries.ts
+| | |____tutor.ts
+| | |____types.ts
+| |____assessments
+| | |____actions.ts
+| | |____queries.ts
+| |____certificates
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____chapters.ts
+| |____continue-learning.ts
+| |____courses
+| | |____admin.ts
+| | |____marketplace.ts
+| | |____student.ts
+| | |____tutor.ts
+| | |____types.ts
+| |____gamification
+| | |____points.ts
+| | |____queries.ts
+| | |____types.ts
+| |____learning-paths
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____lesson-viewer.ts
+| |____mux.ts
+| |____notes.ts
+| |____onboarding.tsx
+| |____payments
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____portfolio
+| | |____queries.ts
+| |____profile
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____progress
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____qa.ts
+| |____quiz
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____recommendations
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____requests
+| | |____actions.ts
+| | |____queries.ts
+| |____reviews
+| | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____tutor-settings.ts
+| |____tutors.ts
+| |____wishlist.ts
+|____app
+| |____(auth)
+| | |____layout.tsx
+| | |____sign-in
+| | | |____[[...sign-in]]
+| | | | |____page.tsx
+| | |____sign-up
+| | | |____[[...sign-up]]
+| | | | |____page.tsx
+| |____(marketing)
+| | |____about
+| | | |____page.tsx
+| | |____accessibility
+| | | |____page.tsx
+| | |____ai-tutors
+| | | |____page.tsx
+| | |____api-reference
+| | | |____page.tsx
+| | |____blog
+| | | |____page.tsx
+| | |____careers
+| | | |____page.tsx
+| | |____case-studies
+| | | |____page.tsx
+| | |____community
+| | | |____page.tsx
+| | |____contact
+| | | |____page.tsx
+| | |____cookie-policy
+| | | |____page.tsx
+| | |____documentation
+| | | |____page.tsx
+| | |____features
+| | | |____page.tsx
+| | |____for-schools
+| | | |____page.tsx
+| | |____help
+| | | |____page.tsx
+| | |____layout.tsx
+| | |____partner-program
+| | | |____page.tsx
+| | |____press-kit
+| | | |____page.tsx
+| | |____pricing
+| | | |____page.tsx
+| | |____privacy
+| | | |____page.tsx
+| | |____security
+| | | |____page.tsx
+| | |____terms
+| | | |____page.tsx
+| |____(protected)
+| | |____learner
+| | | |____certificates
+| | | | |____page.tsx
+| | | | |____[courseId]
+| | | | | |____page.tsx
+| | | |____enrolled
+| | | | |____page.tsx
+| | | |____layout.tsx
+| | | |____leaderboard
+| | | | |____page.tsx
+| | | |____marketplace
+| | | | |____page.tsx
+| | | |____page.tsx
+| | | |____paths
+| | | | |____[pathId]
+| | | | | |____page.tsx
+| | | | | |____view
+| | | | | | |____page.tsx
+| | | | |_____components
+| | | | | |____client-enroll-button.tsx
+| | | | | |____enroll-path-button-base.tsx
+| | | | | |____enroll-path-button.tsx
+| | | |____portfolio
+| | | | |____page.tsx
+| | | |____profile
+| | | | |____page.tsx
+| | | |____tutor
+| | | | |____[tutorId]
+| | | | | |____page.tsx
+| | | |____wishlist
+| | | | |____page.tsx
+| | | |____[courseId]
+| | | | |____page.tsx
+| | | | |_____components
+| | | | | |____course-hero.tsx
+| | | | | |____course-instructor.tsx
+| | | | | |____course-related.tsx
+| | | | | |____course-reviews-wrapper.tsx
+| | | | | |____course-sidebar.tsx
+| | |____org
+| | | |____approvals
+| | | | |____loading.tsx
+| | | | |____page.tsx
+| | | | |____[courseId]
+| | | | | |____page.tsx
+| | | | | |_____components
+| | | | | | |____review-actions.tsx
+| | | |____courses
+| | | | |____page.tsx
+| | | |____layout.tsx
+| | | |____learners
+| | | | |____page.tsx
+| | | | |____[learnerId]
+| | | | | |____page.tsx
+| | | |____page.tsx
+| | | |____paths
+| | | | |____page.tsx
+| | | | |____[pathId]
+| | | | | |____page.tsx
+| | | | |_____components
+| | | | | |____course-search-modal.tsx
+| | | | | |____create-path-modal.tsx
+| | | | | |____path-actions.tsx
+| | | | | |____remove-course-button.tsx
+| | | |____requests
+| | | | |____page.tsx
+| | | |____tutor-approvals
+| | | | |____page.tsx
+| | | |____tutors
+| | | | |____page.tsx
+| | | | |____[tutorId]
+| | | | | |____page.tsx
+| | | | | |_____components
+| | | | | | |____course-tabs.tsx
+| | | |_____components
+| | | | |____tutor-action-cell.tsx
+| | |____tutor
+| | | |____analytics
+| | | | |____page.tsx
+| | | |____courses
+| | | | |____new
+| | | | | |____page.tsx
+| | | | |____page.tsx
+| | | | |____[courseId]
+| | | | | |____page.tsx
+| | | |____layout.tsx
+| | | |____page.tsx
+| | | |____settings
+| | | | |____page.tsx
+| | | |____submissions
+| | | | |____page.tsx
+| | |____watch
+| | | |____[courseId]
+| | | | |____page.tsx
+| | | | |____[lessonId]
+| | | | | |____page.tsx
+| |____api
+| | |____ai
+| | |____mux-webhook
+| | | |____route.ts
+| | |____paystack-webhook
+| | | |____route.ts
+| | |____sentry-example-api
+| | | |____route.ts
+| | |____uploadthing
+| | | |____core.ts
+| | | |____route.ts
+| | |____user
+| | | |____profile
+| | | | |____route.ts
+| | |____webhooks
+| | | |____clerk
+| | | | |____route.ts
+| |____global-error.tsx
+| |____globals.css
+| |____icon.tsx
+| |____layout.tsx
+| |____onboarding
+| | |____learner
+| | | |____page.tsx
+| | |____page.tsx
+| |____page.tsx
+| |____robots.ts
+| |____sentry-example-page
+| | |____page.tsx
+| |____sitemap.ts
+| |____verify
+| | |____[certificateId]
+| | | |____page.tsx
+|____components
+| |____analytics
+| | |____activity-panels.tsx
+| | |____course-performance-table.tsx
+| | |____kpi-and-charts.tsx
+| |____certificates
+| | |____certificate-download-button.tsx
+| | |____certificate-template.tsx
+| |____courses
+| | |____course-card.tsx
+| | |____course-curriculum.tsx
+| | |____course-enroll-button-base.tsx
+| | |____course-enroll-button.tsx
+| | |____course-reviews.tsx
+| | |____course-video-preview.tsx
+| | |____star-rating-input.tsx
+| |____dashboard
+| | |____assessment-editor.tsx
+| | |____course-details-form.tsx
+| | |____course-editor.tsx
+| | |____lesson-editor.tsx
+| | |____mobile-sidebar.tsx
+| | |____mux-uploader.tsx
+| | |____requests-table.tsx
+| | |____sidebar-routes.tsx
+| | |____sidebar.tsx
+| | |____submissions-table.tsx
+| |____debounced-search.tsx
+| |____editor.tsx
+| |____file-upload.tsx
+| |____landing-page
+| | |____features.tsx
+| | |____footer.tsx
+| | |____hero-progress-image.tsx
+| | |____hero-section.tsx
+| | |____navbar.tsx
+| | |____testimonials.tsx
+| |____layout
+| | |____learner-sidebar.tsx
+| | |____page-shell.tsx
+| |____learner
+| | |____continue-learning-widget.tsx
+| | |____interests-selector.tsx
+| | |____learner-greeting.tsx
+| | |____notes-panel.tsx
+| | |____profile-form.tsx
+| |____modals
+| | |____approve-modal.tsx
+| | |____course-request-modal.tsx
+| | |____manager-modal.tsx
+| |____ModeToggle.tsx
+| |____providers
+| |____tutor
+| | |____quiz-editor.tsx
+| | |____settings-form.tsx
+| |____ui
+| | |____button.tsx
+| | |____custom-accordion.tsx
+| | |____input-modal.tsx
+| | |____toggle.tsx
+| |____video-player.tsx
+| |____watch
+| | |____course-mobile-sidebar.tsx
+| | |____course-sidebar.tsx
+| | |____lesson-tabs.tsx
+| | |____project-tab.tsx
+| | |____qa-form.tsx
+| | |____qa-section.tsx
+| | |____question-item.tsx
+| | |____quiz-player.tsx
+|____debug-enum.ts
+|____drizzle
+| |____migrations
+| | |____0000_smiling_madelyne_pryor.sql
+| | |____0001_strange_doctor_octopus.sql
+| | |____0002_purple_zemo.sql
+| | |____0003_next_storm.sql
+| | |____meta
+| | | |____0000_snapshot.json
+| | | |____0001_snapshot.json
+| | | |____0002_snapshot.json
+| | | |____0003_snapshot.json
+| | | |_____journal.json
+| |____schema
+| | |____assessments.ts
+| | |____certificates.ts
+| | |____courses.ts
+| | |____enums.ts
+| | |____gamification.ts
+| | |____index.ts
+| | |____interactions.ts
+| | |____learning-paths.ts
+| | |____qa.ts
+| | |____requests.ts
+| | |____skills.ts
+| | |____users.ts
+| |____schema.ts
+|____drizzle.config.ts
+|____emails
+| |____PurchaseConfirmationEmail.tsx
+| |____TutorApprovedEmail.tsx
+| |____WelcomeEmail.tsx
+|____eslint.config.mjs
+|____get-paths.ts
+|____hooks
+| |____use-debounce.ts
+| |____use-modal-store.ts
+|____instrumentation-client.ts
+|____instrumentation.ts
+|____lib
+| |____db.ts
+| |____email.ts
+| |____format.ts
+| |____topics.tsx
+| |____uploadthing.ts
+| |____utils.ts
+|____next-env.d.ts
+|____next.config.ts
+|____package.json
+|____playwright-report
+| |____data
+| | |____29eede78903fe304aed70e08052295ef552a9346.md
+| |____index.html
+|____playwright.config.ts
+|____pnpm
+|____pnpm-lock.yaml
+|____pnpm-workspace.yaml
+|____postcss.config.mjs
+|____project_gap_analysis.md
+|____project_structure.txt
+|____proxy.ts
+|____public
+| |____icon.tsx
+| |____og-image.svg
+|____README.md
+|____scripts
+| |____check_enum.ts
+| |____delete-all-seeds.ts
+| |____delete-seed-tutors.ts
+| |____fix_enum.ts
+| |____seed-courses.ts
+| |____seed-tutors.ts
+|____sentry.edge.config.ts
+|____sentry.server.config.ts
+|____team_assignments.md
+|____test-db.js
+|____test-query.ts
+|____test-results
+| |____.last-run.json
+| |____marketing-Marketing-Pages-Home-page-should-load-chromium
+| | |____error-context.md
+|____tests
+| |____course-image-upload.spec.ts
+| |____marketing.spec.ts
+| |____public-features.spec.ts
+|____tsconfig.json
+|____tsconfig.tsbuildinfo
+|____types
+| |____global.d.ts
+| |____index.ts
+|____video.d.ts
+|____videos
+| |____get-started.mp4.json
