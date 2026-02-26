@@ -26,21 +26,40 @@ export const AssessmentEditor = ({
     maxScore: initialAssignment?.maxScore || 100,
   });
 
-  // --- NEW AI GENERATION FUNCTION ---
+  // --- UPDATED AI GENERATION FUNCTION ---
   const handleGenerateAssessment = async () => {
-    // TODO: Replace with real Python API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsSaving(true);
 
-    // Simulated AI response giving us all 3 fields at once
-    const aiSuggestion = {
-      title: "Build a Secure Database Setup",
-      maxScore: 100,
-      description:
-        "<h3>Project Overview</h3><p>Design a secure database setup using AsyncPG and Docker.</p><h4>Requirements:</h4><ul><li>Create a Docker container that exposes port 5432.</li><li>Store the connection string as an environment variable.</li><li>Implement a simple async query and test its performance.</li></ul><p><strong>Deliverable:</strong> Submit your GitHub repository link and a screenshot of your successful query execution.</p>",
-    };
+    try {
+      // TODO: Replace with real Python API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    setFormData(aiSuggestion);
-    toast.success("Assessment draft generated!");
+      // Simulated AI response giving us all 3 fields at once
+      const aiSuggestion = {
+        title: "Build a Secure Database Setup",
+        maxScore: 100,
+        description:
+          "<h3>Project Overview</h3><p>Design a secure database setup using AsyncPG and Docker.</p><h4>Requirements:</h4><ul><li>Create a Docker container that exposes port 5432.</li><li>Store the connection string as an environment variable.</li><li>Implement a simple async query and test its performance.</li></ul><p><strong>Deliverable:</strong> Submit your GitHub repository link and a screenshot of your successful query execution.</p>",
+      };
+
+      // 1. Magically fill the screen
+      setFormData(aiSuggestion);
+
+      // 2. Immediately save it to the database!
+      const result = await upsertAssignment(lessonId, aiSuggestion);
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Assessment generated and saved!");
+        router.refresh(); // Sync the server
+      }
+    } catch (error) {
+      console.error("Error generating assessment:", error);
+      toast.error("Failed to generate assessment");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSave = async () => {
