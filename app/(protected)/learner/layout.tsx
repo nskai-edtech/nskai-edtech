@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { LearnerSidebar } from "@/components/layout/learner-sidebar";
-import { UserButton } from "@clerk/nextjs";
+import { UserButtonClient } from "@/components/layout/user-button-client";
 import ThemeToggle from "@/components/ModeToggle";
 
 export default function LearnerLayout({ children }: { children: ReactNode }) {
@@ -11,15 +11,14 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
         <div className="fixed top-4 right-4 md:right-8 z-50 flex items-center gap-4 bg-background/50 backdrop-blur-sm p-2 rounded-full border border-border/50 shadow-sm">
           <ThemeToggle />
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface">
-            <div suppressHydrationWarning>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "h-10 w-10",
-                  },
-                }}
-              />
-            </div>
+            <UserButtonClient
+              skeletonClassName="h-10 w-10"
+              appearance={{
+                elements: {
+                  avatarBox: "h-10 w-10",
+                },
+              }}
+            />
           </div>
         </div>
         <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-16 pt-24 sm:pt-16 md:pt-16">

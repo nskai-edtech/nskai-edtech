@@ -6,6 +6,7 @@ import { ApproveModal } from "@/components/modals/approve-modal";
 import { ManagerModal } from "@/components/modals/manager-modal";
 import { Toaster } from "react-hot-toast";
 import { ModalProvider } from "@/components/providers/modal-provider";
+import { ScrollReset } from "@/components/scroll-reset";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -89,7 +90,10 @@ export default function RootLayout({
     })()
   `;
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInFallbackRedirectUrl="/onboarding"
+      signUpFallbackRedirectUrl="/onboarding"
+    >
       <html lang="en" suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
@@ -99,6 +103,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface text-primary-text`}
         >
           <Toaster position="top-right" />
+          <ScrollReset />
           <ApproveModal />
           <ManagerModal />
           <ModalProvider />

@@ -59,7 +59,7 @@ export default async function TutorLayout({
       {/* Main Content Area */}
       <main className="xl:pl-64 h-full flex flex-col">
         {/* Mobile Header */}
-        <div className="xl:hidden h-[60px] flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
+        <div className="xl:hidden h-15 flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
           <MobileSidebar role="TUTOR" counts={{ pendingSubmissions }} />
           <div className="font-bold text-xl text-brand ml-4">ZERRA</div>
         </div>

@@ -16,7 +16,7 @@ export async function awardPoints(
 ) {
   try {
     return await db.transaction(async (tx) => {
-      await tx
+      const [inserted] = await tx
         .insert(pointTransactions)
         .values({
           userId,
@@ -24,14 +24,18 @@ export async function awardPoints(
           reason,
           referenceId,
         })
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning({ id: pointTransactions.id });
 
-      await tx
-        .update(users)
-        .set({ points: sql`${users.points} + ${amount}` })
-        .where(eq(users.id, userId));
+      // Only increment points when a new transaction was actually created
+      if (inserted) {
+        await tx
+          .update(users)
+          .set({ points: sql`${users.points} + ${amount}` })
+          .where(eq(users.id, userId));
+      }
 
-      return { success: true };
+      return { success: !!inserted };
     });
   } catch (error) {
     console.error("[AWARD_POINTS_ERROR]", error);

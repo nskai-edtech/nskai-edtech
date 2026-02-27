@@ -76,7 +76,7 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div
-            className="bg-surface border border-border rounded-[32px] p-8 w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]"
+            className="bg-surface border border-border rounded-2xl sm:rounded-4xl p-4 sm:p-8 w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] sm:max-h-[80vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -114,7 +114,7 @@ export function CourseSearchModal({ pathId }: { pathId: string }) {
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-[300px] border border-border rounded-2xl p-2 bg-surface-muted/30">
+            <div className="flex-1 overflow-y-auto min-h-50 sm:min-h-75 border border-border rounded-xl sm:rounded-2xl p-2 bg-surface-muted/30">
               {isLoading ? (
                 <div className="flex justify-center items-center h-full text-secondary-text">
                   <Loader2 className="w-8 h-8 animate-spin" />

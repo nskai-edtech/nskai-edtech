@@ -3,10 +3,10 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
-  UserButton,
 } from "@clerk/nextjs";
 import Link from "next/link";
 import ThemeToggle from "../ModeToggle";
+import { UserButtonClient } from "@/components/layout/user-button-client";
 
 function Navbar() {
   return (
@@ -28,7 +28,7 @@ function Navbar() {
         </SignedOut>
         <SignedIn>
           <div className="flex items-center justify-center">
-            <UserButton />
+            <UserButtonClient />
           </div>
         </SignedIn>
       </div>

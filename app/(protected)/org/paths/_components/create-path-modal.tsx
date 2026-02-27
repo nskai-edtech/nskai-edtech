@@ -46,7 +46,7 @@ export function CreatePathModal() {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div
-            className="bg-surface border border-border rounded-[32px] p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+            className="bg-surface border border-border rounded-2xl sm:rounded-4xl p-6 sm:p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-2xl font-black text-primary-text mb-2">
@@ -80,7 +80,7 @@ export function CreatePathModal() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="What will learners achieve?"
-                  className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand font-medium text-primary-text placeholder:text-secondary-text/50 min-h-[100px] resize-none"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand font-medium text-primary-text placeholder:text-secondary-text/50 min-h-25 resize-none"
                   required
                 />
               </div>

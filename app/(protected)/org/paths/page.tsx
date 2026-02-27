@@ -8,13 +8,13 @@ export default async function OrgPathsPage() {
   const paths = await getAdminLearningPaths();
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-primary-text mb-2">
+          <h1 className="text-2xl sm:text-3xl font-black text-primary-text mb-1 sm:mb-2">
             Curriculum Paths
           </h1>
-          <p className="text-secondary-text">
+          <p className="text-sm sm:text-base text-secondary-text">
             Bundle existing courses together into sequential learning tracks.
           </p>
         </div>
@@ -24,7 +24,7 @@ export default async function OrgPathsPage() {
       </div>
 
       {paths.length === 0 ? (
-        <div className="bg-surface border border-border rounded-3xl p-12 text-center shadow-sm">
+        <div className="bg-surface border border-border rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-sm">
           <Layers className="w-12 h-12 mx-auto text-brand/30 mb-4" />
           <h3 className="text-xl font-bold text-primary-text mb-2">
             No Learning Paths Yet
@@ -35,12 +35,12 @@ export default async function OrgPathsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {paths.map((path) => (
             <Link
               key={path.id}
               href={`/org/paths/${path.id}`}
-              className="bg-surface border border-border rounded-3xl p-6 hover:shadow-md hover:-translate-y-1 transition-all group block"
+              className="bg-surface border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 hover:shadow-md hover:-translate-y-1 transition-all group block"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center text-brand">

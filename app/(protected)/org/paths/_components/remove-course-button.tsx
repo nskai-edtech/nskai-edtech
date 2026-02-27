@@ -30,7 +30,7 @@ export function RemoveCourseButton({ mappingId }: { mappingId: string }) {
     <button
       onClick={onRemove}
       disabled={isLoading}
-      className="text-sm font-bold text-red-500/70 hover:text-red-600 transition-colors p-2 hover:bg-red-500/10 rounded-lg flex items-center justify-center min-w-[64px]"
+      className="text-sm font-bold text-red-500/70 hover:text-red-600 transition-colors p-2 hover:bg-red-500/10 rounded-lg flex items-center justify-center min-w-16"
     >
       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Remove"}
     </button>
