@@ -46,7 +46,7 @@ export default function ReviewActions({ courseId }: ReviewActionsProps) {
 
     setIsRejecting(true);
     try {
-      const result = await rejectCourse(courseId);
+      const result = await rejectCourse(courseId, reason || undefined);
       if (result.error) {
         toast.error(result.error);
         setIsRejecting(false);

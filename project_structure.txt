@@ -3,6 +3,8 @@
 |____.env.local
 |____.env.sentry-build-plugin
 |____.github
+| |____prompts
+| | |____plan-nskaiedtechplatform.prompt.md
 | |____workflows
 | | |____playwright.yml
 |____.gitignore
@@ -228,6 +230,8 @@
 | | | | | |____page.tsx
 | |____api
 | | |____ai
+| | | |____chat
+| | | | |____route.ts
 | | |____mux-webhook
 | | | |____route.ts
 | | |____paystack-webhook
@@ -241,6 +245,8 @@
 | | | |____profile
 | | | | |____route.ts
 | | |____webhooks
+| | | |____ai
+| | | | |____route.ts
 | | | |____clerk
 | | | | |____route.ts
 | |____global-error.tsx
@@ -310,15 +316,18 @@
 | | |____notes-panel.tsx
 | | |____profile-form.tsx
 | |____modals
+| | |____ai-mentor-modal.tsx
 | | |____approve-modal.tsx
 | | |____course-request-modal.tsx
 | | |____manager-modal.tsx
 | |____ModeToggle.tsx
 | |____providers
+| | |____modal-provider.tsx
 | |____tutor
 | | |____quiz-editor.tsx
 | | |____settings-form.tsx
 | |____ui
+| | |____ai-generate-button.tsx
 | | |____button.tsx
 | | |____custom-accordion.tsx
 | | |____input-modal.tsx

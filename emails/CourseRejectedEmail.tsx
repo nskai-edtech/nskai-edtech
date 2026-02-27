@@ -12,40 +12,22 @@ import {
 } from "@react-email/components";
 import { BASE_URL, PLATFORM_NAME, TAGLINE, CONTACT_EMAIL } from "./config";
 
-interface PurchaseConfirmationEmailProps {
-  name: string;
+interface CourseRejectedEmailProps {
+  tutorName: string;
   courseTitle: string;
-  amount: number; // in kobo
-  courseId?: string;
-  pathId?: string;
+  reason?: string;
 }
 
-export default function PurchaseConfirmationEmail({
-  name,
+export default function CourseRejectedEmail({
+  tutorName,
   courseTitle,
-  amount,
-  courseId,
-  pathId,
-}: PurchaseConfirmationEmailProps) {
-  const isFree = amount === 0;
-  const isPath = !!pathId;
-  const formattedAmount = isFree
-    ? "Free"
-    : `₦${(amount / 100).toLocaleString()}`;
-
-  const ctaUrl = isPath
-    ? `${BASE_URL}/learner/paths/${pathId}/view`
-    : `${BASE_URL}/watch/${courseId}`;
-
-  const ctaLabel = isPath ? "Go to Track Content" : "Start Learning Now";
-
+  reason,
+}: CourseRejectedEmailProps) {
   return (
     <Html>
       <Head />
       <Preview>
-        {isFree
-          ? `You're enrolled in ${courseTitle}!`
-          : `Payment confirmed for ${courseTitle}`}
+        Your course &ldquo;{courseTitle}&rdquo; was not approved
       </Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
@@ -56,37 +38,36 @@ export default function PurchaseConfirmationEmail({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Heading style={styles.heading}>
-              {isFree ? "You're enrolled! 🚀" : "Payment confirmed ✅"}
-            </Heading>
+            <Heading style={styles.heading}>Course not approved</Heading>
 
             <Text style={styles.text}>
-              {isFree
-                ? `Hey ${name}, you've successfully enrolled in a free ${isPath ? "track" : "course"}!`
-                : `Hey ${name}, your payment has been processed and verified.`}
+              Hi {tutorName}, unfortunately your course &ldquo;{courseTitle}
+              &rdquo; was not approved after review by the {PLATFORM_NAME} team.
             </Text>
 
-            {/* Order summary */}
-            <Section style={styles.orderBox}>
-              <Text style={styles.orderLabel}>
-                {isPath ? "Track" : "Course"}
+            {reason && (
+              <Section style={styles.highlight}>
+                <Text style={styles.highlightTitle}>Reason</Text>
+                <Text style={styles.highlightText}>{reason}</Text>
+              </Section>
+            )}
+
+            <Text style={styles.text}>
+              Don&apos;t worry — you can update your course and resubmit it for
+              review. Here are a few tips:
+            </Text>
+
+            <Section style={styles.tipBox}>
+              <Text style={styles.tipTitle}>How to improve your course</Text>
+              <Text style={styles.tipText}>
+                1. Review the feedback above carefully{"\n"}
+                2. Update your course content accordingly{"\n"}
+                3. Resubmit for review from your dashboard
               </Text>
-              <Text style={styles.orderValue}>{courseTitle}</Text>
-
-              <Hr style={styles.orderDivider} />
-
-              <Text style={styles.orderLabel}>Amount</Text>
-              <Text style={styles.orderValue}>{formattedAmount}</Text>
             </Section>
 
-            <Text style={styles.text}>
-              {isPath
-                ? "You now have full lifetime access to all courses, lessons, quizzes, and materials in this track. Jump in and start learning!"
-                : "You now have full lifetime access to all lessons, quizzes, and course materials. Jump in and start learning!"}
-            </Text>
-
-            <Button style={styles.button} href={ctaUrl}>
-              {ctaLabel}
+            <Button style={styles.button} href={`${BASE_URL}/tutor/courses`}>
+              Edit Your Course
             </Button>
           </Section>
 
@@ -147,31 +128,46 @@ const styles = {
     color: "#3f3f46",
     margin: "0 0 12px 0",
   },
-  orderBox: {
-    backgroundColor: "#fafafa",
-    border: "1px solid #e4e4e7",
+  highlight: {
+    backgroundColor: "#fef2f2",
+    border: "1px solid #fecaca",
     borderRadius: "8px",
     padding: "16px 20px",
     marginTop: "16px",
     marginBottom: "16px",
   },
-  orderLabel: {
-    fontSize: "11px",
+  highlightTitle: {
+    fontSize: "14px",
     fontWeight: "700" as const,
-    color: "#71717a",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em",
-    margin: "0 0 2px 0",
+    color: "#991b1b",
+    margin: "0 0 8px 0",
   },
-  orderValue: {
-    fontSize: "16px",
-    fontWeight: "600" as const,
-    color: "#0a0a0a",
-    margin: "0 0 4px 0",
+  highlightText: {
+    fontSize: "14px",
+    lineHeight: "1.6",
+    color: "#b91c1c",
+    margin: "0" as const,
   },
-  orderDivider: {
-    borderColor: "#e4e4e7",
-    margin: "12px 0",
+  tipBox: {
+    backgroundColor: "#eff6ff",
+    border: "1px solid #bfdbfe",
+    borderRadius: "8px",
+    padding: "16px 20px",
+    marginTop: "16px",
+    marginBottom: "16px",
+  },
+  tipTitle: {
+    fontSize: "14px",
+    fontWeight: "700" as const,
+    color: "#1e40af",
+    margin: "0 0 8px 0",
+  },
+  tipText: {
+    fontSize: "14px",
+    lineHeight: "1.8",
+    color: "#1d4ed8",
+    margin: "0" as const,
+    whiteSpace: "pre-line" as const,
   },
   button: {
     display: "inline-block" as const,

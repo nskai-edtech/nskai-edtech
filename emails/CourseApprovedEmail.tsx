@@ -12,40 +12,20 @@ import {
 } from "@react-email/components";
 import { BASE_URL, PLATFORM_NAME, TAGLINE, CONTACT_EMAIL } from "./config";
 
-interface PurchaseConfirmationEmailProps {
-  name: string;
+interface CourseApprovedEmailProps {
+  tutorName: string;
   courseTitle: string;
-  amount: number; // in kobo
-  courseId?: string;
-  pathId?: string;
 }
 
-export default function PurchaseConfirmationEmail({
-  name,
+export default function CourseApprovedEmail({
+  tutorName,
   courseTitle,
-  amount,
-  courseId,
-  pathId,
-}: PurchaseConfirmationEmailProps) {
-  const isFree = amount === 0;
-  const isPath = !!pathId;
-  const formattedAmount = isFree
-    ? "Free"
-    : `₦${(amount / 100).toLocaleString()}`;
-
-  const ctaUrl = isPath
-    ? `${BASE_URL}/learner/paths/${pathId}/view`
-    : `${BASE_URL}/watch/${courseId}`;
-
-  const ctaLabel = isPath ? "Go to Track Content" : "Start Learning Now";
-
+}: CourseApprovedEmailProps) {
   return (
     <Html>
       <Head />
       <Preview>
-        {isFree
-          ? `You're enrolled in ${courseTitle}!`
-          : `Payment confirmed for ${courseTitle}`}
+        Your course &ldquo;{courseTitle}&rdquo; has been approved!
       </Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
@@ -56,37 +36,30 @@ export default function PurchaseConfirmationEmail({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Heading style={styles.heading}>
-              {isFree ? "You're enrolled! 🚀" : "Payment confirmed ✅"}
-            </Heading>
+            <Heading style={styles.heading}>Course approved!</Heading>
 
             <Text style={styles.text}>
-              {isFree
-                ? `Hey ${name}, you've successfully enrolled in a free ${isPath ? "track" : "course"}!`
-                : `Hey ${name}, your payment has been processed and verified.`}
+              Great news, {tutorName}! Your course &ldquo;{courseTitle}&rdquo;
+              has been reviewed and approved by the {PLATFORM_NAME} team.
             </Text>
 
-            {/* Order summary */}
-            <Section style={styles.orderBox}>
-              <Text style={styles.orderLabel}>
-                {isPath ? "Track" : "Course"}
+            <Text style={styles.text}>
+              It&apos;s now live on the marketplace and available to thousands
+              of learners across the {PLATFORM_NAME} ecosystem.
+            </Text>
+
+            {/* Highlight box */}
+            <Section style={styles.highlight}>
+              <Text style={styles.highlightTitle}>What happens now?</Text>
+              <Text style={styles.highlightText}>
+                1. Your course is visible on the marketplace{"\n"}
+                2. Learners can enrol and start watching{"\n"}
+                3. Track your earnings on the Tutor Dashboard
               </Text>
-              <Text style={styles.orderValue}>{courseTitle}</Text>
-
-              <Hr style={styles.orderDivider} />
-
-              <Text style={styles.orderLabel}>Amount</Text>
-              <Text style={styles.orderValue}>{formattedAmount}</Text>
             </Section>
 
-            <Text style={styles.text}>
-              {isPath
-                ? "You now have full lifetime access to all courses, lessons, quizzes, and materials in this track. Jump in and start learning!"
-                : "You now have full lifetime access to all lessons, quizzes, and course materials. Jump in and start learning!"}
-            </Text>
-
-            <Button style={styles.button} href={ctaUrl}>
-              {ctaLabel}
+            <Button style={styles.button} href={`${BASE_URL}/tutor/courses`}>
+              View Your Courses
             </Button>
           </Section>
 
@@ -147,35 +120,30 @@ const styles = {
     color: "#3f3f46",
     margin: "0 0 12px 0",
   },
-  orderBox: {
-    backgroundColor: "#fafafa",
-    border: "1px solid #e4e4e7",
+  highlight: {
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #bbf7d0",
     borderRadius: "8px",
     padding: "16px 20px",
     marginTop: "16px",
     marginBottom: "16px",
   },
-  orderLabel: {
-    fontSize: "11px",
+  highlightTitle: {
+    fontSize: "14px",
     fontWeight: "700" as const,
-    color: "#71717a",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em",
-    margin: "0 0 2px 0",
+    color: "#166534",
+    margin: "0 0 8px 0",
   },
-  orderValue: {
-    fontSize: "16px",
-    fontWeight: "600" as const,
-    color: "#0a0a0a",
-    margin: "0 0 4px 0",
-  },
-  orderDivider: {
-    borderColor: "#e4e4e7",
-    margin: "12px 0",
+  highlightText: {
+    fontSize: "14px",
+    lineHeight: "1.8",
+    color: "#15803d",
+    margin: "0" as const,
+    whiteSpace: "pre-line" as const,
   },
   button: {
     display: "inline-block" as const,
-    backgroundColor: "#0a0a0a",
+    backgroundColor: "#16a34a",
     color: "#ffffff",
     fontSize: "14px",
     fontWeight: "600" as const,

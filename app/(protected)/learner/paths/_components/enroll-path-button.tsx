@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
-// Dynamically import the base component and disable SSR
 export const EnrollPathButton = dynamic(
   () => import("./enroll-path-button-base").then((mod) => mod.EnrollPathButton),
   {

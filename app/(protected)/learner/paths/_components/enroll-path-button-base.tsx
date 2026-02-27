@@ -41,9 +41,7 @@ export function EnrollPathButton({
       }).format(price / 100)
     : "Free";
 
-  // Paystack Config
   const config = {
-    reference: new Date().getTime().toString(),
     email: user?.emailAddresses[0]?.emailAddress || "",
     amount: price || 0,
     currency: "NGN",
@@ -121,7 +119,12 @@ export function EnrollPathButton({
       return;
     }
 
-    initializePayment({ onSuccess, onClose });
+    const freshReference = new Date().getTime().toString();
+    initializePayment({
+      onSuccess,
+      onClose,
+      config: { ...config, reference: freshReference },
+    });
   };
 
   if (isEnrolled) {

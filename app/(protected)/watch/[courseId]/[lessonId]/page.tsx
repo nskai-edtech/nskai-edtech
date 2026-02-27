@@ -77,7 +77,7 @@ export default async function LessonPage({
 
   const { lesson, muxData, nextLessonId, prevLessonId, userProgress } =
     lessonData;
-  const isQuiz = lesson.type === "QUIZ";
+  const isQuiz = lesson.type === "QUIZ" || rawQuizQuestions.length > 0;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
@@ -99,7 +99,7 @@ export default async function LessonPage({
             <h1 className="font-bold text-[10px] md:text-sm text-secondary-text uppercase tracking-wider hidden md:block">
               Course
             </h1>
-            <h2 className="font-bold text-sm md:text-lg text-primary-text leading-tight line-clamp-1 max-w-[150px] sm:max-w-xs md:max-w-md">
+            <h2 className="font-bold text-sm md:text-lg text-primary-text leading-tight line-clamp-1 max-w-37.5 sm:max-w-xs md:max-w-md">
               {course.title}
             </h2>
           </div>
@@ -234,7 +234,7 @@ export default async function LessonPage({
         </div>
 
         {/* Sidebar (List of Lessons) - Hidden on mobile */}
-        <div className="hidden lg:flex w-[350px] shrink-0 h-full overflow-hidden border-l border-border bg-surface flex-col">
+        <div className="hidden lg:flex w-87.5 shrink-0 h-full overflow-hidden border-l border-border bg-surface flex-col">
           <div className="flex-1 overflow-y-auto">
             <CourseSidebar
               course={course}
