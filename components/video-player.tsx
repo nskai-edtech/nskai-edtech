@@ -89,6 +89,9 @@ export const VideoPlayer = ({
         playbackId={playbackId}
         accentColor="#ac39f2"
         startTime={lastPlaybackPosition}
+        maxResolution="2160p"
+        minResolution="480p"
+        renditionOrder="desc"
         metadata={{
           video_title: title || "Lesson Video",
         }}

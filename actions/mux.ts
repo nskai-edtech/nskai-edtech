@@ -62,6 +62,9 @@ export async function getDirectUploadUrl(lessonId: string) {
       new_asset_settings: {
         playback_policy: ["public"],
         passthrough: lessonId,
+        encoding_tier: "smart",
+        max_resolution_tier: "2160p",
+        mp4_support: "standard",
       },
       cors_origin: "*",
     });
