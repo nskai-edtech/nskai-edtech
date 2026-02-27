@@ -11,6 +11,7 @@ import {
   Flame,
 } from "lucide-react";
 import { ProfileForm } from "@/components/learner/profile-form";
+import { HowItWorksButton } from "@/components/learner/how-it-works";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getLearnerProfile, getLearnerStats } from "@/actions/profile/actions";
@@ -44,7 +45,7 @@ async function ProfileContent() {
 
   if ("error" in profileResult) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <p className="text-red-500">{profileResult.error}</p>
       </div>
     );
@@ -52,7 +53,7 @@ async function ProfileContent() {
 
   if ("error" in statsResult) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <p className="text-red-500">{statsResult.error}</p>
       </div>
     );
@@ -170,9 +171,10 @@ async function ProfileContent() {
 
       {/* Gamification Statistics (Achievements) */}
       <div>
-        <h2 className="text-xl font-bold text-primary-text mb-4">
-          Achievements
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-primary-text">Achievements</h2>
+          <HowItWorksButton />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Points */}
           <div className="bg-linear-to-br from-brand/10 to-transparent border border-brand/20 rounded-2xl p-6 flex items-center justify-between">

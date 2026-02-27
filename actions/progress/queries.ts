@@ -149,6 +149,68 @@ export async function getCourseCompletion(): Promise<
   });
 }
 
+/**
+ * Internal helper: given a lessonId + userId, resolves the course and checks
+ * whether every lesson in that course is completed.
+ * NOT a server action — called from other server actions.
+ */
+export async function checkCourseCompletionByLesson(
+  userId: string,
+  lessonId: string,
+): Promise<{
+  courseCompleted: boolean;
+  courseId: string;
+  courseTitle: string;
+}> {
+  // Resolve lesson → chapter → course
+  const lessonRow = await db.query.lessons.findFirst({
+    where: eq(lessons.id, lessonId),
+    columns: { chapterId: true },
+    with: {
+      chapter: {
+        columns: { courseId: true },
+        with: {
+          course: { columns: { id: true, title: true } },
+        },
+      },
+    },
+  });
+
+  const course = lessonRow?.chapter?.course;
+  if (!course) return { courseCompleted: false, courseId: "", courseTitle: "" };
+
+  const [totalResult] = await db
+    .select({ count: count() })
+    .from(lessons)
+    .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+    .where(eq(chapters.courseId, course.id));
+
+  const totalLessons = totalResult?.count ?? 0;
+  if (totalLessons === 0)
+    return { courseCompleted: false, courseId: course.id, courseTitle: course.title };
+
+  const [completedResult] = await db
+    .select({ count: count() })
+    .from(userProgress)
+    .innerJoin(lessons, eq(userProgress.lessonId, lessons.id))
+    .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+    .where(
+      and(
+        eq(userProgress.userId, userId),
+        eq(userProgress.isCompleted, true),
+        eq(chapters.courseId, course.id),
+      ),
+    );
+
+  const completedLessons = completedResult?.count ?? 0;
+
+  return {
+    courseCompleted: completedLessons >= totalLessons,
+    courseId: course.id,
+    courseTitle: course.title,
+  };
+}
+
 export async function checkLessonCompletion(lessonId: string) {
   const { userId: clerkId } = await auth();
   if (!clerkId) return false;

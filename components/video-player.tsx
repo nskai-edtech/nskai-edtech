@@ -9,6 +9,8 @@ import {
   markLessonComplete,
   updateLastAccessed,
 } from "@/actions/progress/actions";
+import toast from "react-hot-toast";
+import { useModalStore } from "@/hooks/use-modal-store";
 
 interface VideoPlayerProps {
   playbackId: string;
@@ -31,6 +33,7 @@ export const VideoPlayer = ({
   const lastSavedPositionRef = useRef(lastPlaybackPosition);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { userId } = useAuth();
+  const { onOpen } = useModalStore();
 
   const handlePlay = async () => {
     if (!lessonId || hasUpdatedAccess) return;
@@ -58,7 +61,6 @@ export const VideoPlayer = ({
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
       debounceTimerRef.current = setTimeout(() => {
-        // Import dynamically to avoid top-level server action client errors or use passed-in prop
         import("@/actions/progress/actions")
           .then((module) => {
             module.saveVideoPosition(lessonId, Math.floor(currentTime));
@@ -68,8 +70,18 @@ export const VideoPlayer = ({
     }
 
     if (duration && currentTime / duration >= 0.9) {
-      await markLessonComplete(lessonId);
+      const result = await markLessonComplete(lessonId);
       setHasMarkedComplete(true);
+
+      if (result && "courseCompleted" in result && result.courseCompleted) {
+        toast.success("Course completed 100%!");
+        setTimeout(() => {
+          onOpen("courseCompleted", {
+            courseId: result.courseId,
+            courseTitle: result.courseTitle,
+          });
+        }, 1500);
+      }
     }
   };
 
@@ -87,6 +99,7 @@ export const VideoPlayer = ({
 
       <MuxPlayer
         playbackId={playbackId}
+        streamType="on-demand"
         accentColor="#ac39f2"
         startTime={lastPlaybackPosition}
         maxResolution="2160p"

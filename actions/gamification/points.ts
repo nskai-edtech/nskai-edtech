@@ -40,13 +40,20 @@ export async function awardPoints(
 }
 
 // --- LOG WATCH TIME (High Frequency Ping) ---
-export async function logVideoWatchTime(userId: string) {
+// Accepts the Clerk ID from the client and resolves it to the DB UUID
+export async function logVideoWatchTime(clerkId: string) {
   const today = new Date().toISOString().split("T")[0];
 
   try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkId),
+      columns: { id: true },
+    });
+    if (!user) return { success: false };
+
     const [row] = await db
       .insert(dailyWatchTime)
-      .values({ userId, recordDate: today, minutesWatched: 1 })
+      .values({ userId: user.id, recordDate: today, minutesWatched: 1 })
       .onConflictDoUpdate({
         target: [dailyWatchTime.userId, dailyWatchTime.recordDate],
         set: {
@@ -58,7 +65,7 @@ export async function logVideoWatchTime(userId: string) {
 
     // Trigger streak check at the 30-minute mark
     if (row.minutesWatched === 30) {
-      await updateStreak(userId, today);
+      await updateStreak(user.id, today);
     }
 
     return { success: true, minutes: row.minutesWatched };
