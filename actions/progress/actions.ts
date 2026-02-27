@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { checkModuleCompletion } from "@/actions/gamification/points";
+import { checkCourseCompletionByLesson } from "@/actions/progress/queries";
 
 const getDbUser = async (clerkId: string) => {
   return await db.query.users.findFirst({
@@ -51,6 +52,17 @@ export async function markLessonComplete(lessonId: string) {
 
     if (lessonData?.chapterId) {
       await checkModuleCompletion(user.id, lessonData.chapterId);
+    }
+
+    // Check if the entire course is now complete
+    const completion = await checkCourseCompletionByLesson(user.id, lessonId);
+    if (completion.courseCompleted) {
+      return {
+        success: true,
+        courseCompleted: true,
+        courseId: completion.courseId,
+        courseTitle: completion.courseTitle,
+      };
     }
 
     return { success: true };

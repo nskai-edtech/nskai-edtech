@@ -37,6 +37,9 @@ export async function completeOnboarding(
 
     const status: "PENDING" | "ACTIVE" = isTutor ? "PENDING" : "ACTIVE";
 
+    // prefilled first name and last name fields
+    const clerkUser = await client.users.getUser(userId);
+
     const updatePayload = {
       role: data.role,
       status,
@@ -47,6 +50,8 @@ export async function completeOnboarding(
         expertise: (data as TutorOnboardingData).expertise,
       }),
       ...(!isTutor && {
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
         interests: (data as LearnerOnboardingData).interests,
         learningGoal: (data as LearnerOnboardingData).learningGoal,
       }),
@@ -77,7 +82,6 @@ export async function completeOnboarding(
 
     if (updatedUsers.length === 0) {
       console.log("--> Webhook missed user. Failsafe activated.");
-      const clerkUser = await client.users.getUser(userId);
 
       userEmail = clerkUser.emailAddresses[0].emailAddress;
       userName = updatePayload.firstName || clerkUser.firstName || "User";

@@ -76,16 +76,18 @@ export async function getEnrolledCourses() {
     completedLessonsData.map((c) => [c.courseId, c.completed]),
   );
 
-  return enrolledCourses.map((course) => {
-    const totalLessons = totalLessonsMap.get(course.id) ?? 0;
-    const completedLessons = completedLessonsMap.get(course.id) ?? 0;
-    const progressPercentage =
-      totalLessons > 0
-        ? Math.round((completedLessons / totalLessons) * 100)
-        : 0;
+  return enrolledCourses
+    .map((course) => {
+      const totalLessons = totalLessonsMap.get(course.id) ?? 0;
+      const completedLessons = completedLessonsMap.get(course.id) ?? 0;
+      const progressPercentage =
+        totalLessons > 0
+          ? Math.round((completedLessons / totalLessons) * 100)
+          : 0;
 
-    return { ...course, progressPercentage, completedLessons, totalLessons };
-  });
+      return { ...course, progressPercentage, completedLessons, totalLessons };
+    })
+    .filter((c) => c.progressPercentage < 100);
 }
 
 export async function verifyCourseAccess(

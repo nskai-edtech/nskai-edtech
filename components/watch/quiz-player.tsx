@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { QuizQuestion } from "@/actions/quiz/types";
 import { submitQuiz } from "@/actions/quiz/actions";
+import { useModalStore } from "@/hooks/use-modal-store";
 
 interface QuizPlayerProps {
   lessonId: string;
@@ -40,6 +41,7 @@ export function QuizPlayer({
 
   const allAnswered = questions.every((q) => q.id in selected);
   const isRetake = !!lastAttempt;
+  const { onOpen } = useModalStore();
 
   async function handleSubmit() {
     if (!allAnswered) {
@@ -56,6 +58,16 @@ export function QuizPlayer({
       return;
     }
     setResult(res);
+
+    if (res.passed && "courseCompleted" in res && res.courseCompleted) {
+      toast.success("Course completed 100%!");
+      setTimeout(() => {
+        onOpen("courseCompleted", {
+          courseId: (res as { courseId?: string }).courseId,
+          courseTitle: (res as { courseTitle?: string }).courseTitle,
+        });
+      }, 1500);
+    }
   }
 
   function handleRetake() {

@@ -30,7 +30,7 @@ export default function CertificatesGalleryPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <Loader2 className="w-8 h-8 animate-spin text-brand" />
         </div>
       }
@@ -80,7 +80,7 @@ function CertificatesGalleryContent() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <Loader2 className="w-8 h-8 animate-spin text-brand" />
       </div>
     );
@@ -88,7 +88,7 @@ function CertificatesGalleryContent() {
 
   if (certificates.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-center px-4 animate-in fade-in slide-in-from-bottom-4">
+      <div className="flex flex-col items-center justify-center min-h-100 gap-4 text-center px-4 animate-in fade-in slide-in-from-bottom-4">
         <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center border border-border">
           <Award className="w-8 h-8 text-secondary-text" />
         </div>
@@ -139,7 +139,7 @@ function CertificateCard({ cert }: { cert: CertificateListItem }) {
   });
 
   return (
-    <div className="group bg-surface border border-border rounded-[32px] overflow-hidden hover:border-brand/40 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500">
+    <div className="group bg-surface border border-border rounded-4xl overflow-hidden hover:border-brand/40 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500">
       {/* Mini cert preview strip */}
       <div className="relative h-32 bg-zinc-50 dark:bg-zinc-900/50 overflow-hidden flex items-center justify-center border-b border-border">
         {/* Certificate hint elements */}

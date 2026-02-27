@@ -13,6 +13,8 @@ interface ModalData {
   email?: string;
   expertise?: string | null;
   lessonId?: string;
+  courseId?: string;
+  courseTitle?: string;
 }
 
 type ModalType =
@@ -21,7 +23,8 @@ type ModalType =
   | "checkTutor"
   | "suspendTutor"
   | "banTutor"
-  | "aiMentor";
+  | "aiMentor"
+  | "courseCompleted";
 
 interface ModalStore {
   type: ModalType | null;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AiMentorModal } from "@/components/modals/ai-mentor-modal";
+import { CourseCompletedModal } from "@/components/modals/course-completed-modal";
 
 export function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +19,7 @@ export function ModalProvider() {
   return (
     <>
       <AiMentorModal />
+      <CourseCompletedModal />
     </>
   );
 }

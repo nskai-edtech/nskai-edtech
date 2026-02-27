@@ -12,6 +12,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { checkModuleQuizzesPassed } from "../gamification/points";
+import { checkCourseCompletionByLesson } from "@/actions/progress/queries";
 
 // Helper
 const getDbUserId = async (clerkId: string) => {
@@ -76,7 +77,16 @@ export async function deleteQuizQuestion(questionId: string) {
 export async function submitQuiz(
   lessonId: string,
   answers: Record<string, number>,
-): Promise<{ error: string } | { score: number; passed: boolean }> {
+): Promise<
+  | { error: string }
+  | {
+      score: number;
+      passed: boolean;
+      courseCompleted?: boolean;
+      courseId?: string;
+      courseTitle?: string;
+    }
+> {
   const { userId: clerkId } = await auth();
   if (!clerkId) return { error: "Unauthorized" };
 
@@ -125,6 +135,20 @@ export async function submitQuiz(
   // GAMIFICATION: Trigger Quiz Mastery module check
   if (lessonData?.chapterId) {
     await checkModuleQuizzesPassed(userId, lessonData.chapterId);
+  }
+
+  // Check if the entire course is now complete
+  if (passed) {
+    const completion = await checkCourseCompletionByLesson(userId, lessonId);
+    if (completion.courseCompleted) {
+      return {
+        score,
+        passed,
+        courseCompleted: true,
+        courseId: completion.courseId,
+        courseTitle: completion.courseTitle,
+      };
+    }
   }
 
   return { score, passed };

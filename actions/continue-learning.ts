@@ -125,25 +125,27 @@ export async function getContinueLearningCourses(
       completedLessonsData.map((c) => [c.courseId, c.completed]),
     );
 
-    return courseLessons.map((item) => {
-      const totalLessons = totalLessonsMap.get(item.courseId) ?? 0;
-      const completedLessons = completedLessonsMap.get(item.courseId) ?? 0;
+    return courseLessons
+      .map((item) => {
+        const totalLessons = totalLessonsMap.get(item.courseId) ?? 0;
+        const completedLessons = completedLessonsMap.get(item.courseId) ?? 0;
 
-      const progressPercentage =
-        totalLessons > 0
-          ? Math.round((completedLessons / totalLessons) * 100)
-          : 0;
+        const progressPercentage =
+          totalLessons > 0
+            ? Math.round((completedLessons / totalLessons) * 100)
+            : 0;
 
-      return {
-        courseId: item.courseId,
-        courseTitle: item.courseTitle,
-        courseImageUrl: item.courseImageUrl,
-        lessonId: item.lessonId,
-        lessonTitle: item.lessonTitle,
-        lastAccessedAt: item.lastAccessedAt,
-        progressPercentage,
-      };
-    });
+        return {
+          courseId: item.courseId,
+          courseTitle: item.courseTitle,
+          courseImageUrl: item.courseImageUrl,
+          lessonId: item.lessonId,
+          lessonTitle: item.lessonTitle,
+          lastAccessedAt: item.lastAccessedAt,
+          progressPercentage,
+        };
+      })
+      .filter((c) => c.progressPercentage < 100);
   } catch (error) {
     console.error("[GET_CONTINUE_LEARNING_COURSES]", error);
     return [];

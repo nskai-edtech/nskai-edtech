@@ -73,7 +73,7 @@ export default async function LearnerDashboard() {
 
         {/* Stats Cards */}
         <div className="flex flex-wrap gap-4">
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1">📚</span>
             <span className="font-extrabold text-xl text-primary-text">
               {stats.totalCoursesEnrolled}
@@ -82,7 +82,7 @@ export default async function LearnerDashboard() {
               Enrolled
             </span>
           </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1">✅</span>
             <span className="font-extrabold text-xl text-primary-text">
               {stats.totalLessonsCompleted}
@@ -91,7 +91,7 @@ export default async function LearnerDashboard() {
               Lessons
             </span>
           </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1 text-brand">📈</span>
             <span className="font-extrabold text-xl text-primary-text">
               {stats.completionRate}%
@@ -100,7 +100,7 @@ export default async function LearnerDashboard() {
               Progress
             </span>
           </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1">🔥</span>
             <span className="font-extrabold text-xl text-primary-text">
               {stats.currentStreak || 0}
@@ -109,7 +109,7 @@ export default async function LearnerDashboard() {
               Days
             </span>
           </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-[120px] flex flex-col items-center justify-center shadow-sm">
+          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
             <span className="text-2xl mb-1">🏆</span>
             <span className="font-extrabold text-xl text-brand">
               {(stats.points || 0).toLocaleString()}
@@ -201,7 +201,7 @@ export default async function LearnerDashboard() {
         {/* Sidebar Column */}
         <div className="space-y-8">
           {/* Upcoming Sessions */}
-          <div className="bg-surface border border-border rounded-[32px] p-6 shadow-sm">
+          <div className="bg-surface border border-border rounded-4xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-primary-text flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-brand" />
@@ -249,7 +249,7 @@ export default async function LearnerDashboard() {
           </div>
 
           {/* Ask EduAI Widget */}
-          <div className="bg-blue-600 rounded-[32px] p-6 text-white relative overflow-hidden shadow-2xl shadow-blue-600/20">
+          <div className="bg-blue-600 rounded-4xl p-6 text-white relative overflow-hidden shadow-2xl shadow-blue-600/20">
             {/* Decorative background elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
 
