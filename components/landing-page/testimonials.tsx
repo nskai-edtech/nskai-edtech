@@ -431,7 +431,7 @@ function TestimonialsSection() {
         <h2 className="text-3xl md:text-5xl font-bold text-white text-center mb-4">
           Discover how our AI-powered tools
         </h2>
-        <p className="text-gray-200 text-center max-w-[800px] text-lg md:text-xl font-light">
+        <p className="text-gray-200 text-center max-w-200 text-lg md:text-xl font-light">
           are transforming the educational journey for students and educators
           worldwide.
         </p>

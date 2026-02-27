@@ -11,7 +11,10 @@ import {
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { checkModuleQuizzesPassed } from "../gamification/points";
+import {
+  checkModuleCompletion,
+  checkModuleQuizzesPassed,
+} from "../gamification/points";
 import { checkCourseCompletionByLesson } from "@/actions/progress/queries";
 
 // Helper
@@ -132,8 +135,11 @@ export async function submitQuiz(
     revalidatePath("/learner");
   }
 
-  // GAMIFICATION: Trigger Quiz Mastery module check
+  // GAMIFICATION: Trigger module completion + quiz mastery checks
   if (lessonData?.chapterId) {
+    if (passed) {
+      await checkModuleCompletion(userId, lessonData.chapterId);
+    }
     await checkModuleQuizzesPassed(userId, lessonData.chapterId);
   }
 

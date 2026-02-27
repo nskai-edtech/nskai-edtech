@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useSidebarRoutes } from "./sidebar-routes";
-import { UserButton, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 import ThemeToggle from "../ModeToggle";
 import { cn } from "@/lib/utils";
+import { UserButtonClient } from "@/components/layout/user-button-client";
 
 interface SidebarProps {
   role: "TUTOR" | "ORG_ADMIN";
@@ -64,12 +64,7 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
       {/* Footer (Toggle & User) */}
       <div className="p-6 mt-auto border-t border-border flex items-center justify-between">
         <div>
-          <ClerkLoading>
-            <div className="w-8 h-8 rounded-full bg-surface-muted animate-pulse" />
-          </ClerkLoading>
-          <ClerkLoaded>
-            <UserButton afterSignOutUrl="/" />
-          </ClerkLoaded>
+          <UserButtonClient afterSignOutUrl="/" />
         </div>
         <div>
           <ThemeToggle />

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ShoppingBag,
   BookOpen,
+  CheckCircle,
   Menu,
   X,
   User,
@@ -42,6 +43,11 @@ const navItems = [
     label: "Enrolled Courses",
     href: "/learner/enrolled",
     icon: BookOpen,
+  },
+  {
+    label: "Completed Courses",
+    href: "/learner/completed",
+    icon: CheckCircle,
   },
   {
     label: "Wishlist",
