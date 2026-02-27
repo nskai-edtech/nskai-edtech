@@ -35,7 +35,7 @@ export async function getCompletedCourses(): Promise<
       courseImageUrl: c.courseImageUrl,
       tutorName:
         `${c.tutorFirstName || ""} ${c.tutorLastName || ""}`.trim() ||
-        "NSK.AI Instructor",
+        "ZERRA Instructor",
       completionDate: c.completionDate || new Date(),
       totalLessons: c.totalLessons,
     }));
@@ -56,22 +56,42 @@ export async function getUserCertificates(): Promise<
     const learnerName =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Learner";
 
-    // We only fetch DB certs so we can get IDs
+    // Fetch existing DB certs so we can reuse IDs
     const dbCerts = await db.query.certificates.findMany({
       where: eq(db._.fullSchema.certificates.userId, user.clerkId),
     });
 
+    // Build a mutable map for quick look-ups
+    const certMap = new Map(dbCerts.map((c) => [c.courseId, c]));
+
+    // Upsert missing certificate rows so every completed course has an ID
+    const missing = completedData.filter((c) => !certMap.has(c.courseId));
+    if (missing.length > 0) {
+      const inserted = await db
+        .insert(db._.fullSchema.certificates)
+        .values(
+          missing.map((c) => ({
+            userId: user.clerkId,
+            courseId: c.courseId,
+          })),
+        )
+        .returning();
+      for (const row of inserted) {
+        certMap.set(row.courseId, row);
+      }
+    }
+
     return completedData.map((c) => {
-      const dbRecord = dbCerts.find((dbC) => dbC.courseId === c.courseId);
+      const dbRecord = certMap.get(c.courseId)!;
       return {
-        id: dbRecord?.id || "",
+        id: dbRecord.id,
         courseId: c.courseId,
         courseTitle: c.courseTitle,
         courseImageUrl: c.courseImageUrl,
         learnerName,
         tutorName:
           `${c.tutorFirstName || ""} ${c.tutorLastName || ""}`.trim() ||
-          "NSK.AI Instructor",
+          "ZERRA Instructor",
         completionDate: c.completionDate || new Date(),
       };
     });
@@ -124,7 +144,7 @@ export async function getCertificateData(
       learnerName,
       tutorName:
         `${course.tutorFirstName || ""} ${course.tutorLastName || ""}`.trim() ||
-        "NSK.AI Instructor",
+        "ZERRA Instructor",
       completionDate: course.completionDate || new Date(),
     };
   } catch (error) {

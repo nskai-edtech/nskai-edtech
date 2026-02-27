@@ -1,6 +1,7 @@
 "use client";
 
 import { Award } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 
 export interface CertificateTemplateProps {
   learnerName: string;
@@ -30,6 +31,12 @@ export function CertificateTemplate({
     year: "numeric",
   });
 
+  const verifyUrl = `${
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_APP_URL || "https://nskai-edtech.vercel.app"
+      : window.location.origin
+  }/verify/${certificateId}`;
+
   return (
     <div
       id={
@@ -57,6 +64,43 @@ export function CertificateTemplate({
       <div
         style={{ position: "absolute", inset: 48, border: "1px solid #9ca3af" }}
       />
+
+      {/* ── QR Code (top-left corner) ── */}
+      {certificateId && (
+        <div
+          style={{
+            position: "absolute",
+            top: 56,
+            left: 56,
+            zIndex: 20,
+            backgroundColor: "#ffffff",
+            padding: 6,
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <QRCodeCanvas
+            value={verifyUrl}
+            size={100}
+            bgColor="#ffffff"
+            fgColor="#111827"
+            level="M"
+            marginSize={0}
+          />
+          <p
+            style={{
+              fontSize: 7,
+              color: "#9ca3af",
+              textAlign: "center",
+              margin: "3px 0 0",
+              fontFamily: "Arial, sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Scan to verify
+          </p>
+        </div>
+      )}
 
       <div
         style={{
@@ -125,7 +169,7 @@ export function CertificateTemplate({
               letterSpacing: "-0.5px",
             }}
           >
-            NSK AI
+            ZERRA
           </span>
           <p
             style={{
@@ -136,7 +180,7 @@ export function CertificateTemplate({
               margin: "4px 0 0",
             }}
           >
-            EdTech Platform
+            Learn. Build. Grow.
           </p>
         </div>
 
@@ -331,33 +375,6 @@ export function CertificateTemplate({
             </p>
             <div style={{ height: 1, backgroundColor: "#e5e7eb" }} />
           </div>
-        </div>
-
-        <div style={{ marginBottom: 18, position: "relative", zIndex: 10 }}>
-          <p
-            style={{
-              fontSize: 9,
-              color: "#9ca3af",
-              textTransform: "uppercase",
-              fontWeight: 700,
-              letterSpacing: 1,
-              margin: "0 0 4px",
-            }}
-          >
-            Verify Authenticity Online
-          </p>
-          <a
-            href={`${process.env.NEXT_PUBLIC_APP_URL || "https://nskai-edtech.vercel.app"}/verify/${certificateId}`}
-            style={{
-              fontSize: 10,
-              color: "#ff0004",
-              textDecoration: "none",
-              fontFamily: "monospace",
-              fontWeight: 500,
-            }}
-          >
-            nskai-edtech.vercel.app/verify/{certificateId}
-          </a>
         </div>
       </div>
     </div>
