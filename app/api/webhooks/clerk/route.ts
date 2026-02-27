@@ -5,6 +5,8 @@ import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+import WelcomeEmail from "@/emails/WelcomeEmail";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -87,6 +89,27 @@ export async function POST(req: Request) {
           status,
         },
       });
+
+    // Send welcome email
+    const email = email_addresses?.[0]?.email_address;
+    const displayName =
+      [first_name, last_name].filter(Boolean).join(" ") || "there";
+
+    if (email) {
+      sendEmail({
+        to: email,
+        subject:
+          role === "TUTOR"
+            ? "Welcome to ZERRA — Tutor Application Received"
+            : "Welcome to ZERRA — Start Learning Today!",
+        react: WelcomeEmail({
+          name: displayName,
+          role: role === "ADMIN" ? "LEARNER" : role,
+        }),
+      }).catch((err) =>
+        console.error("[WEBHOOK] Failed to send welcome email:", err),
+      );
+    }
 
     return NextResponse.json({ message: "User synced in DB", user: id });
   }

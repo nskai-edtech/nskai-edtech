@@ -51,7 +51,14 @@ export async function saveQuizQuestion(
     await db.insert(quizQuestions).values({ lessonId, ...data });
   }
 
+  // Ensure the lesson is marked as a quiz so the watch page renders it
+  await db
+    .update(lessons)
+    .set({ type: "QUIZ" })
+    .where(eq(lessons.id, lessonId));
+
   revalidatePath(`/tutor/courses`);
+  revalidatePath(`/watch`, "layout");
   return { success: true };
 }
 

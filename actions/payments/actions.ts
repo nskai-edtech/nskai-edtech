@@ -90,9 +90,13 @@ export async function verifyPathTransaction(reference: string, pathId: string) {
       pathId,
       "PATH",
     );
-    const expectedAmount = await getPathTotalValue(pathId);
+    if (!user || !path)
+      return { success: false, message: "Verification failed" };
 
-    if (!user || !path || txData.amount < expectedAmount) {
+    const expectedAmount =
+      path.price != null ? path.price : await getPathTotalValue(pathId);
+
+    if (txData.amount < expectedAmount) {
       return { success: false, message: "Verification failed" };
     }
 
@@ -112,7 +116,7 @@ export async function verifyPathTransaction(reference: string, pathId: string) {
         .from(learningPathCourses)
         .where(eq(learningPathCourses.learningPathId, pathId));
 
-      // 3. Grant access to all courses at once
+      // Grant access to all courses in the path at once
       for (const item of trackCourses) {
         await tx
           .insert(purchases)
@@ -129,6 +133,17 @@ export async function verifyPathTransaction(reference: string, pathId: string) {
 
     revalidatePath("/learner/marketplace");
     revalidatePath("/learner/enrolled");
+
+    sendEmail({
+      to: user.email,
+      subject: `Track enrollment confirmed — ${path.title}`,
+      react: PurchaseConfirmationEmail({
+        name: user.firstName || "Learner",
+        courseTitle: path.title,
+        amount: txData.amount,
+        pathId,
+      }),
+    }).catch(() => {});
 
     return { success: true };
   } catch (error) {

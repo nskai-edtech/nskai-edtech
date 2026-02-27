@@ -10,6 +10,7 @@ import {
   Hr,
   Preview,
 } from "@react-email/components";
+import { BASE_URL, PLATFORM_NAME, TAGLINE, CONTACT_EMAIL } from "./config";
 
 interface WelcomeEmailProps {
   name: string;
@@ -22,12 +23,12 @@ export default function WelcomeEmail({
 }: WelcomeEmailProps) {
   const isTutor = role === "TUTOR";
   const previewText = isTutor
-    ? `Welcome to NSKAI, ${name}! Your tutor application is under review.`
-    : `Welcome to NSKAI, ${name}! Start exploring courses now.`;
+    ? `Welcome to ${PLATFORM_NAME}, ${name}! Your tutor application is under review.`
+    : `Welcome to ${PLATFORM_NAME}, ${name}! Start exploring courses now.`;
 
   const dashboardUrl = isTutor
-    ? "https://nskai.org/tutor"
-    : "https://nskai.org/learner/marketplace";
+    ? `${BASE_URL}/tutor`
+    : `${BASE_URL}/learner/marketplace`;
 
   return (
     <Html>
@@ -37,10 +38,7 @@ export default function WelcomeEmail({
         <Container style={styles.container}>
           {/* Header */}
           <Section style={styles.header}>
-            <Text style={styles.logo}>
-              <span style={styles.logoNsk}>NSK</span>
-              <span style={styles.logoAi}>AI</span>
-            </Text>
+            <Text style={styles.logo}>{PLATFORM_NAME}</Text>
           </Section>
 
           {/* Content */}
@@ -50,7 +48,7 @@ export default function WelcomeEmail({
             {isTutor ? (
               <>
                 <Text style={styles.text}>
-                  Thanks for applying to become a tutor on NSKAI EdTech. Your
+                  Thanks for applying to become a tutor on {PLATFORM_NAME}. Your
                   application is currently under review by our team.
                 </Text>
                 <Text style={styles.text}>
@@ -80,9 +78,9 @@ export default function WelcomeEmail({
           <Hr style={styles.hr} />
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
-              NSKAI EdTech — Learn. Build. Grow.
+              {TAGLINE}
             </Text>
-            <Text style={styles.footerSmall}>Contact@nskai.org</Text>
+            <Text style={styles.footerSmall}>{CONTACT_EMAIL}</Text>
           </Section>
         </Container>
       </Body>
@@ -116,13 +114,8 @@ const styles = {
   logo: {
     fontSize: "24px",
     fontWeight: "800" as const,
-    margin: "0" as const,
-  },
-  logoNsk: {
     color: "#ffffff",
-  },
-  logoAi: {
-    color: "#ff0004",
+    margin: "0" as const,
   },
   content: {
     padding: "32px",

@@ -7,6 +7,9 @@ import { eq, desc, count, and, or, ilike } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { PaginatedCoursesResult } from "./types";
+import { sendEmail } from "@/lib/email";
+import CourseApprovedEmail from "@/emails/CourseApprovedEmail";
+import CourseRejectedEmail from "@/emails/CourseRejectedEmail";
 
 export async function getAllCourses(
   page = 1,
@@ -158,8 +161,63 @@ async function updateCourseStatus(
 }
 
 export async function approveCourse(courseId: string) {
-  return updateCourseStatus(courseId, "PUBLISHED");
+  const result = await updateCourseStatus(courseId, "PUBLISHED");
+
+  if (result.success) {
+    // Fetch course + tutor for the email
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, courseId),
+      with: { tutor: true },
+    });
+
+    const tutorEmail = course?.tutor?.email;
+    const tutorName =
+      [course?.tutor?.firstName, course?.tutor?.lastName]
+        .filter(Boolean)
+        .join(" ") || "Tutor";
+
+    if (tutorEmail) {
+      sendEmail({
+        to: tutorEmail,
+        subject: `Your course "${course.title}" has been approved!`,
+        react: CourseApprovedEmail({ tutorName, courseTitle: course.title }),
+      }).catch((err) =>
+        console.error("[APPROVE_COURSE] Failed to send email:", err),
+      );
+    }
+  }
+
+  return result;
 }
-export async function rejectCourse(courseId: string) {
-  return updateCourseStatus(courseId, "REJECTED");
+export async function rejectCourse(courseId: string, reason?: string) {
+  const result = await updateCourseStatus(courseId, "REJECTED");
+
+  if (result.success) {
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, courseId),
+      with: { tutor: true },
+    });
+
+    const tutorEmail = course?.tutor?.email;
+    const tutorName =
+      [course?.tutor?.firstName, course?.tutor?.lastName]
+        .filter(Boolean)
+        .join(" ") || "Tutor";
+
+    if (tutorEmail) {
+      sendEmail({
+        to: tutorEmail,
+        subject: `Your course "${course.title}" was not approved`,
+        react: CourseRejectedEmail({
+          tutorName,
+          courseTitle: course.title,
+          reason: reason || undefined,
+        }),
+      }).catch((err) =>
+        console.error("[REJECT_COURSE] Failed to send email:", err),
+      );
+    }
+  }
+
+  return result;
 }

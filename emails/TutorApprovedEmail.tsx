@@ -10,6 +10,7 @@ import {
   Hr,
   Preview,
 } from "@react-email/components";
+import { BASE_URL, PLATFORM_NAME, TAGLINE, CONTACT_EMAIL } from "./config";
 
 interface TutorApprovedEmailProps {
   name: string;
@@ -24,10 +25,7 @@ export default function TutorApprovedEmail({ name }: TutorApprovedEmailProps) {
         <Container style={styles.container}>
           {/* Header */}
           <Section style={styles.header}>
-            <Text style={styles.logo}>
-              <span style={styles.logoNsk}>NSK</span>
-              <span style={styles.logoAi}>AI</span>
-            </Text>
+            <Text style={styles.logo}>{PLATFORM_NAME}</Text>
           </Section>
 
           {/* Content */}
@@ -36,13 +34,13 @@ export default function TutorApprovedEmail({ name }: TutorApprovedEmailProps) {
 
             <Text style={styles.text}>
               Congratulations, {name}! Your tutor application has been reviewed
-              and approved by the NSKAI team.
+              and approved by the {PLATFORM_NAME} team.
             </Text>
 
             <Text style={styles.text}>
               You can now create and publish courses on the platform. Your
               courses will be available to thousands of learners across the
-              NSKAI ecosystem.
+              {PLATFORM_NAME} ecosystem.
             </Text>
 
             {/* Highlight box */}
@@ -56,10 +54,7 @@ export default function TutorApprovedEmail({ name }: TutorApprovedEmailProps) {
               </Text>
             </Section>
 
-            <Button
-              style={styles.button}
-              href="https://nskai.org/tutor/courses"
-            >
+            <Button style={styles.button} href={`${BASE_URL}/tutor/courses`}>
               Start Creating Courses
             </Button>
           </Section>
@@ -67,10 +62,8 @@ export default function TutorApprovedEmail({ name }: TutorApprovedEmailProps) {
           {/* Footer */}
           <Hr style={styles.hr} />
           <Section style={styles.footer}>
-            <Text style={styles.footerText}>
-              NSKAI EdTech — Learn. Build. Grow.
-            </Text>
-            <Text style={styles.footerSmall}>Contact@nskai.org</Text>
+            <Text style={styles.footerText}>{TAGLINE}</Text>
+            <Text style={styles.footerSmall}>{CONTACT_EMAIL}</Text>
           </Section>
         </Container>
       </Body>
@@ -104,13 +97,8 @@ const styles = {
   logo: {
     fontSize: "24px",
     fontWeight: "800" as const,
-    margin: "0" as const,
-  },
-  logoNsk: {
     color: "#ffffff",
-  },
-  logoAi: {
-    color: "#ff0004",
+    margin: "0" as const,
   },
   content: {
     padding: "32px",

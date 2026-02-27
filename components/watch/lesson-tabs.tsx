@@ -62,7 +62,7 @@ export const LessonTabs = ({
         )}
       </div>
 
-      <div className="min-h-[200px]">
+      <div className="min-h-50">
         {activeTab === "overview" && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <h3 className="text-xl font-bold text-primary-text mb-4">
