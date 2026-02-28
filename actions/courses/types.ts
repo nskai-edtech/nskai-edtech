@@ -5,6 +5,7 @@ export interface CourseWithTutor {
   price: number | null;
   status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
   imageUrl: string | null;
+  tags?: string[] | null;
   createdAt: Date;
   tutor: {
     id: string;
@@ -12,6 +13,23 @@ export interface CourseWithTutor {
     lastName: string | null;
     imageUrl: string | null;
   } | null;
+}
+
+export type SortOption =
+  | "newest"
+  | "popular"
+  | "rating"
+  | "price-asc"
+  | "price-desc";
+export type PriceFilter = "all" | "free" | "paid";
+
+export interface MarketplaceFilters {
+  search?: string;
+  tags?: string[];
+  priceFilter?: PriceFilter;
+  sortBy?: SortOption;
+  tab?: string;
+  page?: number;
 }
 
 export interface PaginatedCoursesResult {

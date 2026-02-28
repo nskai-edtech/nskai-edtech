@@ -15,6 +15,10 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { PaginatedCoursesResult } from "./types";
 
+function escapeIlike(value: string): string {
+  return value.replace(/[%_\\]/g, "\\$&");
+}
+
 export async function getTutorCourses(
   page = 1,
   limit = 20,
@@ -29,12 +33,13 @@ export async function getTutorCourses(
   if (!tutor || tutor.role !== "TUTOR") throw new Error("Not a tutor");
 
   const offset = (page - 1) * limit;
+  const safe = search ? escapeIlike(search) : "";
   const whereClause = search
     ? and(
         eq(courses.tutorId, tutor.id),
         or(
-          ilike(courses.title, `%${search}%`),
-          ilike(courses.description, `%${search}%`),
+          ilike(courses.title, `%${safe}%`),
+          ilike(courses.description, `%${safe}%`),
         ),
       )
     : eq(courses.tutorId, tutor.id);
@@ -84,6 +89,7 @@ export async function createCourse(data: {
   description?: string;
   price?: number;
   imageUrl?: string;
+  tags?: string[];
 }) {
   const { userId } = await auth();
   if (!userId) return { error: "Unauthorized" };
@@ -101,6 +107,7 @@ export async function createCourse(data: {
         description: data.description,
         price: data.price,
         imageUrl: data.imageUrl,
+        tags: data.tags || [],
         tutorId: tutor.id,
         status: "DRAFT",
       })
@@ -122,6 +129,7 @@ export async function updateCourse(
     description?: string;
     price?: number;
     imageUrl?: string;
+    tags?: string[];
     status?: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
   },
 ) {

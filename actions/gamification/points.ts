@@ -35,11 +35,11 @@ export async function awardPoints(
           .where(eq(users.id, userId));
       }
 
-      return { success: !!inserted };
+      return { success: !!inserted, awarded: !!inserted };
     });
   } catch (error) {
     console.error("[AWARD_POINTS_ERROR]", error);
-    return { success: false };
+    return { success: false, awarded: false };
   }
 }
 
@@ -67,8 +67,10 @@ export async function logVideoWatchTime(clerkId: string) {
       })
       .returning();
 
-    // Trigger streak check at the 30-minute mark
-    if (row.minutesWatched === 30) {
+    // Trigger streak check once the user hits the 30-minute threshold
+    // Use >= instead of === to handle cases where minutesWatched jumps past 30
+    // (updateStreak is already idempotent via streakLastActiveDate check)
+    if (row.minutesWatched >= 30) {
       await updateStreak(user.id, today);
     }
 
@@ -114,6 +116,7 @@ async function updateStreak(userId: string, todayStr: string) {
     );
   }
 
+  revalidatePath("/learner");
   revalidatePath("/leaderboard");
 }
 

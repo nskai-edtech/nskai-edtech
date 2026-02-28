@@ -28,6 +28,8 @@ export const assignmentSubmissionStatusEnum = pgEnum(
 );
 
 export const pointReasonEnum = pgEnum("point_reason", [
+  "LESSON_COMPLETED",
+  "QUIZ_PASSED",
   "MODULE_COMPLETED",
   "MODULE_QUIZZES_PASSED",
   "STREAK_7_DAYS",

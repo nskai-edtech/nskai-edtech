@@ -59,6 +59,7 @@ export async function updateLearnerProfile(
     }
     await db.update(users).set(updateData).where(eq(users.clerkId, clerkId));
 
+    revalidatePath("/learner");
     revalidatePath("/learner/profile");
     return { success: true };
   } catch (error) {

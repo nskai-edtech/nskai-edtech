@@ -5,7 +5,11 @@ export interface RecommendedCourse {
   price: number | null;
   status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
   imageUrl: string | null;
+  tags: string[] | null;
   createdAt: Date;
+  matchScore: number;
+  enrollmentCount: number;
+  averageRating: number | null;
   tutor: {
     id: string;
     firstName: string | null;
@@ -13,3 +17,9 @@ export interface RecommendedCourse {
     imageUrl: string | null;
   } | null;
 }
+
+export type RecommendationTier =
+  | "interest-match"
+  | "popular"
+  | "highly-rated"
+  | "fallback";

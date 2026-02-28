@@ -5,7 +5,11 @@ import { userProgress, lessons, users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { checkModuleCompletion } from "@/actions/gamification/points";
+import {
+  checkModuleCompletion,
+  checkModuleQuizzesPassed,
+  awardPoints,
+} from "@/actions/gamification/points";
 import { checkCourseCompletionByLesson } from "@/actions/progress/queries";
 
 const getDbUser = async (clerkId: string) => {
@@ -41,18 +45,34 @@ export async function markLessonComplete(lessonId: string) {
         },
       });
 
-    revalidatePath("/learner/enrolled");
-    revalidatePath("/learner");
-
-    // GAMIFICATION: Trigger Module completion check
+    // GAMIFICATION: Award per-lesson XP + trigger module completion check
     const lessonData = await db.query.lessons.findFirst({
       where: eq(lessons.id, lessonId),
       columns: { chapterId: true },
     });
 
-    if (lessonData?.chapterId) {
-      await checkModuleCompletion(user.id, lessonData.chapterId);
+    // Award individual lesson XP (deduplicated by unique index)
+    const lessonResult = await awardPoints(user.id, 2, "LESSON_COMPLETED", lessonId);
+    if (lessonResult && !lessonResult.success) {
+      console.warn("[GAMIFICATION] Failed to award lesson XP for", lessonId);
     }
+
+    if (lessonData?.chapterId) {
+      const moduleResult = await checkModuleCompletion(user.id, lessonData.chapterId);
+      if (moduleResult && !moduleResult.success) {
+        console.warn("[GAMIFICATION] Failed to award module XP for chapter", lessonData.chapterId);
+      }
+      // Also re-check quiz mastery — covers the case where quizzes were passed
+      // before the last video lesson was completed
+      const quizResult = await checkModuleQuizzesPassed(user.id, lessonData.chapterId);
+      if (quizResult && !quizResult.success) {
+        console.warn("[GAMIFICATION] Failed to award quiz mastery XP for chapter", lessonData.chapterId);
+      }
+    }
+
+    // Revalidate AFTER gamification writes to avoid serving stale XP
+    revalidatePath("/learner/enrolled");
+    revalidatePath("/learner");
 
     // Check if the entire course is now complete
     const completion = await checkCourseCompletionByLesson(user.id, lessonId);

@@ -56,6 +56,7 @@ export async function verifyTransaction(reference: string, courseId: string) {
       })
       .onConflictDoNothing();
 
+    revalidatePath("/learner");
     revalidatePath("/learner/enrolled");
 
     sendEmail({
@@ -131,6 +132,7 @@ export async function verifyPathTransaction(reference: string, pathId: string) {
       }
     });
 
+    revalidatePath("/learner");
     revalidatePath("/learner/marketplace");
     revalidatePath("/learner/enrolled");
 
@@ -177,6 +179,8 @@ export async function enrollFree(courseId: string) {
     })
     .onConflictDoNothing();
 
+  revalidatePath("/learner");
   revalidatePath("/learner/enrolled");
-  return { success: true };
+
+  return { success: true, message: "Enrolled successfully" };
 }

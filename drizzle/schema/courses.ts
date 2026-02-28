@@ -29,6 +29,7 @@ export const courses = pgTable(
     price: integer("price"),
     status: courseStatusEnum("status").default("DRAFT").notNull(),
     imageUrl: text("image_url"),
+    tags: text("tags").array().default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

@@ -7,6 +7,7 @@ import { Loader2, Image as ImageIcon, Cloud } from "lucide-react";
 import { FileUpload } from "@/components/file-upload";
 import { updateCourse } from "@/actions/courses/tutor";
 import { AiGenerateButton } from "@/components/ui/ai-generate-button";
+import { CourseTagsSelector } from "@/components/dashboard/course-tags-selector";
 
 interface CourseDetailsFormProps {
   course: Course;
@@ -23,6 +24,7 @@ export default function CourseDetailsForm({
     description: course.description || "",
     price: course.price ? (course.price / 100).toString() : "",
     imageUrl: course.imageUrl || "",
+    tags: (course as Course & { tags?: string[] }).tags || [],
   });
 
   const debouncedData = useDebounce(formData, 1000);
@@ -34,6 +36,7 @@ export default function CourseDetailsForm({
       description: course.description || "",
       price: course.price ? (course.price / 100).toString() : "",
       imageUrl: course.imageUrl || "",
+      tags: (course as Course & { tags?: string[] }).tags || [],
     });
   }, [course]);
 
@@ -52,8 +55,11 @@ export default function CourseDetailsForm({
       const isPriceSame = (debouncedData.price || "") === (currentPrice || "");
       const isImageSame =
         (debouncedData.imageUrl || "") === (course.imageUrl || "");
+      const courseTags = (course as Course & { tags?: string[] }).tags || [];
+      const isTagsSame =
+        JSON.stringify(debouncedData.tags) === JSON.stringify(courseTags);
 
-      if (isTitleSame && isDescriptionSame && isPriceSame && isImageSame) {
+      if (isTitleSame && isDescriptionSame && isPriceSame && isImageSame && isTagsSame) {
         return;
       }
 
@@ -71,6 +77,7 @@ export default function CourseDetailsForm({
           description: debouncedData.description || undefined,
           price: priceValue,
           imageUrl: debouncedData.imageUrl || undefined,
+          tags: debouncedData.tags,
         });
 
         if (result.error) {
@@ -198,6 +205,21 @@ export default function CourseDetailsForm({
             </div>
             <p className="text-[10px] text-secondary-text mt-2 uppercase tracking-tight">
               Set a price for your course. Leave as 0 for a free course.
+            </p>
+          </div>
+
+          {/* Course Tags */}
+          <div>
+            <label className="block text-sm font-semibold text-primary-text mb-2">
+              Course Tags
+            </label>
+            <CourseTagsSelector
+              selectedTags={formData.tags}
+              onChange={(tags) => setFormData({ ...formData, tags })}
+              maxTags={5}
+            />
+            <p className="text-[10px] text-secondary-text mt-2 uppercase tracking-tight">
+              Add up to 5 topic tags to help learners discover your course.
             </p>
           </div>
 
