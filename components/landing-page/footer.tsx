@@ -55,10 +55,10 @@ function FooterSection() {
   return (
     <footer className="w-full">
       {/* MAIN FOOTER */}
-      <div className="bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white pt-16 pb-8 px-4 md:px-8 lg:px-16 transition-colors duration-300">
+      <div className="bg-white dark:bg-surface text-gray-900 dark:text-white pt-16 pb-8 px-4 md:px-8 lg:px-16 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
           {/* Top Section: Brand + Newsletter */}
-          <div className="flex flex-col lg:flex-row justify-between gap-12 border-b border-gray-200 dark:border-gray-800 pb-12">
+          <div className="flex flex-col lg:flex-row justify-between gap-12 border-b border-gray-200 dark:border-border pb-12">
             {/* Brand */}
             <div className="flex flex-col gap-6 max-w-sm">
               <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ function FooterSection() {
                 {[Twitter, Linkedin, Globe, Github].map((Icon, i) => (
                   <button
                     key={i}
-                    className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors group"
+                    className="p-2 bg-gray-100 dark:bg-surface-muted rounded-lg hover:bg-gray-200 dark:hover:bg-border transition-colors group"
                   >
                     <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-brand transition-colors" />
                   </button>
@@ -87,7 +87,7 @@ function FooterSection() {
             </div>
 
             {/* Newsletter Card */}
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 max-w-md w-full transition-colors">
+            <div className="bg-gray-50 dark:bg-surface-muted/50 p-6 rounded-2xl border border-gray-200 dark:border-border max-w-md w-full transition-colors">
               <h4 className="font-semibold text-lg mb-2">
                 Stay updated with the latest in AI education
               </h4>
@@ -100,7 +100,7 @@ function FooterSection() {
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg py-2.5 px-4 text-sm text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand transition-all"
+                    className="w-full bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg py-2.5 px-4 text-sm text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                   />
                   <Send className="absolute right-3 top-2.5 w-4 h-4 text-gray-500" />
                 </div>
@@ -116,7 +116,7 @@ function FooterSection() {
           </div>
 
           {/* Links Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-gray-200 dark:border-gray-800">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-gray-200 dark:border-border">
             {[
               { title: "Product", links: PRODUCT_LINKS },
               { title: "Company", links: COMPANY_LINKS },
@@ -155,10 +155,10 @@ function FooterSection() {
                 <span className="text-sm">English (US)</span>
               </div>
               <div className="flex gap-2">
-                <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded text-gray-500 dark:text-gray-400">
+                <div className="bg-gray-100 dark:bg-surface-muted p-1.5 rounded text-gray-500 dark:text-gray-400">
                   <CreditCard className="w-4 h-4" />
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded text-gray-500 dark:text-gray-400">
+                <div className="bg-gray-100 dark:bg-surface-muted p-1.5 rounded text-gray-500 dark:text-gray-400">
                   <Wallet className="w-4 h-4" />
                 </div>
               </div>
@@ -168,7 +168,7 @@ function FooterSection() {
       </div>
 
       {/* QUICK ACCESS DIRECTORY */}
-      <div className="bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white py-16 px-4 md:px-8 lg:px-16 border-t border-gray-200 dark:border-gray-800">
+      <div className="bg-gray-50 dark:bg-surface-muted/50 text-gray-900 dark:text-white py-16 px-4 md:px-8 lg:px-16 border-t border-gray-200 dark:border-border">
         <div className="max-w-7xl mx-auto">
           <h3 className="text-xl font-bold mb-12 text-center">
             Quick Access Directory
