@@ -45,8 +45,10 @@ const UPCOMING_SESSIONS: Session[] = [
 
 export default async function LearnerDashboard() {
   const user = await currentUser();
-  const recommendedCourses = await getRecommendedCourses(4);
+  const recommendedCourses = await getRecommendedCourses(8);
   const statsResult = await getLearnerStats();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Get stats or use defaults
   const stats =
@@ -156,44 +158,61 @@ export default async function LearnerDashboard() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {recommendedCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  href={`/learner/${course.id}`}
-                  className="block group"
-                >
-                  <div className="bg-surface rounded-3xl p-4 border border-border hover:-translate-y-1 transition-transform">
-                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 bg-gray-100">
-                      {course.imageUrl ? (
-                        <Image
-                          src={course.imageUrl}
-                          alt={course.title}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <Sparkles className="w-8 h-8" />
-                        </div>
-                      )}
+              {recommendedCourses.map((course) => {
+                const isNew =
+                  new Date(course.createdAt) > thirtyDaysAgo;
+
+                return (
+                  <Link
+                    key={course.id}
+                    href={`/learner/${course.id}`}
+                    className="block group"
+                  >
+                    <div className="bg-surface rounded-3xl p-4 border border-border hover:-translate-y-1 transition-transform">
+                      <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 bg-gray-100">
+                        {course.imageUrl ? (
+                          <Image
+                            src={course.imageUrl}
+                            alt={course.title}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <Sparkles className="w-8 h-8" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        {isNew && (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
+                            New
+                          </span>
+                        )}
+                        {course.matchScore > 0 && (
+                          <span className="text-xs font-bold text-brand">
+                            {course.matchScore}% Match
+                          </span>
+                        )}
+                        {course.averageRating !== null &&
+                          course.averageRating > 0 && (
+                            <span className="text-xs font-bold text-yellow-600">
+                              {course.averageRating} rating
+                            </span>
+                          )}
+                      </div>
+                      <h3 className="font-bold text-primary-text text-lg leading-snug mb-1 group-hover:text-brand transition-colors line-clamp-2">
+                        {course.title}
+                      </h3>
+                      <p className="text-xs text-secondary-text">
+                        {course.tutor?.firstName || "Unknown Tutor"}
+                        {course.enrollmentCount > 0 &&
+                          ` \u2022 ${course.enrollmentCount.toLocaleString()} enrolled`}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
-                        New
-                      </span>
-                      <span className="text-xs font-bold text-brand">
-                        98% Match
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-primary-text text-lg leading-snug mb-1 group-hover:text-brand transition-colors line-clamp-2">
-                      {course.title}
-                    </h3>
-                    <p className="text-xs text-secondary-text">
-                      {course.tutor?.firstName || "Unknown Tutor"} • 12 hours
-                    </p>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>

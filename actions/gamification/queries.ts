@@ -16,7 +16,7 @@ export async function getChapterCompletionStats(
   const [stats] = await db
     .select({
       totalLessons: sql<number>`count(distinct ${lessons.id})`,
-      completedCount: sql<number>`count(distinct ${userProgress.id})`,
+      completedCount: sql<number>`count(distinct ${userProgress.lessonId})`,
     })
     .from(lessons)
     .leftJoin(

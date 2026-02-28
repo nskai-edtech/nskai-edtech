@@ -1,4 +1,6 @@
 export type PointReason =
+  | "LESSON_COMPLETED"
+  | "QUIZ_PASSED"
   | "MODULE_COMPLETED"
   | "MODULE_QUIZZES_PASSED"
   | "STREAK_7_DAYS";

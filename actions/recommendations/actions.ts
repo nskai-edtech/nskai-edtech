@@ -4,11 +4,87 @@ import { db } from "@/lib/db";
 import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
-import { fetchCoursesByInterests, fetchFallbackCourses } from "./queries";
+import { unstable_cache } from "next/cache";
+import {
+  fetchCoursesByInterests,
+  fetchPopularCourses,
+  fetchHighlyRatedCourses,
+  fetchFallbackCourses,
+} from "./queries";
 import { RecommendedCourse } from "./types";
 
+async function buildRecommendations(
+  userId: string,
+  interests: string[],
+  limit: number,
+): Promise<RecommendedCourse[]> {
+  const results: RecommendedCourse[] = [];
+  const seenIds = new Set<string>();
+
+  const addUnique = (items: RecommendedCourse[]) => {
+    for (const item of items) {
+      if (!seenIds.has(item.id) && results.length < limit) {
+        seenIds.add(item.id);
+        results.push(item);
+      }
+    }
+  };
+
+  if (interests.length > 0) {
+    const interestMatches = await fetchCoursesByInterests(
+      interests,
+      userId,
+      limit,
+    );
+    addUnique(interestMatches);
+  }
+
+  if (results.length < limit) {
+    const excludeIds = Array.from(seenIds);
+    const popular = await fetchPopularCourses(
+      userId,
+      limit - results.length,
+      excludeIds,
+    );
+    addUnique(popular);
+  }
+
+  if (results.length < limit) {
+    const excludeIds = Array.from(seenIds);
+    const rated = await fetchHighlyRatedCourses(
+      userId,
+      limit - results.length,
+      excludeIds,
+    );
+    addUnique(rated);
+  }
+
+  if (results.length < limit) {
+    const excludeIds = Array.from(seenIds);
+    const fallback = await fetchFallbackCourses(
+      userId,
+      limit - results.length,
+      excludeIds,
+    );
+    addUnique(fallback);
+  }
+
+  return results;
+}
+
+const getCachedRecommendations = (
+  userId: string,
+  interests: string[],
+  limit: number,
+) =>
+  unstable_cache(
+    () => buildRecommendations(userId, interests, limit),
+    [`recommendations`, userId],
+    { revalidate: 300 },
+  )();
+
 export async function getRecommendedCourses(
-  limit: number = 4,
+  limit: number = 8,
 ): Promise<RecommendedCourse[]> {
   try {
     const { userId: clerkId } = await auth();
@@ -19,23 +95,16 @@ export async function getRecommendedCourses(
 
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, clerkId),
-      columns: { interests: true },
+      columns: { id: true, interests: true },
     });
 
-    if (!user?.interests || user.interests.length === 0) {
-      return await fetchFallbackCourses(limit);
+    if (!user) {
+      return [];
     }
 
-    const recommendations = await fetchCoursesByInterests(
-      user.interests,
-      limit,
-    );
+    const interests = user.interests ?? [];
 
-    if (recommendations.length === 0) {
-      return await fetchFallbackCourses(limit);
-    }
-
-    return recommendations;
+    return await getCachedRecommendations(user.id, interests, limit);
   } catch (error) {
     console.error("[GET_RECOMMENDED_COURSES]", error);
     return [];

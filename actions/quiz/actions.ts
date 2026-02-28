@@ -12,6 +12,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
+  awardPoints,
   checkModuleCompletion,
   checkModuleQuizzesPassed,
 } from "../gamification/points";
@@ -131,16 +132,32 @@ export async function submitQuiz(
         target: [userProgress.userId, userProgress.lessonId],
         set: { isCompleted: true, lastAccessedAt: new Date() },
       });
-
-    revalidatePath("/learner");
   }
 
-  // GAMIFICATION: Trigger module completion + quiz mastery checks
+  // GAMIFICATION: Award per-quiz XP + trigger module completion & quiz mastery checks
+  if (passed) {
+    const quizResult = await awardPoints(userId, 5, "QUIZ_PASSED", lessonId);
+    if (quizResult && !quizResult.success) {
+      console.warn("[GAMIFICATION] Failed to award quiz XP for", lessonId);
+    }
+  }
+
   if (lessonData?.chapterId) {
     if (passed) {
-      await checkModuleCompletion(userId, lessonData.chapterId);
+      const moduleResult = await checkModuleCompletion(userId, lessonData.chapterId);
+      if (moduleResult && !moduleResult.success) {
+        console.warn("[GAMIFICATION] Failed to award module XP for chapter", lessonData.chapterId);
+      }
     }
-    await checkModuleQuizzesPassed(userId, lessonData.chapterId);
+    const quizMasteryResult = await checkModuleQuizzesPassed(userId, lessonData.chapterId);
+    if (quizMasteryResult && !quizMasteryResult.success) {
+      console.warn("[GAMIFICATION] Failed to award quiz mastery XP for chapter", lessonData.chapterId);
+    }
+  }
+
+  // Revalidate AFTER gamification writes to avoid serving stale XP
+  if (passed) {
+    revalidatePath("/learner");
   }
 
   // Check if the entire course is now complete

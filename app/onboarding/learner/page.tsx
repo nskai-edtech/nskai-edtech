@@ -8,109 +8,18 @@ import {
   Search,
   Check,
   ChevronRight,
-  BarChart3,
-  Pencil,
-  BookOpen,
-  Cpu,
-  Megaphone,
-  Library,
-  Telescope,
-  Landmark,
-  PenTool,
-  Music,
-  FlaskConical,
-  Calculator,
+  ChevronDown,
   Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
-
-// Topic type definition
-interface Topic {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-// Available topics for selection
-const TOPICS: Topic[] = [
-  {
-    id: "data-science",
-    name: "Data Science",
-    icon: <BarChart3 className="w-6 h-6" />,
-    color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
-  },
-  {
-    id: "creative-writing",
-    name: "Creative Writing",
-    icon: <Pencil className="w-6 h-6" />,
-    color:
-      "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
-  },
-  {
-    id: "history",
-    name: "History",
-    icon: <BookOpen className="w-6 h-6" />,
-    color: "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400",
-  },
-  {
-    id: "machine-learning",
-    name: "Machine Learning",
-    icon: <Cpu className="w-6 h-6" />,
-    color: "bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400",
-  },
-  {
-    id: "digital-marketing",
-    name: "Digital Marketing",
-    icon: <Megaphone className="w-6 h-6" />,
-    color:
-      "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
-  },
-  {
-    id: "philosophy",
-    name: "Philosophy",
-    icon: <Library className="w-6 h-6" />,
-    color:
-      "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400",
-  },
-  {
-    id: "astrophysics",
-    name: "Astrophysics",
-    icon: <Telescope className="w-6 h-6" />,
-    color: "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400",
-  },
-  {
-    id: "economics",
-    name: "Economics",
-    icon: <Landmark className="w-6 h-6" />,
-    color: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
-  },
-  {
-    id: "ux-design",
-    name: "UX/UI Design",
-    icon: <PenTool className="w-6 h-6" />,
-    color:
-      "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
-  },
-  {
-    id: "music-theory",
-    name: "Music Theory",
-    icon: <Music className="w-6 h-6" />,
-    color: "bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400",
-  },
-  {
-    id: "biology",
-    name: "Biology",
-    icon: <FlaskConical className="w-6 h-6" />,
-    color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
-  },
-  {
-    id: "advanced-math",
-    name: "Advanced Math",
-    icon: <Calculator className="w-6 h-6" />,
-    color: "bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400",
-  },
-];
+import {
+  ALL_TOPICS,
+  TopicIcon,
+  filterTopics,
+  paginateTopics,
+  getTopicById,
+  type TopicData,
+} from "@/lib/topics";
 
 // Step type
 type OnboardingStep = 1 | 2 | 3;
@@ -155,7 +64,7 @@ function TopicCard({
   selected,
   onToggle,
 }: {
-  topic: Topic;
+  topic: TopicData;
   selected: boolean;
   onToggle: () => void;
 }) {
@@ -177,7 +86,9 @@ function TopicCard({
       )}
 
       {/* Icon */}
-      <div className={`p-3 rounded-xl mb-3 ${topic.color}`}>{topic.icon}</div>
+      <div className={`p-3 rounded-xl mb-3 ${topic.color}`}>
+        <TopicIcon name={topic.iconName} />
+      </div>
 
       {/* Name */}
       <span className="text-sm font-medium text-primary-text text-center">
@@ -195,12 +106,19 @@ export default function LearnerOnboardingPage() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Filter topics based on search
-  const filteredTopics = TOPICS.filter((topic) =>
-    topic.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Filter + paginate topics
+  const filteredTopics = filterTopics(ALL_TOPICS, searchQuery);
+  const visibleTopics = paginateTopics(filteredTopics, page);
+  const hasMore = visibleTopics.length < filteredTopics.length;
+
+  // Handle search change (reset pagination)
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setPage(0);
+  };
 
   // Toggle topic selection
   const toggleTopic = (topicId: string) => {
@@ -229,7 +147,7 @@ export default function LearnerOnboardingPage() {
 
         if (result?.success) {
           await user?.reload();
-          toast.success("Welcome to NSK.AI! Let's start learning.");
+          toast.success("Welcome to ZERRA! Let's start learning.");
           router.push("/learner");
         } else {
           toast.error("Something went wrong. Please try again.");
@@ -285,9 +203,9 @@ export default function LearnerOnboardingPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-text" />
                 <input
                   type="text"
-                  placeholder="Search for specific topics (e.g., Data Science)"
+                  placeholder="Search topics (e.g., Machine Learning, Photography)"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-3.5 bg-surface border border-border rounded-full text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
               </div>
@@ -295,7 +213,7 @@ export default function LearnerOnboardingPage() {
 
             {/* Topics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredTopics.map((topic) => (
+              {visibleTopics.map((topic) => (
                 <TopicCard
                   key={topic.id}
                   topic={topic}
@@ -304,6 +222,30 @@ export default function LearnerOnboardingPage() {
                 />
               ))}
             </div>
+
+            {/* Empty State */}
+            {visibleTopics.length === 0 && searchQuery && (
+              <p className="text-center text-sm text-secondary-text py-8">
+                No topics found for &quot;{searchQuery}&quot;
+              </p>
+            )}
+
+            {/* See More Button */}
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => p + 1)}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-brand hover:text-brand-dark bg-brand/5 hover:bg-brand/10 rounded-full transition-colors"
+                >
+                  See more topics
+                  <ChevronDown className="w-4 h-4" />
+                  <span className="text-xs text-secondary-text">
+                    ({filteredTopics.length - visibleTopics.length} remaining)
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -386,7 +328,7 @@ export default function LearnerOnboardingPage() {
 
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {selectedTopics.slice(0, 5).map((topicId) => {
-                const topic = TOPICS.find((t) => t.id === topicId);
+                const topic = getTopicById(topicId);
                 return topic ? (
                   <span
                     key={topicId}
@@ -415,14 +357,14 @@ export default function LearnerOnboardingPage() {
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-1">
                   {selectedTopics.slice(0, 3).map((topicId, idx) => {
-                    const topic = TOPICS.find((t) => t.id === topicId);
+                    const topic = getTopicById(topicId);
                     return topic ? (
                       <div
                         key={topicId}
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${topic.color} border-2 border-surface`}
                         style={{ zIndex: 3 - idx }}
                       >
-                        {topic.icon}
+                        <TopicIcon name={topic.iconName} className="w-4 h-4" />
                       </div>
                     ) : null;
                   })}

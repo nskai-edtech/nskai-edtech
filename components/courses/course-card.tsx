@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
 import { CourseWithTutor } from "@/actions/courses/types";
+import { getTopicById, TopicIcon } from "@/lib/topics";
 
 interface CourseCardProps {
   course: CourseWithTutor & {
@@ -58,9 +59,26 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
 
         {/* Content */}
         <div className="flex flex-col flex-1 p-5">
-          <div className="flex items-center gap-1 mb-2 text-xs font-medium uppercase tracking-wider text-brand">
-            {/* TODO: Category could go here */}
-            Course
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            {course.tags && course.tags.length > 0 ? (
+              course.tags.slice(0, 3).map((tagId) => {
+                const topic = getTopicById(tagId);
+                if (!topic) return null;
+                return (
+                  <span
+                    key={tagId}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${topic.color}`}
+                  >
+                    <TopicIcon name={topic.iconName} className="w-3 h-3" />
+                    {topic.name}
+                  </span>
+                );
+              })
+            ) : (
+              <span className="text-xs font-medium uppercase tracking-wider text-brand">
+                Course
+              </span>
+            )}
           </div>
 
           <h3 className="mb-2 text-lg font-bold leading-tight transition-colors line-clamp-2 text-primary-text group-hover:text-brand">
@@ -106,7 +124,7 @@ export const CourseCard = ({ course, href }: CourseCardProps) => {
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-medium text-primary-text truncate max-w-[120px]">
+                <span className="text-xs font-medium text-primary-text truncate max-w-30">
                   {course.tutor?.firstName} {course.tutor?.lastName}
                 </span>
               </div>

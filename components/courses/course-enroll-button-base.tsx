@@ -102,14 +102,14 @@ export const CourseEnrollButton = ({
 
         const result = await enrollFree(courseId);
 
-        if (result.success) {
+        if (result?.success) {
           toast.success("Enrolled successfully!", { id: "enroll" });
           router.refresh();
           setTimeout(() => {
             router.push(`/watch/${courseId}`);
           }, 1000);
         } else {
-          toast.error(result.message || "Enrollment failed", { id: "enroll" });
+          toast.error(result?.message || "Enrollment failed", { id: "enroll" });
           setIsLoading(false);
         }
       } catch (error) {
