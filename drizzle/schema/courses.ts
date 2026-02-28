@@ -42,9 +42,11 @@ export const chapters = pgTable(
   "chapter",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    courseId: uuid("course_id").references(() => courses.id, {
-      onDelete: "cascade",
-    }),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => courses.id, {
+        onDelete: "cascade",
+      }),
     title: text("title").notNull(),
     position: integer("position").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

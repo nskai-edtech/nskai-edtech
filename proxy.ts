@@ -9,7 +9,28 @@ const isProtectedRoute = createRouteMatcher([
   "/onboarding(.*)",
 ]);
 
+function generateCspHeaders(nonce: string) {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' https://*.clerk.com https://*.sentry.io https://challenges.cloudflare.com https://va.vercel-scripts.com`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.clerk.com https://api.dicebear.com https://utfs.io https://image.mux.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "connect-src 'self' https://*.clerk.com https://*.sentry.io https://*.mux.com https://uploadthing.com https://utfs.io wss://*.clerk.com",
+    "media-src 'self' blob: https://stream.mux.com https://*.mux.com",
+    "frame-src 'self' https://*.clerk.com https://challenges.cloudflare.com",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+  ].join("; ");
+}
+
 export default clerkMiddleware(async (auth, req) => {
+  // Generate a CSP nonce for this request
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
   const { userId, sessionClaims } = await auth();
 
   // @ts-ignore
@@ -72,7 +93,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Blocking Tutors/Admins from /learner (Optional, but keeps things clean)
+  // Blocking Tutors/Admins from /learner
   if (
     req.nextUrl.pathname.startsWith("/learner") &&
     role !== "LEARNER" &&
@@ -81,7 +102,18 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next({
+    request: {
+      headers: new Headers([
+        ...Array.from(req.headers.entries()),
+        ["x-nonce", nonce],
+      ]),
+    },
+  });
+
+  response.headers.set("Content-Security-Policy", generateCspHeaders(nonce));
+
+  return response;
 });
 
 export const config = {

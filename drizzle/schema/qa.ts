@@ -76,7 +76,10 @@ export const answers = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("answer_question_id_idx").on(table.questionId)],
+  (table) => [
+    index("answer_question_id_idx").on(table.questionId),
+    index("answer_user_id_idx").on(table.userId),
+  ],
 );
 
 // --- RELATIONS ---
