@@ -69,9 +69,15 @@ export const VideoPlayer = ({
       }, 1000);
     }
 
-    if (duration && currentTime / duration >= 0.9) {
-      const result = await markLessonComplete(lessonId);
+    // Only mark complete and award points once
+    if (!hasMarkedComplete && duration && currentTime / duration >= 0.9) {
       setHasMarkedComplete(true);
+      const result = await markLessonComplete(lessonId);
+
+      // Show XP toast for lesson completion
+      if (result && !("error" in result)) {
+        toast.success("+2 XP awarded for completing this lesson!");
+      }
 
       if (result && "courseCompleted" in result && result.courseCompleted) {
         toast.success("Course completed 100%!");
