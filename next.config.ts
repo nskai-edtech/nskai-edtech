@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.com https://*.sentry.io https://challenges.cloudflare.com",
+              "script-src 'self' 'unsafe-inline' https://*.clerk.com https://*.sentry.io https://challenges.cloudflare.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.clerk.com https://api.dicebear.com https://utfs.io https://image.mux.com",
               "font-src 'self' https://fonts.gstatic.com",
