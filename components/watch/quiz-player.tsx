@@ -59,6 +59,11 @@ export function QuizPlayer({
     }
     setResult(res);
 
+    // Show XP toast for quiz pass
+    if (res.passed) {
+      toast.success("+5 XP awarded for passing this quiz!");
+    }
+
     if (res.passed && "courseCompleted" in res && res.courseCompleted) {
       toast.success("Course completed 100%!");
       setTimeout(() => {

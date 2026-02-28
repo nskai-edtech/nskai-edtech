@@ -15,28 +15,27 @@ export async function awardPoints(
   referenceId: string,
 ) {
   try {
-    return await db.transaction(async (tx) => {
-      const [inserted] = await tx
-        .insert(pointTransactions)
-        .values({
-          userId,
-          amount,
-          reason,
-          referenceId,
-        })
-        .onConflictDoNothing()
-        .returning({ id: pointTransactions.id });
+    // Insert the point transaction, deduplicated by unique constraint
+    const [inserted] = await db
+      .insert(pointTransactions)
+      .values({
+        userId,
+        amount,
+        reason,
+        referenceId,
+      })
+      .onConflictDoNothing()
+      .returning({ id: pointTransactions.id });
 
-      // Only increment points when a new transaction was actually created
-      if (inserted) {
-        await tx
-          .update(users)
-          .set({ points: sql`${users.points} + ${amount}` })
-          .where(eq(users.id, userId));
-      }
+    // Only increment points when a new transaction was actually created
+    if (inserted) {
+      await db
+        .update(users)
+        .set({ points: sql`${users.points} + ${amount}` })
+        .where(eq(users.id, userId));
+    }
 
-      return { success: !!inserted, awarded: !!inserted };
-    });
+    return { success: !!inserted, awarded: !!inserted };
   } catch (error) {
     console.error("[AWARD_POINTS_ERROR]", error);
     return { success: false, awarded: false };
