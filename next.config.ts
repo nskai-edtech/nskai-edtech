@@ -27,6 +27,51 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Apply to all routes
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.com https://*.sentry.io https://challenges.cloudflare.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.clerk.com https://api.dicebear.com https://utfs.io https://image.mux.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "connect-src 'self' https://*.clerk.com https://*.sentry.io https://*.mux.com https://uploadthing.com https://utfs.io wss://*.clerk.com",
+              "media-src 'self' blob: https://stream.mux.com https://*.mux.com",
+              "frame-src 'self' https://*.clerk.com https://challenges.cloudflare.com",
+              "worker-src 'self' blob:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'self'",
+            ].join("; "),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
