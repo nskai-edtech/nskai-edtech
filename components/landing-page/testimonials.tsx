@@ -485,7 +485,7 @@ function TestimonialsSection() {
         {visibleTestimonials.map((t) => (
           <div
             key={t.id}
-            className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-4"
+            className="bg-white dark:bg-surface-muted p-6 rounded-2xl border border-gray-100 dark:border-border shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-4"
           >
             {/* Header: Avatar & Info */}
             <div className="flex items-center gap-4">
@@ -524,7 +524,7 @@ function TestimonialsSection() {
             </p>
 
             {/* Footer: Tag & Likes */}
-            <div className="flex items-center justify-between mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mt-2 pt-4 border-t border-gray-100 dark:border-border">
               <span className="text-xs font-medium text-brand bg-brand/10 px-3 py-1 rounded-full">
                 {t.tag}
               </span>

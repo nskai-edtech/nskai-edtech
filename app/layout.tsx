@@ -7,6 +7,7 @@ import { ManagerModal } from "@/components/modals/manager-modal";
 import { Toaster } from "react-hot-toast";
 import { ModalProvider } from "@/components/providers/modal-provider";
 import { ScrollReset } from "@/components/scroll-reset";
+import { CookieConsent } from "@/components/cookie-consent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -107,6 +108,7 @@ export default function RootLayout({
           <ApproveModal />
           <ManagerModal />
           <ModalProvider />
+          <CookieConsent />
           {children}
         </body>
       </html>

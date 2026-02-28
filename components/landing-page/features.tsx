@@ -46,7 +46,7 @@ function FeaturesSection() {
         {FEATURES.map((feature, index) => (
           <div
             key={index}
-            className="flex flex-col gap-4 bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl"
+            className="flex flex-col gap-4 bg-gray-100 dark:bg-surface-muted p-6 rounded-2xl"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-brand text-white rounded-lg">
               {feature.icon}
