@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import { ModalProvider } from "@/components/providers/modal-provider";
 import { ScrollReset } from "@/components/scroll-reset";
 import { CookieConsent } from "@/components/cookie-consent";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,11 +73,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? "";
+
   const themeInitScript = `
     (function() {
       try {
@@ -97,7 +100,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <head>
-          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+          <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         </head>
         <body
           suppressHydrationWarning

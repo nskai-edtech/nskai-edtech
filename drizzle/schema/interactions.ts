@@ -16,10 +16,14 @@ export const purchases = pgTable(
   "purchase",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-    courseId: uuid("course_id").references(() => courses.id, {
-      onDelete: "cascade",
-    }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => courses.id, {
+        onDelete: "cascade",
+      }),
 
     // Paystack Verification
     paystackReference: text("paystack_reference").unique().notNull(),
