@@ -255,6 +255,7 @@ export default function CourseDetailsForm({
                 <div className="p-4">
                   <FileUpload
                     endpoint="courseImage"
+                    variant="button"
                     onChange={(url) => {
                       if (url) {
                         setFormData({ ...formData, imageUrl: url });

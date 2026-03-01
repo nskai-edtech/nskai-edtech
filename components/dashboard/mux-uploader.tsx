@@ -1,10 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import MuxUploader from "@mux/mux-uploader-react";
 import { getDirectUploadUrl, checkLessonVideoStatus } from "@/actions/mux";
 import { Loader2, Upload, Video, X } from "lucide-react";
 import toast from "react-hot-toast";
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(
+        "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0 ||
+          window.innerWidth < 768
+      );
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return isMobile;
+}
 
 interface MuxUploaderProps {
   lessonId: string;
@@ -18,6 +35,10 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [mobileUploadProgress, setMobileUploadProgress] = useState(0);
+  const [isMobileUploading, setIsMobileUploading] = useState(false);
+  const mobileFileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   const handleUploadStart = async () => {
     setIsGeneratingUrl(true);
@@ -40,6 +61,69 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
       setIsGeneratingUrl(false);
     }
   };
+
+  const handleMobileFileUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const validTypes = ["video/mp4", "video/quicktime", "video/webm"];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Please select an MP4, MOV, or WebM file.");
+        return;
+      }
+
+      setIsGeneratingUrl(true);
+      try {
+        const result = await getDirectUploadUrl(lessonId);
+        if (result.error || !result.url || !result.id) {
+          toast.error(result.error || "Failed to initialize upload");
+          return;
+        }
+
+        setActiveUploadId(result.id);
+        setIsMobileUploading(true);
+        setMobileUploadProgress(0);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", result.url);
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            setMobileUploadProgress(
+              Math.round((event.loaded / event.total) * 100)
+            );
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            setIsMobileUploading(false);
+            setUploadUrl(null);
+            startPolling();
+          } else {
+            toast.error("Upload failed. Please try again.");
+            setIsMobileUploading(false);
+          }
+        };
+
+        xhr.onerror = () => {
+          toast.error("Upload failed. Check your connection and try again.");
+          setIsMobileUploading(false);
+        };
+
+        xhr.send(file);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to initialize upload");
+        setIsMobileUploading(false);
+      } finally {
+        setIsGeneratingUrl(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lessonId]
+  );
 
   const startPolling = async () => {
     setIsProcessing(true);
@@ -162,24 +246,83 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
           Upload Lesson Video
         </h3>
         <p className="text-sm text-secondary-text mb-6 text-center max-w-xs leading-relaxed">
-          Drag and drop MP4, MOV or WebM files. <br /> Max file size 4GB.
+          Select MP4, MOV or WebM files. <br /> Max file size 4GB.
+        </p>
+        {isMobile ? (
+          <>
+            <input
+              type="file"
+              ref={mobileFileInputRef}
+              onChange={handleMobileFileUpload}
+              className="hidden"
+              accept="video/mp4,video/quicktime,video/webm"
+            />
+            <button
+              onClick={() => mobileFileInputRef.current?.click()}
+              disabled={isGeneratingUrl}
+              className="flex items-center gap-2 px-8 py-3 bg-brand hover:bg-brand/90 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:opacity-50 active:scale-95"
+            >
+              {isGeneratingUrl ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Preparing...
+                </>
+              ) : (
+                <>
+                  <Video className="w-4 h-4" />
+                  Select Video File
+                </>
+              )}
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={handleUploadStart}
+            disabled={isGeneratingUrl}
+            className="flex items-center gap-2 px-8 py-3 bg-brand hover:bg-brand/90 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:opacity-50 active:scale-95"
+          >
+            {isGeneratingUrl ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Preparing Secure Channel...
+              </>
+            ) : (
+              <>
+                <Video className="w-4 h-4" />
+                Select Video File
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (isMobileUploading) {
+    return (
+      <div className="p-6 border-2 border-border rounded-xl bg-surface shadow-sm">
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold text-primary-text mb-1">
+            Uploading Video...
+          </h4>
+          <p className="text-xs text-secondary-text">
+            Keep this window open until upload finishes.
+          </p>
+        </div>
+        <div className="w-full bg-surface border border-border rounded-full h-3 overflow-hidden">
+          <div
+            className="bg-brand h-full transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${mobileUploadProgress}%` }}
+          />
+        </div>
+        <p className="text-[10px] text-secondary-text mt-2 font-mono uppercase tracking-widest text-center">
+          {mobileUploadProgress}% Uploaded
         </p>
         <button
-          onClick={handleUploadStart}
-          disabled={isGeneratingUrl}
-          className="flex items-center gap-2 px-8 py-3 bg-brand hover:bg-brand/90 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:opacity-50 active:scale-95"
+          onClick={() => setIsMobileUploading(false)}
+          className="mt-6 text-xs text-secondary-text hover:text-red-500 font-medium transition-colors flex items-center gap-1"
         >
-          {isGeneratingUrl ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Preparing Secure Channel...
-            </>
-          ) : (
-            <>
-              <Video className="w-4 h-4" />
-              Select Video File
-            </>
-          )}
+          <span>Cancel</span>
         </button>
       </div>
     );

@@ -72,6 +72,12 @@ export const VideoPlayer = ({
     // Only mark complete and award points once
     if (!hasMarkedComplete && duration && currentTime / duration >= 0.9) {
       setHasMarkedComplete(true);
+
+      // Notify QuizGate that the video is done so the quiz unlocks in real time
+      window.dispatchEvent(
+        new CustomEvent("video-completed", { detail: { lessonId } }),
+      );
+
       const result = await markLessonComplete(lessonId);
 
       // Show XP toast for lesson completion

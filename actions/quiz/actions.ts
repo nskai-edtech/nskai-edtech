@@ -7,9 +7,10 @@ import {
   userProgress,
   lessons,
   users,
+  muxData as muxDataTable,
 } from "@/drizzle/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
   awardPoints,
@@ -97,15 +98,33 @@ export async function submitQuiz(
   const userId = await getDbUserId(clerkId);
   if (!userId) return { error: "User not found" };
 
-  const [rows, lessonData] = await Promise.all([
+  const [rows, lessonData, muxRow] = await Promise.all([
     db.select().from(quizQuestions).where(eq(quizQuestions.lessonId, lessonId)),
     db.query.lessons.findFirst({
       where: eq(lessons.id, lessonId),
       columns: { chapterId: true },
     }),
+    db.query.muxData.findFirst({
+      where: eq(muxDataTable.lessonId, lessonId),
+      columns: { id: true },
+    }),
   ]);
 
   if (rows.length === 0) return { error: "No questions found for this quiz" };
+
+  // Server-side guard: if the lesson has a video, the learner must watch it first
+  if (muxRow) {
+    const progress = await db.query.userProgress.findFirst({
+      where: and(
+        eq(userProgress.userId, userId),
+        eq(userProgress.lessonId, lessonId),
+      ),
+      columns: { isCompleted: true },
+    });
+    if (!progress?.isCompleted) {
+      return { error: "You must watch the video before taking this quiz" };
+    }
+  }
 
   const correct = rows.filter((q) => answers[q.id] === q.correctOption).length;
   const score = Math.round((correct / rows.length) * 100);

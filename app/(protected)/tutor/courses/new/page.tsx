@@ -136,26 +136,6 @@ export default function NewCoursePage() {
           </p>
         </div>
 
-        {/* Image URL */}
-        <div>
-          <label
-            htmlFor="imageUrl"
-            className="block text-sm font-medium text-primary-text mb-2"
-          >
-            Course Image URL
-          </label>
-          <input
-            id="imageUrl"
-            type="url"
-            value={formData.imageUrl}
-            onChange={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
-            }
-            placeholder="https://example.com/image.jpg"
-            className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-primary-text placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-brand/50"
-          />
-        </div>
-
         {/* Actions */}
         <div className="flex items-center gap-4 pt-4">
           <button
