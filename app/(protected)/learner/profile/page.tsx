@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BookOpen,
   CheckCircle,
@@ -9,6 +10,7 @@ import {
   Loader2,
   Trophy,
   Flame,
+  ArrowRight,
 } from "lucide-react";
 import { ProfileForm } from "@/components/learner/profile-form";
 import { HowItWorksButton } from "@/components/learner/how-it-works";
@@ -188,6 +190,13 @@ async function ProfileContent() {
               <p className="text-sm text-secondary-text mt-2 font-medium">
                 Keep learning to earn more Points!
               </p>
+              <Link
+                href="/learner/profile/xp"
+                className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand hover:underline"
+              >
+                View Breakdown
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
             <div className="w-16 h-16 rounded-full bg-brand/10 text-brand flex items-center justify-center border border-brand/20 shadow-sm">
               <Trophy className="w-8 h-8" />
