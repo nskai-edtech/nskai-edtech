@@ -24,7 +24,7 @@ export const FileUpload = ({
 
   const { startUpload } = useUploadThing(endpoint, {
     onClientUploadComplete: (res) => {
-      onChange(res?.[0].url);
+      onChange(res?.[0].ufsUrl);
       setIsUploading(false);
       toast.success("Image uploaded successfully");
     },

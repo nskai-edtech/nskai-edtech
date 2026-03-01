@@ -17,6 +17,7 @@ import {
 import { CustomAccordion } from "@/components/ui/custom-accordion";
 import { CourseMobileSidebar } from "@/components/watch/course-mobile-sidebar";
 import { getUserProgress } from "@/actions/progress/queries";
+import { QuizGate } from "@/components/watch/quiz-gate";
 
 export default async function LessonPage({
   params,
@@ -148,25 +149,32 @@ export default async function LessonPage({
             {/* Quiz Container (Rendered below video if it exists) */}
             {isQuiz && rawQuizQuestions.length > 0 && (
               <div className="mb-8">
-                <CustomAccordion
-                  title={
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-brand/10 rounded-xl">
-                        <HelpCircle className="w-6 h-6 text-brand" />
-                      </div>
-                      <span className="text-xl font-bold">
-                        Take Quiz: {lesson.title}
-                      </span>
-                    </div>
-                  }
-                  defaultOpen={!quizAttempt?.passed}
+                <QuizGate
+                  key={lessonId}
+                  videoCompleted={!!userProgress?.isCompleted}
+                  lessonId={lessonId}
+                  hasVideo={!!muxData?.playbackId}
                 >
-                  <QuizPlayer
-                    lessonId={lessonId}
-                    questions={safeQuizQuestions}
-                    lastAttempt={quizAttempt}
-                  />
-                </CustomAccordion>
+                  <CustomAccordion
+                    title={
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-brand/10 rounded-xl">
+                          <HelpCircle className="w-6 h-6 text-brand" />
+                        </div>
+                        <span className="text-xl font-bold">
+                          Take Quiz: {lesson.title}
+                        </span>
+                      </div>
+                    }
+                    defaultOpen={!quizAttempt?.passed}
+                  >
+                    <QuizPlayer
+                      lessonId={lessonId}
+                      questions={safeQuizQuestions}
+                      lastAttempt={quizAttempt}
+                    />
+                  </CustomAccordion>
+                </QuizGate>
               </div>
             )}
             {isQuiz && rawQuizQuestions.length === 0 && (

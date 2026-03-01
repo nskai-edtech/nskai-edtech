@@ -86,6 +86,7 @@ export function ProfileForm({
           <div className="w-full sm:w-80 h-48 border-2 border-dashed border-border rounded-2xl flex items-center justify-center bg-surface-muted overflow-hidden">
             <FileUpload
               endpoint="courseImage" // Using existing general image uploader config
+              variant="button"
               onChange={(url) => setImageUrl(url || "")}
             />
           </div>
