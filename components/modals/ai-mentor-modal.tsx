@@ -26,12 +26,10 @@ export function AiMentorModal() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to the bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // If the store says this modal is closed, render nothing.
   if (!isModalOpen) return null;
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -41,15 +39,12 @@ export function AiMentorModal() {
     const userMessage = input.trim();
     setInput("");
 
-    // 1. Add the user's message to the chat
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
-    // 2. Add a blank AI message that we will slowly "type" into
     setMessages((prev) => [...prev, { role: "ai", content: "" }]);
 
     try {
-      // 3. Hit our Next.js API (we will build this file next!)
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,17 +53,15 @@ export function AiMentorModal() {
 
       if (!response.body) throw new Error("No response body");
 
-      // 4. THE STREAMING MAGIC
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break; // The AI is finished speaking
+        if (done) break;
 
         const chunk = decoder.decode(value);
 
-        // Find the last message (the blank AI one) and append the new letters
         setMessages((prev) => {
           const newMessages = [...prev];
           const lastIndex = newMessages.length - 1;
@@ -94,13 +87,13 @@ export function AiMentorModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-background w-full max-w-lg rounded-xl shadow-lg border border-border flex flex-col overflow-hidden m-4 h-150 max-h-[85vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-brand/10 text-brand rounded-md">
-              <Bot className="h-5 w-5" />
+            <div className="p-2 bg-brand rounded-md">
+              <Bot className="h-5 w-5 text-white" />
             </div>
             <div>
               <h2 className="font-semibold text-foreground">AI Mentor</h2>
@@ -128,7 +121,7 @@ export function AiMentorModal() {
               )}
             >
               {msg.role === "ai" && (
-                <div className="h-8 w-8 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <div className="h-8 w-8 rounded-full bg-brand/10 dark:bg-brand/20 text-brand flex items-center justify-center shrink-0">
                   <Bot className="h-4 w-4" />
                 </div>
               )}
@@ -136,8 +129,8 @@ export function AiMentorModal() {
                 className={cn(
                   "rounded-lg px-4 py-2 max-w-[80%] text-sm",
                   msg.role === "user"
-                    ? "bg-brand text-primary-foreground"
-                    : "bg-muted text-foreground",
+                    ? "bg-brand text-white"
+                    : "bg-muted/60 dark:bg-muted text-foreground font-medium",
                 )}
               >
                 {msg.content}
@@ -156,12 +149,12 @@ export function AiMentorModal() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about this video..."
               disabled={isLoading}
-              className="flex-1 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="h-9 w-9 flex items-center justify-center rounded-md bg-brand text-primary-foreground hover:bg-brand/90 disabled:opacity-50 transition-colors shrink-0"
+              className="h-9 w-9 flex items-center justify-center rounded-md bg-brand text-white hover:bg-brand/90 disabled:opacity-50 transition-colors shrink-0"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
