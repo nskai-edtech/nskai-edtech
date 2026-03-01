@@ -7,6 +7,8 @@ const DOT_COLORS: Record<PointReason, string> = {
   MODULE_COMPLETED: "bg-emerald-500",
   MODULE_QUIZZES_PASSED: "bg-purple-500",
   STREAK_7_DAYS: "bg-orange-500",
+  DIAGNOSTIC_COMPLETED: "bg-sky-500",
+  SKILL_MASTERED: "bg-indigo-500",
 };
 
 const BADGE_COLORS: Record<PointReason, string> = {
@@ -15,6 +17,8 @@ const BADGE_COLORS: Record<PointReason, string> = {
   MODULE_COMPLETED: "bg-emerald-500/10 text-emerald-500",
   MODULE_QUIZZES_PASSED: "bg-purple-500/10 text-purple-500",
   STREAK_7_DAYS: "bg-orange-500/10 text-orange-500",
+  DIAGNOSTIC_COMPLETED: "bg-sky-500/10 text-sky-500",
+  SKILL_MASTERED: "bg-indigo-500/10 text-indigo-500",
 };
 
 function timeAgo(date: Date): string {

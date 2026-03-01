@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ChevronDown,
   Loader2,
+  Target,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -20,9 +21,18 @@ import {
   getTopicById,
   type TopicData,
 } from "@/lib/topics";
+import { startDiagnostic } from "@/actions/skills/diagnostic";
+import {
+  AssessmentPlayer,
+  AssessmentResults,
+} from "@/components/skills/assessment-player";
+import type {
+  AssessmentQuestionLearner,
+  DiagnosticSubmission,
+} from "@/actions/skills/types";
 
-// Step type
-type OnboardingStep = 1 | 2 | 3;
+// Step type (added step 3 for diagnostic)
+type OnboardingStep = 1 | 2 | 3 | 4;
 
 // Progress Bar Component
 function ProgressBar({
@@ -109,6 +119,17 @@ export default function LearnerOnboardingPage() {
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Diagnostic assessment state
+  const [diagnosticQuestions, setDiagnosticQuestions] = useState<
+    AssessmentQuestionLearner[] | null
+  >(null);
+  const [diagnosticSkillMap, setDiagnosticSkillMap] = useState<
+    Record<string, string>
+  >({});
+  const [diagnosticResults, setDiagnosticResults] =
+    useState<DiagnosticSubmission | null>(null);
+  const [isLoadingDiagnostic, setIsLoadingDiagnostic] = useState(false);
+
   // Filter + paginate topics
   const filteredTopics = filterTopics(ALL_TOPICS, searchQuery);
   const visibleTopics = paginateTopics(filteredTopics, page);
@@ -134,8 +155,27 @@ export default function LearnerOnboardingPage() {
     if (currentStep === 1 && selectedTopics.length >= 3) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
+      // Move to diagnostic step - try to load questions
       setCurrentStep(3);
+      setIsLoadingDiagnostic(true);
+      try {
+        const res = await startDiagnostic();
+        if ("error" in res || !("questions" in res) || res.questions.length === 0) {
+          // No questions available — skip diagnostic silently
+          setDiagnosticQuestions(null);
+        } else {
+          setDiagnosticQuestions(res.questions);
+          setDiagnosticSkillMap(res.skillMap);
+        }
+      } catch {
+        setDiagnosticQuestions(null);
+      } finally {
+        setIsLoadingDiagnostic(false);
+      }
     } else if (currentStep === 3) {
+      // Skip diagnostic or already completed — go to confirmation
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
       // Complete onboarding and redirect
       setIsLoading(true);
       try {
@@ -161,6 +201,16 @@ export default function LearnerOnboardingPage() {
     }
   };
 
+  // Handle diagnostic completion
+  const handleDiagnosticComplete = (results: DiagnosticSubmission) => {
+    setDiagnosticResults(results);
+  };
+
+  // Handle diagnostic skip
+  const handleDiagnosticSkip = () => {
+    setCurrentStep(4);
+  };
+
   // Handle back action
   const handleBack = () => {
     if (currentStep > 1) {
@@ -172,7 +222,8 @@ export default function LearnerOnboardingPage() {
   const canContinue =
     (currentStep === 1 && selectedTopics.length >= 3) ||
     (currentStep === 2 && selectedGoal) ||
-    currentStep === 3;
+    (currentStep === 3 && (diagnosticResults !== null || diagnosticQuestions === null)) ||
+    currentStep === 4;
 
   return (
     <div
@@ -180,7 +231,7 @@ export default function LearnerOnboardingPage() {
       suppressHydrationWarning
     >
       {/* Progress Bar */}
-      <ProgressBar currentStep={currentStep} totalSteps={3} />
+      <ProgressBar currentStep={currentStep} totalSteps={4} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
@@ -312,8 +363,83 @@ export default function LearnerOnboardingPage() {
           </div>
         )}
 
-        {/* Step 3: Ready to Go */}
+        {/* Step 3: Diagnostic Assessment */}
         {currentStep === 3 && (
+          <div className="w-full max-w-3xl animate-in fade-in slide-in-from-right-4 duration-300">
+            {isLoadingDiagnostic ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-brand mb-4" />
+                <p className="text-secondary-text">
+                  Preparing your diagnostic assessment...
+                </p>
+              </div>
+            ) : diagnosticQuestions && diagnosticQuestions.length > 0 && !diagnosticResults ? (
+              <>
+                <div className="text-center mb-8">
+                  <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-7 h-7 text-brand" />
+                  </div>
+                  <h1 className="text-3xl font-bold text-primary-text mb-3">
+                    Quick Skills Check
+                  </h1>
+                  <p className="text-secondary-text">
+                    Answer a few questions so we can personalize your learning
+                    experience. This helps us recommend the right courses for
+                    you.
+                  </p>
+                </div>
+                <AssessmentPlayer
+                  questions={diagnosticQuestions}
+                  skillMap={diagnosticSkillMap}
+                  onComplete={handleDiagnosticComplete}
+                  onSkip={handleDiagnosticSkip}
+                />
+              </>
+            ) : diagnosticResults ? (
+              <>
+                <div className="text-center mb-6">
+                  <h1 className="text-3xl font-bold text-primary-text mb-2">
+                    Assessment Complete!
+                  </h1>
+                  <p className="text-secondary-text">
+                    Here&apos;s how you did. We&apos;ll use this to personalize
+                    your recommendations.
+                  </p>
+                </div>
+                <AssessmentResults
+                  results={diagnosticResults}
+                  onContinueAction={() => setCurrentStep(4)}
+                />
+              </>
+            ) : (
+              // No questions available — show a friendly message and auto-continue
+              <div className="w-full max-w-lg text-center mx-auto py-12">
+                <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-7 h-7 text-brand" />
+                </div>
+                <h1 className="text-2xl font-bold text-primary-text mb-3">
+                  No Assessment Available Yet
+                </h1>
+                <p className="text-secondary-text mb-6">
+                  Diagnostic questions haven&apos;t been set up for your
+                  interests yet. You can take the assessment later from your
+                  Skills dashboard.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium bg-brand text-white hover:bg-brand/90 shadow-lg shadow-brand/20 transition-all"
+                >
+                  Continue
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 4: Ready to Go */}
+        {currentStep === 4 && (
           <div className="w-full max-w-lg text-center animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="w-20 h-20 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-6">
               <Check className="w-10 h-10 text-brand" />
@@ -322,8 +448,9 @@ export default function LearnerOnboardingPage() {
               You&apos;re all set, {user?.firstName || "Learner"}!
             </h1>
             <p className="text-secondary-text mb-8">
-              We&apos;ve personalized your dashboard based on your interests.
-              Ready to start learning?
+              We&apos;ve personalized your dashboard based on your interests
+              {diagnosticResults ? " and skill assessment" : ""}. Ready to start
+              learning?
             </p>
 
             <div className="flex flex-wrap justify-center gap-2 mb-8">
@@ -344,12 +471,28 @@ export default function LearnerOnboardingPage() {
                 </span>
               )}
             </div>
+
+            {diagnosticResults && (
+              <div className="mb-6 p-4 bg-surface border border-border rounded-xl">
+                <p className="text-sm text-secondary-text mb-1">
+                  Diagnostic Score
+                </p>
+                <p className="text-2xl font-bold text-primary-text">
+                  {diagnosticResults.overallScore}%
+                </p>
+                <p className="text-xs text-secondary-text">
+                  {diagnosticResults.results.filter((r) => r.masteryScore >= 80)
+                    .length}{" "}
+                  skills mastered
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Footer with Navigation */}
-      <div className="sticky bottom-0 bg-surface border-t border-border py-4 px-6">
+      {/* Footer with Navigation — hidden only while actively taking the diagnostic */}
+      <div className={`sticky bottom-0 bg-surface border-t border-border py-4 px-6 ${currentStep === 3 && diagnosticQuestions && diagnosticQuestions.length > 0 && !diagnosticResults ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Selected Topics Indicator */}
@@ -407,7 +550,7 @@ export default function LearnerOnboardingPage() {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Setting up...
               </>
-            ) : currentStep === 3 ? (
+            ) : currentStep === 4 ? (
               "Start Learning"
             ) : (
               <>

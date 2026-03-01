@@ -6,6 +6,7 @@ import {
   learningPaths,
   learningPathCourses,
   userLearningPaths,
+  failedPayments,
 } from "@/drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -13,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/email";
 import PurchaseConfirmationEmail from "@/emails/PurchaseConfirmationEmail";
+import PaymentFailedEmail from "@/emails/PaymentFailedEmail";
 
 interface PaystackCustomField {
   display_name: string;
@@ -85,7 +87,13 @@ export async function POST(request: Request) {
 
     const event: PaystackWebhookEvent = JSON.parse(body);
 
-    // Only process successful charges
+    // Handle failed / abandoned charges
+    if (event.event === "charge.failed" || event.event === "charge.abandoned") {
+      await handlePaymentFailure(event);
+      return new Response("OK", { status: 200 });
+    }
+
+    // Only process successful charges beyond this point
     if (event.event !== "charge.success") {
       return new Response("OK", { status: 200 });
     }
@@ -281,6 +289,75 @@ async function handlePathPurchase({
       courseTitle: path.title,
       amount,
       pathId,
+    }),
+  }).catch(() => {});
+}
+
+// ─── FAILURE HANDLER
+
+async function handlePaymentFailure(event: PaystackWebhookEvent) {
+  const { reference, amount, customer, metadata, status } = event.data;
+  const courseId = extractCourseId(metadata);
+  const pathId = extractPathId(metadata);
+
+  console.error("[PAYSTACK_WEBHOOK] Payment failure", {
+    event: event.event,
+    reference,
+    email: customer.email,
+    status,
+    courseId,
+    pathId,
+  });
+
+  // Resolve user (may not exist)
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, customer.email),
+  });
+
+  // Store audit record
+  try {
+    await db.insert(failedPayments).values({
+      email: customer.email,
+      userId: user?.id ?? null,
+      courseId,
+      pathId,
+      paystackReference: reference,
+      amount: amount ?? 0,
+      reason: status ?? event.event,
+      paystackEvent: event.event,
+      rawData: event,
+    });
+  } catch (err) {
+    // Don't fail the webhook if audit insert fails
+    console.error("[PAYSTACK_WEBHOOK] Failed to store audit record", err);
+  }
+
+  // Resolve item name for the email
+  let itemName = "your selected course";
+  if (courseId) {
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, courseId),
+      columns: { title: true },
+    });
+    if (course) itemName = course.title;
+  } else if (pathId) {
+    const path = await db.query.learningPaths.findFirst({
+      where: eq(learningPaths.id, pathId),
+      columns: { title: true },
+    });
+    if (path) itemName = path.title;
+  }
+
+  // Notify the user
+  sendEmail({
+    to: customer.email,
+    subject: `Payment issue — ${itemName}`,
+    react: PaymentFailedEmail({
+      name: user?.firstName || "Learner",
+      itemName,
+      amount: amount ?? 0,
+      reference,
+      isAbandoned: event.event === "charge.abandoned",
     }),
   }).catch(() => {});
 }

@@ -455,7 +455,8 @@ export default function CourseEditor({
               disabled={
                 isPublishing ||
                 course.status === "PENDING" ||
-                course.status === "PUBLISHED"
+                course.status === "PUBLISHED" ||
+                course.status === "ARCHIVED"
               }
               className={`flex items-center justify-center flex-1 sm:flex-none gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 course.status === "PUBLISHED"
@@ -464,7 +465,9 @@ export default function CourseEditor({
                     ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                     : course.status === "REJECTED"
                       ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50"
-                      : "bg-brand/10 text-brand hover:bg-brand/20"
+                      : course.status === "ARCHIVED"
+                        ? "bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-400"
+                        : "bg-brand/10 text-brand hover:bg-brand/20"
               }`}
             >
               {isPublishing ? (
@@ -492,6 +495,12 @@ export default function CourseEditor({
                         Rejected - Resubmit
                       </span>
                       <span className="sm:hidden">Resubmit</span>
+                    </>
+                  ) : course.status === "ARCHIVED" ? (
+                    <>
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="hidden sm:inline">Archived</span>
+                      <span className="sm:hidden">Archived</span>
                     </>
                   ) : (
                     <>

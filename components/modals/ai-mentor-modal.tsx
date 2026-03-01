@@ -87,31 +87,31 @@ export function AiMentorModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-background w-full max-w-lg rounded-xl shadow-lg border border-border flex flex-col overflow-hidden m-4 h-150 max-h-[85vh] animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+      <div className="bg-surface w-full max-w-lg rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden m-4 h-150 max-h-[85vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-surface-muted">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand rounded-md">
               <Bot className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-foreground">AI Mentor</h2>
-              <p className="text-xs text-muted-foreground">
+              <h2 className="font-semibold text-primary-text">AI Mentor</h2>
+              <p className="text-xs text-secondary-text">
                 Real-time lesson assistant
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground"
+            className="p-2 hover:bg-surface-muted rounded-full transition-colors text-secondary-text"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-surface">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -130,7 +130,7 @@ export function AiMentorModal() {
                   "rounded-lg px-4 py-2 max-w-[80%] text-sm",
                   msg.role === "user"
                     ? "bg-brand text-white"
-                    : "bg-muted/60 dark:bg-muted text-foreground font-medium",
+                    : "bg-surface-muted text-primary-text font-medium border border-border",
                 )}
               >
                 {msg.content}
@@ -141,7 +141,7 @@ export function AiMentorModal() {
         </div>
 
         {/* Input Form */}
-        <div className="p-4 border-t border-border bg-background">
+        <div className="p-4 border-t border-border bg-surface">
           <form onSubmit={onSubmit} className="flex gap-2">
             <input
               type="text"
@@ -149,7 +149,7 @@ export function AiMentorModal() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about this video..."
               disabled={isLoading}
-              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm text-primary-text shadow-sm placeholder:text-secondary-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-50"
             />
             <button
               type="submit"

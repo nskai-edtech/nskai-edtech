@@ -43,6 +43,20 @@
       "when": 1772293106429,
       "tag": "0005_burly_marvex",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772391851911,
+      "tag": "0006_add-failed-payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1772531200000,
+      "tag": "0007_add-archived-course-status",
+      "breakpoints": true
     }
   ]
 }

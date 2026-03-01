@@ -18,6 +18,7 @@ export const courseStatusEnum = pgEnum("course_status", [
   "PENDING",
   "PUBLISHED",
   "REJECTED",
+  "ARCHIVED",
 ]);
 
 export const lessonTypeEnum = pgEnum("lesson_type", ["VIDEO", "QUIZ"]);
@@ -33,6 +34,8 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "MODULE_COMPLETED",
   "MODULE_QUIZZES_PASSED",
   "STREAK_7_DAYS",
+  "DIAGNOSTIC_COMPLETED",
+  "SKILL_MASTERED",
 ]);
 
 export const requestTypeEnum = pgEnum("request_type", ["DRAFT", "DELETE"]);

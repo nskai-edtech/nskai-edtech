@@ -71,6 +71,7 @@ export function MarketplaceFilters({
   const [searchValue, setSearchValue] = useState(initialSearch);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showMoreTopics, setShowMoreTopics] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -132,6 +133,7 @@ export function MarketplaceFilters({
     function handleClickOutside(e: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
+        setShowMoreTopics(false);
       }
       if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
         setShowSortDropdown(false);
@@ -146,6 +148,7 @@ export function MarketplaceFilters({
     const newTag = tagId === currentTag ? null : tagId;
     updateParams({ tag: newTag });
     setShowDropdown(false);
+    setShowMoreTopics(false);
   };
 
   const handleTabClick = (tab: string) => {
@@ -244,8 +247,21 @@ export function MarketplaceFilters({
               </div>
             )}
 
-            {/* Popular topics */}
-            <div>
+            {/* See More button — mobile only */}
+            <button
+              onClick={() => setShowMoreTopics((prev) => !prev)}
+              className="md:hidden flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand/80 transition-colors mb-3"
+            >
+              {showMoreTopics ? "See Less" : "See More"}
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform ${
+                  showMoreTopics ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Popular topics — always visible on md+, toggled on mobile */}
+            <div className={`${showMoreTopics ? "block" : "hidden"} md:block`}>
               <p className="text-xs font-semibold uppercase tracking-wider text-secondary-text mb-3">
                 Popular Topics
               </p>

@@ -12,6 +12,7 @@ import {
   UserCheck,
   Layers,
   FileText,
+  Target,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -29,6 +30,7 @@ export const useSidebarRoutes = (
     pendingCourses?: number;
     pendingTutors?: number;
     pendingSubmissions?: number;
+    pendingRequests?: number;
   },
 ): SidebarRoute[] => {
   const pathname = usePathname();
@@ -93,6 +95,7 @@ export const useSidebarRoutes = (
       label: "Course Requests",
       href: "/org/requests",
       active: pathname.includes("/org/requests"),
+      badgeCount: counts?.pendingRequests,
     },
     {
       icon: GraduationCap,
@@ -117,6 +120,12 @@ export const useSidebarRoutes = (
       label: "Learners",
       href: "/org/learners",
       active: pathname.includes("/org/learners"),
+    },
+    {
+      icon: Target,
+      label: "Skills",
+      href: "/org/skills",
+      active: pathname.includes("/org/skills"),
     },
     {
       icon: Settings,

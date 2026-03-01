@@ -64,6 +64,8 @@ const REASON_LABELS: Record<PointReason, string> = {
   MODULE_COMPLETED: "Module completed",
   MODULE_QUIZZES_PASSED: "Module quiz mastery",
   STREAK_7_DAYS: "7-day streak bonus",
+  DIAGNOSTIC_COMPLETED: "Diagnostic assessment completed",
+  SKILL_MASTERED: "Skill mastered",
 };
 
 function formatStreakRef(referenceId: string | null): string {

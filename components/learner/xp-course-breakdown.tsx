@@ -42,6 +42,16 @@ const REASON_META: Record<
     icon: Flame,
     color: "text-orange-500",
   },
+  DIAGNOSTIC_COMPLETED: {
+    label: "Diagnostic assessments",
+    icon: BookOpen,
+    color: "text-sky-500",
+  },
+  SKILL_MASTERED: {
+    label: "Skills mastered",
+    icon: Award,
+    color: "text-indigo-500",
+  },
 };
 
 function CourseCard({ course }: { course: CourseXpBreakdown }) {

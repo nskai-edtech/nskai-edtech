@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
+import { courses } from "./courses";
 
 // --- SKILLS (Graph Nodes) ---
 export const skills = pgTable(
@@ -105,6 +106,25 @@ export const userAssessmentResults = pgTable(
   ],
 );
 
+// --- COURSE SKILLS (Junction Table) ---
+export const courseSkills = pgTable(
+  "course_skill",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    courseId: uuid("course_id")
+      .references(() => courses.id, { onDelete: "cascade" })
+      .notNull(),
+    skillId: uuid("skill_id")
+      .references(() => skills.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("course_skill_unique_idx").on(table.courseId, table.skillId),
+    index("course_skill_skill_idx").on(table.skillId),
+  ],
+);
+
 // --- RELATIONS ---
 
 export const skillRelations = relations(skills, ({ many }) => ({
@@ -112,6 +132,7 @@ export const skillRelations = relations(skills, ({ many }) => ({
   prerequisites: many(skillDependencies, { relationName: "skillDependents" }),
   userSkills: many(userSkills),
   assessments: many(assessments),
+  courseSkills: many(courseSkills),
 }));
 
 export const skillDependencyRelations = relations(
@@ -162,3 +183,14 @@ export const userAssessmentResultRelations = relations(
     }),
   }),
 );
+
+export const courseSkillRelations = relations(courseSkills, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseSkills.courseId],
+    references: [courses.id],
+  }),
+  skill: one(skills, {
+    fields: [courseSkills.skillId],
+    references: [skills.id],
+  }),
+}));

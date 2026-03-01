@@ -15,7 +15,7 @@ function PointRule({
   colour: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3">
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface dark:bg-surface p-3 shadow-sm">
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${colour}`}
       >
@@ -59,11 +59,11 @@ export function HowItWorksButton() {
 
       {open && (
         <div
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/20 dark:bg-black/70 backdrop-blur-md p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative w-full max-w-md space-y-5 rounded-2xl border border-border bg-background p-6 shadow-xl"
+            className="relative w-full max-w-md space-y-5 rounded-2xl border border-border bg-background p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* close button */}

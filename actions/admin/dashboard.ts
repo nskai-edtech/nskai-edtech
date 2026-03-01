@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users, courses, purchases } from "@/drizzle/schema";
+import { users, courses, purchases, courseRequests } from "@/drizzle/schema";
 import { eq, desc, and, count, sql, aliasedTable } from "drizzle-orm";
 import { checkAdmin } from "./auth";
 
@@ -18,9 +18,15 @@ export async function getAdminPendingCounts() {
     .from(users)
     .where(and(eq(users.role, "TUTOR"), eq(users.status, "PENDING")));
 
+  const [pendingRequests] = await db
+    .select({ count: count() })
+    .from(courseRequests)
+    .where(eq(courseRequests.status, "PENDING"));
+
   return {
     pendingCourses: pendingCourses?.count ?? 0,
     pendingTutors: pendingTutors?.count ?? 0,
+    pendingRequests: pendingRequests?.count ?? 0,
   };
 }
 
