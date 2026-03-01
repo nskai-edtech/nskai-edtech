@@ -26,7 +26,7 @@ export function NotesPanel({ lessonId, tutorNotes }: NotesPanelProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   // Debounce content for auto-save (4 seconds)
-  const debouncedContent = useDebounce(noteContent, 4000);
+  const debouncedContent = useDebounce(noteContent, 2000);
   const lastSavedContent = useRef("");
   const initialLoadDone = useRef(false);
 
@@ -60,6 +60,9 @@ export function NotesPanel({ lessonId, tutorNotes }: NotesPanelProps) {
           toast.error("Failed to save note");
         } else {
           lastSavedContent.current = debouncedContent;
+          toast.success("Note saved", {
+            duration: 1500,
+          });
         }
       } catch (error) {
         console.error("Failed to save note:", error);
@@ -107,7 +110,7 @@ export function NotesPanel({ lessonId, tutorNotes }: NotesPanelProps) {
   }, [tutorNotes, tutorEditor]);
 
   return (
-    <div className="bg-surface border border-border rounded-xl overflow-hidden flex flex-col h-full max-h-[600px]">
+    <div className="bg-surface border border-border rounded-xl overflow-hidden flex flex-col h-full max-h-150">
       {/* Tabs Header */}
       <div className="flex border-b border-border">
         <button
