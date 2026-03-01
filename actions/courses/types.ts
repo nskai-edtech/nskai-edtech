@@ -3,7 +3,7 @@ export interface CourseWithTutor {
   title: string;
   description: string | null;
   price: number | null;
-  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
+  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
   imageUrl: string | null;
   tags?: string[] | null;
   createdAt: Date;

@@ -8,6 +8,66 @@ function escapeIlike(value: string): string {
   return value.replace(/[%_\\]/g, "\\$&");
 }
 
+// ─── Skill-Gap Based Recommendations (Priority 0) ───
+export async function fetchCoursesBySkillGap(
+  userId: string,
+  limit: number,
+): Promise<RecommendedCourse[]> {
+  const rows = await db.execute(sql`
+    SELECT
+      c.id,
+      c.title,
+      c.description,
+      c.price,
+      c.status,
+      c.image_url AS "imageUrl",
+      c.tags,
+      c.created_at AS "createdAt",
+      u.id AS "tutorId",
+      u.first_name AS "tutorFirstName",
+      u.last_name AS "tutorLastName",
+      u.image_url AS "tutorImageUrl",
+      us.mastery_score AS "masteryScore",
+      s.title AS "weakSkillTitle"
+    FROM user_skill us
+    JOIN skill s ON s.id = us.skill_id
+    JOIN course_skill cs ON cs.skill_id = us.skill_id
+    JOIN course c ON c.id = cs.course_id
+    LEFT JOIN "user" u ON c.tutor_id = u.id
+    WHERE us.user_id = ${userId}
+      AND us.mastery_score < 50
+      AND c.status = 'PUBLISHED'
+      AND NOT EXISTS (
+        SELECT 1 FROM purchase p
+        WHERE p.course_id = c.id AND p.user_id = ${userId}
+      )
+    ORDER BY us.mastery_score ASC, c.created_at DESC
+    LIMIT ${limit}
+  `);
+
+  return (rows.rows ?? rows).map((row: Record<string, unknown>) => ({
+    id: row.id as string,
+    title: row.title as string,
+    description: row.description as string | null,
+    price: row.price as number | null,
+    status: row.status as RecommendedCourse["status"],
+    imageUrl: row.imageUrl as string | null,
+    tags: row.tags as string[] | null,
+    createdAt: new Date(row.createdAt as string),
+    matchScore: 100 - Number(row.masteryScore ?? 0), // Higher score = weaker skill = more relevant
+    enrollmentCount: 0,
+    averageRating: null,
+    tutor: row.tutorId
+      ? {
+          id: row.tutorId as string,
+          firstName: row.tutorFirstName as string | null,
+          lastName: row.tutorLastName as string | null,
+          imageUrl: row.tutorImageUrl as string | null,
+        }
+      : null,
+  }));
+}
+
 export async function fetchCoursesByInterests(
   interests: string[],
   userId: string,

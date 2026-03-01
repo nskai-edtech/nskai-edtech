@@ -7,6 +7,7 @@ import {
   integer,
   uniqueIndex,
   index,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
@@ -36,6 +37,31 @@ export const purchases = pgTable(
     uniqueIndex("purchase_user_course_idx").on(table.userId, table.courseId),
 
     index("purchase_course_id_idx").on(table.courseId),
+  ],
+);
+
+// Audit trail for failed / abandoned payment attempts
+export const failedPayments = pgTable(
+  "failed_payment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    courseId: text("course_id"), // text to avoid FK issues with audit records
+    pathId: text("path_id"),
+    paystackReference: text("paystack_reference").notNull(),
+    amount: integer("amount").notNull().default(0),
+    reason: text("reason"),
+    paystackEvent: text("paystack_event").notNull(), // e.g. charge.failed, charge.abandoned
+    rawData: jsonb("raw_data"), // full Paystack event payload for debugging
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("failed_payment_email_idx").on(table.email),
+    index("failed_payment_user_idx").on(table.userId),
+    index("failed_payment_ref_idx").on(table.paystackReference),
   ],
 );
 

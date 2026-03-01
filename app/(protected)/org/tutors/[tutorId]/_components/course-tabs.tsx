@@ -9,7 +9,7 @@ interface Course {
   title: string;
   description: string | null;
   imageUrl: string | null;
-  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED";
+  status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
   price: number | null;
   createdAt: Date;
   studentsEnrolled: number;

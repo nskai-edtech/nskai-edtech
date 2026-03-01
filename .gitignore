@@ -55,6 +55,7 @@ next-env.d.ts
 # project management docs
 project_gap_analysis.md
 team_assignments.md
+/.github
 
 # next-video
 videos/*

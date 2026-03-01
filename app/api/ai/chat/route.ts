@@ -1,7 +1,33 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { createRateLimiter } from "@/lib/rate-limit";
+
+// 20 messages per 60-second window per user
+const rateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000 });
 
 export async function POST(req: Request) {
   try {
+    // ── Auth ──
+    const { userId } = await auth();
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // ── Rate limit ──
+    const { allowed, remaining, resetInMs } = rateLimiter(userId);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before sending another message." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(resetInMs / 1000)),
+            "X-RateLimit-Remaining": "0",
+          },
+        },
+      );
+    }
+
     const { lessonId, message } = await req.json();
 
     if (!lessonId || !message) {
@@ -33,6 +59,7 @@ export async function POST(req: Request) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
+        "X-RateLimit-Remaining": String(remaining),
       },
     });
   } catch (error) {

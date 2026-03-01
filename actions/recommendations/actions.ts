@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { unstable_cache } from "next/cache";
 import {
+  fetchCoursesBySkillGap,
   fetchCoursesByInterests,
   fetchPopularCourses,
   fetchHighlyRatedCourses,
@@ -30,7 +31,11 @@ async function buildRecommendations(
     }
   };
 
-  if (interests.length > 0) {
+  // Priority 0: Skill-gap recommendations (courses for weak skills)
+  const skillGapCourses = await fetchCoursesBySkillGap(userId, limit);
+  addUnique(skillGapCourses);
+
+  if (interests.length > 0 && results.length < limit) {
     const interestMatches = await fetchCoursesByInterests(
       interests,
       userId,

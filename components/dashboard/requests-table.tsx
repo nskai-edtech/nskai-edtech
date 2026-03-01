@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   User as UserIcon,
+  AlertTriangle,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -96,13 +97,9 @@ export default function RequestsTable({
     request: RequestData,
     action: "APPROVE" | "REJECT",
   ) => {
-    if (
-      action === "APPROVE" &&
-      request.type === "DELETE" &&
-      !window.confirm(
-        "Are you sure? Approving this will permanently delete the course.",
-      )
-    ) {
+    // For DELETE requests, redirect to the review page instead of direct approval
+    if (action === "APPROVE" && request.type === "DELETE") {
+      router.push(`/org/requests/${request.id}/review-delete`);
       return;
     }
 
@@ -204,16 +201,25 @@ export default function RequestsTable({
             </div>
           </div>
 
-          <div className="flex flex-row lg:flex-col justify-end gap-3 min-w-[140px]">
+          <div className="flex flex-row lg:flex-col justify-end gap-3 min-w-35">
             {isPending ? (
               <>
                 <button
                   onClick={() => handleAction(request, "APPROVE")}
                   disabled={processingId === request.id}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                  className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-colors disabled:opacity-50 ${
+                    request.type === "DELETE"
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
                 >
                   {processingId === request.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : request.type === "DELETE" ? (
+                    <>
+                      <AlertTriangle className="w-4 h-4" />
+                      Review &amp; Delete
+                    </>
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4" />

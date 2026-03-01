@@ -12,6 +12,7 @@ interface MobileSidebarProps {
     pendingCourses?: number;
     pendingTutors?: number;
     pendingSubmissions?: number;
+    pendingRequests?: number;
   };
 }
 

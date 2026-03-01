@@ -16,6 +16,7 @@ import { userNotes, questions } from "./qa";
 import { assignments } from "./assessments";
 import { courseRequests } from "./requests";
 import { certificates } from "./certificates";
+import { courseSkills } from "./skills";
 
 export const courses = pgTable(
   "course",
@@ -136,6 +137,7 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
   assignments: many(assignments),
   courseRequests: many(courseRequests),
   certificates: many(certificates),
+  courseSkills: many(courseSkills),
 }));
 
 export const chapterRelations = relations(chapters, ({ one, many }) => ({

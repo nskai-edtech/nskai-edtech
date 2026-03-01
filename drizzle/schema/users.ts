@@ -15,6 +15,7 @@ import { userNotes, questions, answers } from "./qa";
 import { assignmentSubmissions } from "./assessments";
 import { courseRequests } from "./requests";
 import { certificates } from "./certificates";
+import { userSkills, userAssessmentResults } from "./skills";
 
 export const users = pgTable(
   "user",
@@ -47,6 +48,9 @@ export const users = pgTable(
     longestStreak: integer("longest_streak").default(0).notNull(),
     streakLastActiveDate: timestamp("streak_last_active_date"),
 
+    // Diagnostic assessment
+    diagnosticCompletedAt: timestamp("diagnostic_completed_at"),
+
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -72,4 +76,6 @@ export const userRelations = relations(users, ({ many }) => ({
   assignmentSubmissions: many(assignmentSubmissions),
   courseRequests: many(courseRequests),
   certificates: many(certificates),
+  userSkills: many(userSkills),
+  userAssessmentResults: many(userAssessmentResults),
 }));

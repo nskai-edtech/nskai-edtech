@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { users } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { LearnerProfile, LearnerStats } from "./types";
 import { fetchLearnerAggregateStats } from "./queries";
@@ -118,5 +118,27 @@ export async function getLearnerStats(): Promise<
   } catch (error) {
     console.error("[STATS_ERROR]", error);
     return { error: "Failed to load stats" };
+  }
+}
+
+export async function deleteAccount(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return { success: false, error: "Unauthorized" };
+
+    // Delete user from database (FK cascades handle related data)
+    await db.delete(users).where(eq(users.clerkId, clerkId));
+
+    // Delete user from Clerk
+    const clerk = await clerkClient();
+    await clerk.users.deleteUser(clerkId);
+
+    return { success: true };
+  } catch (error) {
+    console.error("[DELETE_ACCOUNT_ERROR]", error);
+    return { success: false, error: "Failed to delete account" };
   }
 }

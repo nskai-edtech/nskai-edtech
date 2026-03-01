@@ -79,6 +79,24 @@ const CATEGORY_META: Record<
     iconColor: "text-orange-500",
     xpPer: 70,
   },
+  DIAGNOSTIC_COMPLETED: {
+    label: "Diagnostics",
+    sublabel: "diagnostic",
+    icon: Star,
+    gradient: "from-sky-500/10 to-transparent border-sky-500/20",
+    iconBg: "bg-sky-500/10",
+    iconColor: "text-sky-500",
+    xpPer: 5,
+  },
+  SKILL_MASTERED: {
+    label: "Skills Mastered",
+    sublabel: "skill",
+    icon: Award,
+    gradient: "from-indigo-500/10 to-transparent border-indigo-500/20",
+    iconBg: "bg-indigo-500/10",
+    iconColor: "text-indigo-500",
+    xpPer: 50,
+  },
 };
 
 const ALL_REASONS: PointReason[] = [

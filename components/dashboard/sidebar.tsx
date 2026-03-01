@@ -12,6 +12,7 @@ interface SidebarProps {
     pendingCourses?: number;
     pendingTutors?: number;
     pendingSubmissions?: number;
+    pendingRequests?: number;
   };
 }
 

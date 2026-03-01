@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ProfileForm } from "@/components/learner/profile-form";
 import { HowItWorksButton } from "@/components/learner/how-it-works";
+import { DeleteAccountSection } from "@/components/learner/delete-account-section";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getLearnerProfile, getLearnerStats } from "@/actions/profile/actions";
@@ -239,6 +240,9 @@ async function ProfileContent() {
           initialInterests={profile.interests}
         />
       </div>
+
+      {/* Danger Zone */}
+      <DeleteAccountSection />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { DebouncedSearch } from "@/components/debounced-search";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Archive,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -136,6 +137,21 @@ export default async function OrgCoursesPage({ searchParams }: PageProps) {
             </div>
           </div>
         </div>
+        {courses.some((c) => c.status === "ARCHIVED") && (
+          <div className="bg-surface border border-border rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center">
+                <Archive className="w-5 h-5 text-slate-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-primary-text">
+                  {courses.filter((c) => c.status === "ARCHIVED").length}
+                </p>
+                <p className="text-sm text-secondary-text">Archived</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Courses Grid */}
@@ -180,6 +196,11 @@ export default async function OrgCoursesPage({ searchParams }: PageProps) {
                   {course.status === "REJECTED" && (
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400">
                       Rejected
+                    </span>
+                  )}
+                  {course.status === "ARCHIVED" && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-400">
+                      Archived
                     </span>
                   )}
                 </div>

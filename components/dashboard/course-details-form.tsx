@@ -8,6 +8,7 @@ import { FileUpload } from "@/components/file-upload";
 import { updateCourse } from "@/actions/courses/tutor";
 import { AiGenerateButton } from "@/components/ui/ai-generate-button";
 import { CourseTagsSelector } from "@/components/dashboard/course-tags-selector";
+import { CourseSkillsSelector } from "@/components/dashboard/course-skills-selector";
 
 interface CourseDetailsFormProps {
   course: Course;
@@ -220,6 +221,17 @@ export default function CourseDetailsForm({
             />
             <p className="text-[10px] text-secondary-text mt-2 uppercase tracking-tight">
               Add up to 5 topic tags to help learners discover your course.
+            </p>
+          </div>
+
+          {/* Course Skills */}
+          <div>
+            <label className="block text-sm font-semibold text-primary-text mb-2">
+              Linked Skills
+            </label>
+            <CourseSkillsSelector courseId={course.id} />
+            <p className="text-[10px] text-secondary-text mt-2 uppercase tracking-tight">
+              Link skills to this course for diagnostic-based recommendations.
             </p>
           </div>
 

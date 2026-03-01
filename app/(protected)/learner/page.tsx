@@ -6,6 +6,8 @@ import { ContinueLearningWidget } from "@/components/learner/continue-learning-w
 import { LearnerGreeting } from "@/components/learner/learner-greeting";
 import { getLearnerStats } from "@/actions/profile/actions";
 import { getRecommendedCourses } from "@/actions/recommendations/actions";
+import { getUserSkillProfile } from "@/actions/skills/queries";
+import { SkillSummaryWidget } from "@/components/skills/skill-mastery";
 
 interface Session {
   id: string;
@@ -47,6 +49,9 @@ export default async function LearnerDashboard() {
   const user = await currentUser();
   const recommendedCourses = await getRecommendedCourses(8);
   const statsResult = await getLearnerStats();
+  const skillProfileResult = await getUserSkillProfile();
+  const skillsList =
+    "error" in skillProfileResult ? [] : skillProfileResult.skills;
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -219,6 +224,8 @@ export default async function LearnerDashboard() {
 
         {/* Sidebar Column */}
         <div className="space-y-8">
+          {/* Skills Summary */}
+          <SkillSummaryWidget skills={skillsList} />
           {/* Upcoming Sessions */}
           <div className="bg-surface border border-border rounded-4xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">

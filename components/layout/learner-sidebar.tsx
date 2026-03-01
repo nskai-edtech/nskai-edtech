@@ -15,6 +15,7 @@ import {
   Heart,
   Trophy,
   Briefcase,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,11 @@ const navItems = [
     label: "Certificates",
     href: "/learner/certificates",
     icon: Award,
+  },
+  {
+    label: "Skills",
+    href: "/learner/skills",
+    icon: Target,
   },
   {
     label: "Profile",

@@ -1,0 +1,1 @@
+ALTER TYPE "course_status" ADD VALUE 'ARCHIVED';
