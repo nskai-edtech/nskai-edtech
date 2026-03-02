@@ -16,6 +16,8 @@ import {
   Trophy,
   Briefcase,
   Target,
+  Bot,
+  Code2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +26,16 @@ const navItems = [
     label: "Dashboard",
     href: "/learner",
     icon: LayoutDashboard,
+  },
+  {
+    label: "AI Mentor",
+    href: "/learner/ai-mentor",
+    icon: Bot,
+  },
+  {
+    label: "Code Reviewer",
+    href: "/learner/code-review",
+    icon: Code2,
   },
   {
     label: "Portfolio",

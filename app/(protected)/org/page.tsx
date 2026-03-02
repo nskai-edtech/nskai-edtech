@@ -11,6 +11,8 @@ import {
   FileText,
   ChevronRight,
   Clock,
+  BarChart3,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -18,6 +20,12 @@ import {
   getOrgOverviewStats,
   getRecentPendingActivity,
 } from "@/actions/admin/dashboard";
+import { getAdminAnalytics } from "@/actions/analytics/admin";
+import { TrendCharts } from "@/components/analytics/kpi-and-charts";
+import { UserGrowthChart } from "@/components/analytics/user-growth-chart";
+import { FailedPaymentsPanel } from "@/components/analytics/failed-payments-panel";
+import { EngagementSummary } from "@/components/analytics/engagement-summary";
+import { CoursePerformanceTable } from "@/components/analytics/course-performance-table";
 
 export default async function OrgDashboard() {
   const { sessionClaims } = await auth();
@@ -27,10 +35,11 @@ export default async function OrgDashboard() {
     redirect("/");
   }
 
-  const [stats, activity, counts] = await Promise.all([
+  const [stats, activity, counts, analytics] = await Promise.all([
     getOrgOverviewStats(),
     getRecentPendingActivity(),
     getAdminPendingCounts(),
+    getAdminAnalytics(),
   ]);
 
   const formatCurrency = (amountInKobo: number) => {
@@ -250,6 +259,60 @@ export default async function OrgDashboard() {
               </div>
             )}
         </div>
+      </div>
+
+      {/* ─── Platform Analytics ─── */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-2 text-primary-text">
+            <BarChart3 className="w-5 h-5 text-brand" />
+            Platform Analytics
+          </h2>
+          <p className="text-secondary-text text-sm mt-1">
+            Revenue, growth and engagement trends over the last 6 months.
+          </p>
+        </div>
+
+        {/* Revenue & Enrollment Trends */}
+        <TrendCharts
+          revenueByMonth={analytics.revenueByMonth}
+          enrollmentsByMonth={analytics.enrollmentsByMonth}
+        />
+
+        {/* User Growth & Failed Payments */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-surface border border-border rounded-xl p-6 flex flex-col">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="w-4 h-4 text-secondary-text" />
+              <h3 className="text-base font-semibold text-primary-text">
+                User Growth
+              </h3>
+            </div>
+            <p className="text-sm text-secondary-text mb-4">
+              New learners &amp; tutors per month
+            </p>
+            <div className="h-80 flex-1">
+              <UserGrowthChart data={analytics.userGrowth} />
+            </div>
+          </div>
+
+          <FailedPaymentsPanel
+            data={analytics.failedPayments}
+            totalCount={analytics.failedPaymentsTotalCount}
+            totalAmount={analytics.failedPaymentsTotalAmount}
+          />
+        </div>
+
+        {/* Engagement Summary (30-day) */}
+        <EngagementSummary engagement={analytics.engagement} />
+
+        {/* Top Courses by Revenue */}
+        <CoursePerformanceTable
+          courses={analytics.topCourses}
+          title="Top Courses by Revenue"
+          linkHref="/org/courses"
+          linkLabel="All Courses"
+        />
       </div>
     </div>
   );

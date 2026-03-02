@@ -25,7 +25,7 @@ function CourseRow({ course }: { course: CoursePerformance }) {
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-primary-text text-sm truncate max-w-[200px]">
+            <p className="font-medium text-primary-text text-sm truncate max-w-50">
               {course.title}
             </p>
             <p className="text-xs text-secondary-text">
@@ -77,23 +77,27 @@ function CourseRow({ course }: { course: CoursePerformance }) {
 
 export function CoursePerformanceTable({
   courses,
+  title = "Course Performance",
+  linkHref = "/tutor/courses",
+  linkLabel = "Manage",
 }: {
   courses: CoursePerformance[];
+  title?: string;
+  linkHref?: string;
+  linkLabel?: string;
 }) {
   return (
     <div className="bg-surface border border-border rounded-2xl overflow-hidden">
       <div className="p-6 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-secondary-text" />
-          <h2 className="font-semibold text-lg text-primary-text">
-            Course Performance
-          </h2>
+          <h2 className="font-semibold text-lg text-primary-text">{title}</h2>
         </div>
         <Link
-          href="/tutor/courses"
+          href={linkHref}
           className="text-sm text-brand hover:underline font-medium flex items-center gap-1"
         >
-          Manage <ArrowUpRight className="w-3.5 h-3.5" />
+          {linkLabel} <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>
       <div className="overflow-x-auto">
