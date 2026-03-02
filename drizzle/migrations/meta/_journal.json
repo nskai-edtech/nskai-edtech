@@ -57,6 +57,13 @@
       "when": 1772531200000,
       "tag": "0007_add-archived-course-status",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772431095503,
+      "tag": "0008_add-ai-chat-history",
+      "breakpoints": true
     }
   ]
 }

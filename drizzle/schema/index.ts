@@ -9,3 +9,4 @@ export * from "./qa";
 export * from "./assessments";
 export * from "./requests";
 export * from "./certificates";
+export * from "./chat";

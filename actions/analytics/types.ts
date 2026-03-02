@@ -44,3 +44,35 @@ export interface TutorAnalytics {
   recentEnrollments: RecentEnrollment[];
   quizPerformance: QuizPerformance[];
 }
+
+/* ── Admin Analytics ── */
+
+export interface UserGrowthPoint {
+  month: string;
+  learners: number;
+  tutors: number;
+}
+
+export interface FailedPaymentRow {
+  month: string;
+  count: number;
+  totalAmount: number;
+}
+
+export interface PlatformEngagement {
+  totalWatchMinutes: number;
+  totalQuizAttempts: number;
+  totalPointsEarned: number;
+  activeLearnersLast30d: number;
+}
+
+export interface AdminAnalytics {
+  revenueByMonth: MonthlyDataPoint[];
+  enrollmentsByMonth: MonthlyDataPoint[];
+  userGrowth: UserGrowthPoint[];
+  topCourses: CoursePerformance[];
+  failedPayments: FailedPaymentRow[];
+  failedPaymentsTotalCount: number;
+  failedPaymentsTotalAmount: number;
+  engagement: PlatformEngagement;
+}
