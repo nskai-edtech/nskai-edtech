@@ -28,7 +28,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     title: lesson.title,
-    description: lesson.description || "",
     isFreePreview: lesson.isFreePreview || false,
     notes: lesson.notes || "",
     type: (lesson.type as "VIDEO" | "QUIZ") || "VIDEO",
@@ -48,17 +47,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
   // Keep track of first render to avoid auto-saving on mount
   const [isMounted, setIsMounted] = useState(false);
 
-  const handleGenerateDescription = async () => {
-    // TODO: Replace with real Python API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const aiSuggestion =
-      "<p>In this comprehensive video lesson, we will break down the core concepts step-by-step. You will learn how to initialize the setup, configure the environment, and avoid common pitfalls that beginners often face.</p>";
-
-    setFormData((prev) => ({ ...prev, description: aiSuggestion }));
-    toast.success("Lesson description generated!");
-  };
-
   const handleGenerateNotes = async () => {
     // TODO: Replace with real Python API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -73,7 +61,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
   useEffect(() => {
     const initialData = {
       title: lesson.title,
-      description: lesson.description || "",
       isFreePreview: lesson.isFreePreview || false,
       notes: lesson.notes || "",
       type: (lesson.type as "VIDEO" | "QUIZ") || "VIDEO",
@@ -116,7 +103,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
       try {
         const result = await updateLesson(lesson.id, {
           title: debouncedData.title,
-          description: debouncedData.description || undefined,
           isFreePreview: debouncedData.isFreePreview,
           notes: debouncedData.notes || undefined,
           type: debouncedData.type,
@@ -337,32 +323,6 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
           )}
         </div>
       )}
-
-      {/* Lesson Description (Rich Text) */}
-      <div className="bg-surface p-6 rounded-xl border border-border">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-bold text-primary-text mb-1">
-              Lesson Description
-            </label>
-            <p className="text-xs text-secondary-text">
-              A detailed overview of what students will learn in this lesson.
-            </p>
-          </div>
-          <AiGenerateButton
-            onGenerate={handleGenerateDescription}
-            label="Draft Description"
-          />
-        </div>
-        <div className="border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">
-          <Editor
-            value={formData.description}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, description: val }))
-            }
-          />
-        </div>
-      </div>
 
       {/* Lesson Notes (Rich Text) */}
       <div className="bg-surface p-6 rounded-xl border border-border">

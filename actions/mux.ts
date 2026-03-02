@@ -137,6 +137,29 @@ export async function checkLessonVideoStatus(
           if (asset.status === "ready" && asset.playback_ids?.[0]) {
             const playbackId = asset.playback_ids[0].id;
 
+            // Trigger auto-generated subtitles if no text tracks exist yet
+            const hasTextTrack = asset.tracks?.some(
+              (t) =>
+                t.type === "text" &&
+                (t.text_type === "subtitles" || t.text_type === "captions"),
+            );
+            if (!hasTextTrack) {
+              const audioTrack = asset.tracks?.find((t) => t.type === "audio");
+              if (audioTrack?.id) {
+                try {
+                  await mux.video.assets.generateSubtitles(asset.id, audioTrack.id, {
+                    generated_subtitles: [
+                      { language_code: "en", name: "English (auto)" },
+                    ],
+                  });
+                  console.log(`[MUX] Triggered auto-subtitle generation for asset ${asset.id}`);
+                } catch (subErr) {
+                  // 409 = already exists/in-progress, safe to ignore
+                  console.warn("[MUX] Subtitle generation request:", subErr);
+                }
+              }
+            }
+
             const updatedMuxData = await db
               .insert(muxData)
               .values({

@@ -22,7 +22,9 @@ export async function fetchMuxTranscript(
   try {
     const mux = getMuxClient();
     if (!mux) {
-      console.warn("[MUX_TRANSCRIPT] No Mux client — MUX_TOKEN_ID or MUX_TOKEN_SECRET env vars missing");
+      console.warn(
+        "[MUX_TRANSCRIPT] No Mux client — MUX_TOKEN_ID or MUX_TOKEN_SECRET env vars missing",
+      );
       return null;
     }
 
@@ -35,14 +37,47 @@ export async function fetchMuxTranscript(
       (t) =>
         t.type === "text" &&
         (t.text_type === "subtitles" ||
-         t.text_type === "captions" ||
-         t.text_source === "generated_vod" ||
-         t.text_source === "generated_live"),
+          t.text_type === "captions" ||
+          t.text_source === "generated_vod" ||
+          t.text_source === "generated_live"),
     );
 
     if (!textTrack?.id) {
-      const trackTypes = tracks.map((t) => `${t.type}/${t.text_type ?? "?"}/${t.text_source ?? "?"}`).join(", ");
-      console.warn(`[MUX_TRANSCRIPT] No matching text track for asset ${assetId}. Available tracks: [${trackTypes}]`);
+      const trackTypes = tracks
+        .map((t) => `${t.type}/${t.text_type ?? "?"}/${t.text_source ?? "?"}`)
+        .join(", ");
+      console.warn(
+        `[MUX_TRANSCRIPT] No matching text track for asset ${assetId}. Available tracks: [${trackTypes}]`,
+      );
+
+      // Request auto-generated captions for assets that don't have them yet.
+      const audioTrack = tracks.find((t) => t.type === "audio");
+      if (audioTrack?.id) {
+        try {
+          await mux.video.assets.generateSubtitles(assetId, audioTrack.id, {
+            generated_subtitles: [
+              { language_code: "en", name: "English (auto)" },
+            ],
+          });
+          console.log(
+            `[MUX_TRANSCRIPT] Requested auto-caption generation for asset ${assetId}. Transcript will be available on next request.`,
+          );
+        } catch (genErr: unknown) {
+          // Mux returns 409 if a generated track already exists / is in progress
+          const status = (genErr as { status?: number })?.status;
+          if (status === 409) {
+            console.log(
+              `[MUX_TRANSCRIPT] Caption generation already in progress for asset ${assetId}.`,
+            );
+          } else {
+            console.warn(
+              `[MUX_TRANSCRIPT] Could not request caption generation for asset ${assetId}:`,
+              genErr,
+            );
+          }
+        }
+      }
+
       return null;
     }
 
@@ -56,7 +91,9 @@ export async function fetchMuxTranscript(
     const vttUrl = `https://stream.mux.com/${playbackId}/text/${textTrack.id}.vtt`;
     const res = await fetch(vttUrl);
     if (!res.ok) {
-      console.warn(`[MUX_TRANSCRIPT] VTT fetch failed for asset ${assetId}: HTTP ${res.status}`);
+      console.warn(
+        `[MUX_TRANSCRIPT] VTT fetch failed for asset ${assetId}: HTTP ${res.status}`,
+      );
       return null;
     }
 
@@ -65,11 +102,15 @@ export async function fetchMuxTranscript(
     // Parse VTT to plain text (strip timestamps and headers)
     const transcript = parseVttToPlainText(vttText);
     if (!transcript) {
-      console.warn(`[MUX_TRANSCRIPT] VTT parsed to empty text for asset ${assetId}`);
+      console.warn(
+        `[MUX_TRANSCRIPT] VTT parsed to empty text for asset ${assetId}`,
+      );
       return null;
     }
 
-    console.log(`[MUX_TRANSCRIPT] Successfully fetched transcript for asset ${assetId} (${transcript.length} chars)`);
+    console.log(
+      `[MUX_TRANSCRIPT] Successfully fetched transcript for asset ${assetId} (${transcript.length} chars)`,
+    );
     return transcript;
   } catch (err) {
     console.error("[MUX_TRANSCRIPT_ERROR]", err);

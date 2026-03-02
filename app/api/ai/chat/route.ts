@@ -61,7 +61,6 @@ export async function POST(req: Request) {
       return new NextResponse("Missing message", { status: 400 });
     }
 
-    // ── Fetch lesson context so the AI knows what the student is watching ──
     let lessonContext: string | null = null;
     let hasTranscriptOrNotes = false;
     if (lessonId) {
@@ -73,6 +72,7 @@ export async function POST(req: Request) {
             title: true,
             description: true,
             notes: true,
+            transcript: true,
             chapterId: true,
           },
         });
@@ -103,32 +103,38 @@ export async function POST(req: Request) {
             }
           }
 
+          // ── Lesson description ──
           if (lesson.description)
             parts.push(`Lesson description: ${lesson.description}`);
+
+          // ── Tutor-provided notes (always include if present) ──
           if (lesson.notes) {
-            parts.push(`Lesson notes/transcript:\n${lesson.notes}`);
+            parts.push(`Tutor's lesson notes:\n${lesson.notes}`);
             hasTranscriptOrNotes = true;
-          } else {
-            // No tutor-provided notes — try to fetch auto-generated Mux transcript
+          }
+
+          // ── Video transcript (dedicated column) ──
+          let transcriptText = lesson.transcript;
+
+          if (!transcriptText) {
+            // No cached transcript — try to fetch from Mux
             try {
               const mux = await db.query.muxData.findFirst({
                 where: eq(muxData.lessonId, lessonId),
                 columns: { assetId: true },
               });
               if (mux?.assetId) {
-                const transcript = await fetchMuxTranscript(mux.assetId);
-                if (transcript) {
-                  parts.push(`Video transcript:\n${transcript}`);
-                  hasTranscriptOrNotes = true;
-
-                  // Cache transcript in lesson.notes for future requests
+                const fetched = await fetchMuxTranscript(mux.assetId);
+                if (fetched) {
+                  transcriptText = fetched;
+                  // Cache in the dedicated transcript column for future requests
                   try {
                     await db
                       .update(lessons)
-                      .set({ notes: `[AUTO-TRANSCRIPT]\n${transcript}` })
+                      .set({ transcript: fetched })
                       .where(eq(lessons.id, lesson.id));
                     console.log(
-                      `[AI_CHAT] Cached Mux transcript for lesson ${lessonId} (${transcript.length} chars)`,
+                      `[AI_CHAT] Cached Mux transcript for lesson ${lessonId} (${fetched.length} chars)`,
                     );
                   } catch (cacheErr) {
                     console.error(
@@ -151,9 +157,14 @@ export async function POST(req: Request) {
             }
           }
 
+          if (transcriptText) {
+            parts.push(`Video transcript:\n${transcriptText}`);
+            hasTranscriptOrNotes = true;
+          }
+
           lessonContext = parts.join("\n");
           console.log(
-            `[AI_CHAT] Built lesson context for ${lessonId}: ${lessonContext.length} chars, hasTranscript=${hasTranscriptOrNotes}, hasDescription=${!!lesson.description}`,
+            `[AI_CHAT] Built lesson context for ${lessonId}: ${lessonContext.length} chars, hasTranscript=${!!transcriptText}, hasNotes=${!!lesson.notes}, hasDescription=${!!lesson.description}`,
           );
         } else {
           console.warn(`[AI_CHAT] Lesson not found in DB: ${lessonId}`);
@@ -197,42 +208,49 @@ export async function POST(req: Request) {
     // The new AI backend requires the full conversation history each request.
     const aiMessages: { role: string; content: string }[] = [];
 
-    // Inject lesson context as a system message so the AI knows the lesson
+    // Inject lesson context as a system message so the AI knows the lesson.
+    // The prompt treats ALL sources (transcript, notes, descriptions) as
+    // complementary materials — never comparing them for consistency.
     if (lessonContext && hasTranscriptOrNotes) {
-      // Full context available — AI has transcript/notes to reference
+      // Rich context available — transcript and/or tutor notes present
       aiMessages.push({
         role: "system",
-        content: `You are an AI Mentor helping a student who is currently watching a video lesson. Here is the context for the lesson they are viewing:\n\n${lessonContext}\n\nUse this context to answer their questions accurately. If they ask about the video or lesson content, reference the information above. Be helpful, concise, and educational.`,
+        content: `You are an AI Mentor helping a student who is currently learning from a video lesson. Below is all the available context for the lesson they are watching. It may include a video transcript, the tutor's lesson notes, and course/lesson descriptions.\n\n${lessonContext}\n\nIMPORTANT INSTRUCTIONS:\n- Use ALL of these sources together to understand the lesson topic and help the student.\n- The video transcript captures what was spoken in the video. The tutor's notes and descriptions provide the tutor's own summary or outline. They are complementary — one may contain details the other does not.\n- Do NOT compare or contrast these sources for consistency. Never tell the student that the transcript does not match the notes, or that a topic appears in one source but not another.\n- Synthesise all available information into a single coherent understanding of the lesson, and use it alongside your general knowledge to give the most helpful answer.\n- Be educational, concise, and supportive.`,
       });
     } else if (lessonContext) {
       // Only metadata available — no transcript or notes
       aiMessages.push({
         role: "system",
-        content: `You are an AI Mentor helping a student who is currently watching a video lesson. Here is what we know about the lesson:\n\n${lessonContext}\n\nNote: The full video transcript is not currently available, so you only have the lesson title and course metadata above. Do your best to help the student based on this information. If they ask about specific video content you cannot see, be honest and say you don't have access to the full video transcript yet, but offer to help with the topic based on your general knowledge. Be helpful, concise, and educational.`,
+        content: `You are an AI Mentor helping a student who is currently learning from a video lesson. Below is the available metadata for the lesson:\n\n${lessonContext}\n\nUse this information along with your general knowledge of the topic to help the student as fully as possible. Be educational, concise, and supportive.`,
       });
     } else {
       // No lesson context at all (lessonId not provided or DB lookup failed)
       aiMessages.push({
         role: "system",
         content:
-          "You are an AI Mentor for an online learning platform. Help the student with their questions. Be helpful, concise, educational, and supportive. If they ask about a specific video or lesson, let them know you don't currently have context about the specific lesson they are viewing but you can still help with the topic.",
+          "You are an AI Mentor for an online learning platform. Help the student with their questions using your knowledge. Be educational, concise, and supportive.",
       });
     }
 
     if (lessonContext) {
       aiMessages.push({
         role: "user",
-        content: `[LESSON CONTEXT — please use this to help me]\n\n${lessonContext}\n\nPlease use the above lesson context (including any transcript or notes) to help answer my questions about this video lesson.`,
+        content: `[LESSON MATERIALS — use all of these to help me]\n\n${lessonContext}\n\nPlease use all the above lesson materials together to help answer my questions about this video lesson.`,
       });
       aiMessages.push({
         role: "assistant",
-        content: `Got it! I have the full context for this lesson. I can see the lesson details${hasTranscriptOrNotes ? " and the video transcript" : ""}. Feel free to ask me anything about this lesson and I'll reference the content to help you.`,
+        content:
+          "Got it! I have the available materials for this lesson. Ask me anything and I'll reference what I know to help you.",
       });
     }
 
     if (clientMessages && Array.isArray(clientMessages)) {
       for (const m of clientMessages) {
-        if (m.content?.startsWith?.("[LESSON CONTEXT")) continue;
+        if (
+          m.content?.startsWith?.("[LESSON CONTEXT") ||
+          m.content?.startsWith?.("[LESSON MATERIALS")
+        )
+          continue;
         aiMessages.push({
           role: m.role === "ai" ? "assistant" : m.role,
           content: m.content,
@@ -260,7 +278,10 @@ export async function POST(req: Request) {
     // Debug: log what the AI will receive
     const systemMsg = aiMessages.find((m) => m.role === "system");
     const contextUserMsg = aiMessages.find(
-      (m) => m.role === "user" && m.content.startsWith("[LESSON CONTEXT"),
+      (m) =>
+        m.role === "user" &&
+        (m.content.startsWith("[LESSON CONTEXT") ||
+          m.content.startsWith("[LESSON MATERIALS")),
     );
     console.log(
       `[AI_CHAT] Messages to AI: ${aiMessages.length} total, hasSystem=${!!systemMsg}, hasContextInjection=${!!contextUserMsg}`,

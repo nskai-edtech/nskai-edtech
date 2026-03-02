@@ -33,12 +33,24 @@ async function verifyCourseOwner(courseId: string) {
   return course ? true : null;
 }
 
+const MAX_COURSE_SKILLS = 5;
+
 // ─── Add Skill to Course ───
 export async function addSkillToCourse(courseId: string, skillId: string) {
   const canEdit = await verifyCourseOwner(courseId);
   if (!canEdit) return { error: "Unauthorized" };
 
   try {
+    // Enforce max linked skills limit
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(courseSkills)
+      .where(eq(courseSkills.courseId, courseId));
+
+    if ((countResult?.count ?? 0) >= MAX_COURSE_SKILLS) {
+      return { error: `Maximum of ${MAX_COURSE_SKILLS} linked skills per course` };
+    }
+
     await db
       .insert(courseSkills)
       .values({ courseId, skillId })

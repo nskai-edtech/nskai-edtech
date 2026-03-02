@@ -10,8 +10,11 @@ import {
 import { getSkillsList } from "@/actions/skills/admin";
 import toast from "react-hot-toast";
 
+const MAX_SKILLS = 5;
+
 interface CourseSkillsSelectorProps {
   courseId: string;
+  maxSkills?: number;
 }
 
 interface SkillItem {
@@ -20,7 +23,7 @@ interface SkillItem {
   category: string;
 }
 
-export function CourseSkillsSelector({ courseId }: CourseSkillsSelectorProps) {
+export function CourseSkillsSelector({ courseId, maxSkills = MAX_SKILLS }: CourseSkillsSelectorProps) {
   const [linkedSkills, setLinkedSkills] = useState<SkillItem[]>([]);
   const [allSkills, setAllSkills] = useState<SkillItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +55,13 @@ export function CourseSkillsSelector({ courseId }: CourseSkillsSelectorProps) {
     loadData();
   }, [loadData]);
 
+  const isAtLimit = linkedSkills.length >= maxSkills;
+
   const handleAdd = async (skillId: string) => {
+    if (isAtLimit) {
+      toast.error(`Maximum of ${maxSkills} linked skills allowed`);
+      return;
+    }
     setAddingId(skillId);
     const res = await addSkillToCourse(courseId, skillId);
     setAddingId(null);
@@ -136,16 +145,26 @@ export function CourseSkillsSelector({ courseId }: CourseSkillsSelectorProps) {
 
       {/* Add Skills Button / Picker */}
       {!showPicker ? (
-        <button
-          type="button"
-          onClick={() => setShowPicker(true)}
-          className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand/80 font-medium transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          {linkedSkills.length === 0
-            ? "Link skills to this course"
-            : "Add more skills"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            disabled={isAtLimit}
+            className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand/80 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {linkedSkills.length === 0
+              ? "Link skills to this course"
+              : isAtLimit
+                ? `Max ${maxSkills} skills reached`
+                : "Add more skills"}
+          </button>
+          {linkedSkills.length > 0 && (
+            <span className="text-[10px] text-secondary-text">
+              {linkedSkills.length}/{maxSkills}
+            </span>
+          )}
+        </div>
       ) : (
         <div className="border border-border rounded-xl overflow-hidden bg-surface">
           {/* Search */}

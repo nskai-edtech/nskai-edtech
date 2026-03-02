@@ -9,6 +9,7 @@ const db = drizzle(sql, { schema });
 
 // ─── Skills by Category ───
 const SKILLS_DATA = [
+  // ──────── Technology ────────
   {
     category: "Web Development",
     skills: [
@@ -52,6 +53,187 @@ const SKILLS_DATA = [
       { title: "React Native", description: "Cross-platform mobile development with React" },
       { title: "iOS Basics (Swift)", description: "Swift programming, UIKit, SwiftUI" },
       { title: "Mobile UI/UX", description: "Touch interactions, responsive layout, accessibility" },
+    ],
+  },
+  {
+    category: "Cybersecurity",
+    skills: [
+      { title: "Network Security Fundamentals", description: "Firewalls, encryption, threat detection" },
+      { title: "Ethical Hacking", description: "Penetration testing, vulnerability assessment" },
+    ],
+  },
+  {
+    category: "Artificial Intelligence",
+    skills: [
+      { title: "Deep Learning", description: "Neural networks, CNNs, RNNs, transformers" },
+      { title: "Natural Language Processing", description: "Text analysis, sentiment, chatbots, LLMs" },
+      { title: "Computer Vision", description: "Image recognition, object detection, OCR" },
+    ],
+  },
+
+  // ──────── Business & Finance ────────
+  {
+    category: "Business & Finance",
+    skills: [
+      { title: "Financial Literacy", description: "Budgeting, investing, personal finance management" },
+      { title: "Accounting Fundamentals", description: "Bookkeeping, financial statements, auditing" },
+      { title: "Entrepreneurship", description: "Business planning, startup strategy, fundraising" },
+      { title: "Digital Marketing", description: "SEO, social media marketing, email campaigns, analytics" },
+      { title: "Project Management", description: "Agile, Scrum, Kanban, stakeholder management" },
+      { title: "Leadership & Management", description: "Team building, delegation, conflict resolution" },
+      { title: "Business Analytics", description: "Data-driven decisions, KPIs, dashboards" },
+      { title: "E-Commerce", description: "Online stores, payment systems, dropshipping" },
+      { title: "Supply Chain Management", description: "Logistics, inventory, procurement" },
+      { title: "Real Estate Basics", description: "Property investing, valuation, market analysis" },
+    ],
+  },
+
+  // ──────── Sciences ────────
+  {
+    category: "Sciences",
+    skills: [
+      { title: "Biology Fundamentals", description: "Cell biology, genetics, ecology, evolution" },
+      { title: "Chemistry Basics", description: "Atomic structure, reactions, organic chemistry" },
+      { title: "Physics Principles", description: "Mechanics, thermodynamics, electromagnetism" },
+      { title: "Environmental Science", description: "Climate change, ecosystems, sustainability" },
+      { title: "Neuroscience Basics", description: "Brain function, cognition, behavior" },
+      { title: "Astronomy & Astrophysics", description: "Stars, galaxies, cosmology, space exploration" },
+    ],
+  },
+
+  // ──────── Arts & Humanities ────────
+  {
+    category: "Arts & Humanities",
+    skills: [
+      { title: "Creative Writing", description: "Fiction, poetry, screenwriting, narrative craft" },
+      { title: "Philosophy & Ethics", description: "Logic, critical reasoning, moral philosophy" },
+      { title: "Art History", description: "Major movements, prominent artists, visual analysis" },
+      { title: "Music Theory", description: "Scales, harmony, rhythm, composition" },
+      { title: "Film Studies", description: "Cinema analysis, directing, storytelling techniques" },
+      { title: "Photography", description: "Composition, lighting, editing, visual storytelling" },
+      { title: "Graphic Design", description: "Typography, layout, branding, visual identity" },
+      { title: "UX/UI Design", description: "User research, wireframing, prototyping, usability" },
+      { title: "Animation & Motion Graphics", description: "2D/3D animation, motion design, storyboarding" },
+      { title: "Music Production", description: "DAWs, mixing, mastering, sound design" },
+    ],
+  },
+
+  // ──────── Languages ────────
+  {
+    category: "Languages",
+    skills: [
+      { title: "English Language", description: "Grammar, vocabulary, reading, writing proficiency" },
+      { title: "Spanish Language", description: "Conversational and written Spanish" },
+      { title: "French Language", description: "Conversational and written French" },
+      { title: "Mandarin Chinese", description: "Characters, tones, conversational Mandarin" },
+      { title: "Arabic Language", description: "Script, grammar, conversational Arabic" },
+      { title: "German Language", description: "Grammar, vocabulary, conversational German" },
+      { title: "Japanese Language", description: "Hiragana, katakana, kanji, conversational Japanese" },
+      { title: "Portuguese Language", description: "Brazilian & European Portuguese" },
+      { title: "Korean Language", description: "Hangul, grammar, conversational Korean" },
+    ],
+  },
+
+  // ──────── Health & Wellness ────────
+  {
+    category: "Health & Wellness",
+    skills: [
+      { title: "Nutrition & Dietetics", description: "Macros, meal planning, dietary science" },
+      { title: "Psychology Fundamentals", description: "Cognitive, behavioral, and developmental psychology" },
+      { title: "Mental Health & Wellbeing", description: "Stress management, mindfulness, resilience" },
+      { title: "Public Health", description: "Epidemiology, health policy, community health" },
+      { title: "Fitness & Exercise Science", description: "Training principles, kinesiology, program design" },
+      { title: "First Aid & Emergency Care", description: "CPR, wound care, emergency response" },
+    ],
+  },
+
+  // ──────── Mathematics ────────
+  {
+    category: "Mathematics",
+    skills: [
+      { title: "Algebra & Calculus", description: "Functions, derivatives, integrals, limits" },
+      { title: "Linear Algebra", description: "Vectors, matrices, transformations" },
+      { title: "Discrete Mathematics", description: "Logic, sets, combinatorics, graph theory" },
+      { title: "Applied Statistics", description: "Regression, probability distributions, inference" },
+    ],
+  },
+
+  // ──────── Social Sciences ────────
+  {
+    category: "Social Sciences",
+    skills: [
+      { title: "Sociology", description: "Social structures, culture, inequality, institutions" },
+      { title: "Political Science", description: "Government systems, policy analysis, international relations" },
+      { title: "Economics", description: "Micro and macroeconomics, market dynamics, trade" },
+      { title: "Law & Legal Studies", description: "Legal systems, contracts, constitutional law" },
+      { title: "Anthropology", description: "Cultural anthropology, human evolution, ethnography" },
+      { title: "Geography", description: "Physical and human geography, GIS, cartography" },
+    ],
+  },
+
+  // ──────── Engineering ────────
+  {
+    category: "Engineering",
+    skills: [
+      { title: "Mechanical Engineering", description: "Thermodynamics, mechanics, materials science" },
+      { title: "Electrical Engineering", description: "Circuits, electronics, signal processing" },
+      { title: "Civil Engineering", description: "Structural analysis, construction, geotechnics" },
+      { title: "Aerospace Engineering", description: "Aerodynamics, propulsion, spacecraft design" },
+      { title: "Biomedical Engineering", description: "Medical devices, biomechanics, biocompatibility" },
+    ],
+  },
+
+  // ──────── Media & Communication ────────
+  {
+    category: "Media & Communication",
+    skills: [
+      { title: "Journalism", description: "Reporting, investigative journalism, media ethics" },
+      { title: "Public Speaking", description: "Presentation skills, rhetoric, audience engagement" },
+      { title: "Content Creation", description: "Blogging, video production, podcasting" },
+      { title: "Social Media Strategy", description: "Platform management, engagement, analytics" },
+      { title: "Public Relations", description: "Brand reputation, crisis communication, media relations" },
+    ],
+  },
+
+  // ──────── Education ────────
+  {
+    category: "Education",
+    skills: [
+      { title: "Curriculum Design", description: "Learning objectives, assessment design, pedagogy" },
+      { title: "Educational Technology", description: "EdTech tools, LMS, online learning design" },
+      { title: "Teaching & Instruction", description: "Classroom management, differentiated instruction" },
+    ],
+  },
+
+  // ──────── Personal Development ────────
+  {
+    category: "Personal Development",
+    skills: [
+      { title: "Critical Thinking", description: "Logical reasoning, analysis, problem solving" },
+      { title: "Emotional Intelligence", description: "Self-awareness, empathy, relationship management" },
+      { title: "Time Management & Productivity", description: "Goal setting, prioritization, focus techniques" },
+      { title: "Networking & Communication", description: "Professional relationships, negotiation, collaboration" },
+    ],
+  },
+
+  // ──────── Sustainability ────────
+  {
+    category: "Sustainability",
+    skills: [
+      { title: "Renewable Energy", description: "Solar, wind, hydro, energy storage systems" },
+      { title: "Sustainable Agriculture", description: "Organic farming, permaculture, food systems" },
+      { title: "Conservation & Ecology", description: "Biodiversity, wildlife management, habitat restoration" },
+    ],
+  },
+
+  // ──────── Trades & Vocational ────────
+  {
+    category: "Trades & Vocational",
+    skills: [
+      { title: "Culinary Arts", description: "Cooking techniques, baking, food safety, cuisine styles" },
+      { title: "Fashion & Textile Design", description: "Pattern making, sewing, fashion illustration" },
+      { title: "Carpentry & Woodworking", description: "Joinery, furniture making, hand & power tools" },
+      { title: "Automotive Basics", description: "Vehicle maintenance, engines, diagnostics" },
     ],
   },
 ];
@@ -393,10 +575,486 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "INTERMEDIATE",
     },
   ],
+
+  // ─── Business & Finance ───
+  "Financial Literacy": [
+    {
+      questionText: "What is compound interest?",
+      options: [
+        "Interest calculated only on the principal",
+        "Interest calculated on both principal and accumulated interest",
+        "A fixed-rate loan",
+        "A type of bond",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is diversification in investing?",
+      options: [
+        "Putting all money in one stock",
+        "Spreading investments across different assets to reduce risk",
+        "Only investing in real estate",
+        "Day trading",
+      ],
+      correctOption: 1,
+      difficulty: "INTERMEDIATE",
+    },
+  ],
+  "Accounting Fundamentals": [
+    {
+      questionText: "What does a balance sheet show?",
+      options: [
+        "Revenue and expenses over a period",
+        "Assets, liabilities, and equity at a point in time",
+        "Cash inflows and outflows",
+        "Employee salaries",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is the accounting equation?",
+      options: [
+        "Revenue - Expenses = Profit",
+        "Assets = Liabilities + Equity",
+        "Cash In - Cash Out = Balance",
+        "Income + Expenses = Revenue",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Digital Marketing": [
+    {
+      questionText: "What does SEO stand for?",
+      options: [
+        "Social Engagement Optimization",
+        "Search Engine Optimization",
+        "Sales Enhancement Online",
+        "Site Efficiency Operations",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is a conversion rate?",
+      options: [
+        "The bounce rate of a website",
+        "The percentage of visitors who complete a desired action",
+        "The number of ad impressions",
+        "The speed of a website",
+      ],
+      correctOption: 1,
+      difficulty: "INTERMEDIATE",
+    },
+  ],
+  "Project Management": [
+    {
+      questionText: "What is a Gantt chart used for?",
+      options: [
+        "Tracking budgets",
+        "Visualizing project schedules and task timelines",
+        "Measuring customer satisfaction",
+        "Writing user stories",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "In Agile, what is a sprint?",
+      options: [
+        "A year-long planning cycle",
+        "A short, time-boxed period to complete a set of work",
+        "A type of software bug",
+        "A final release review",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Entrepreneurship": [
+    {
+      questionText: "What is an MVP in startup context?",
+      options: [
+        "Most Valuable Player",
+        "Minimum Viable Product",
+        "Maximum Venture Potential",
+        "Market Validated Plan",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Sciences ───
+  "Biology Fundamentals": [
+    {
+      questionText: "What is the basic unit of life?",
+      options: ["Atom", "Molecule", "Cell", "Organ"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What molecule carries genetic information?",
+      options: ["RNA", "DNA", "Protein", "Lipid"],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Chemistry Basics": [
+    {
+      questionText: "What is the chemical formula for water?",
+      options: ["CO2", "H2O", "NaCl", "O2"],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What does pH measure?",
+      options: [
+        "Temperature",
+        "Acidity or alkalinity of a solution",
+        "Density",
+        "Electrical conductivity",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Physics Principles": [
+    {
+      questionText: "What is Newton's first law of motion?",
+      options: [
+        "Force equals mass times acceleration",
+        "An object at rest stays at rest unless acted upon by a force",
+        "Every action has an equal and opposite reaction",
+        "Energy cannot be created or destroyed",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is the SI unit of force?",
+      options: ["Watt", "Joule", "Newton", "Pascal"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Environmental Science": [
+    {
+      questionText: "What is the greenhouse effect?",
+      options: [
+        "Growing plants in greenhouses",
+        "Trapping of heat in Earth's atmosphere by greenhouse gases",
+        "The cooling of the atmosphere",
+        "Photosynthesis",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Arts & Humanities ───
+  "Creative Writing": [
+    {
+      questionText: "What is the 'point of view' in writing?",
+      options: [
+        "The story's main plot",
+        "The perspective from which a story is told",
+        "The setting of the story",
+        "The climax of the narrative",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Philosophy & Ethics": [
+    {
+      questionText: "What is the Socratic method?",
+      options: [
+        "Lecturing students",
+        "Asking a series of questions to stimulate critical thinking",
+        "Writing essays",
+        "Memorizing facts",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Music Theory": [
+    {
+      questionText: "How many notes are in a standard octave?",
+      options: ["7", "8", "12", "10"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is a chord?",
+      options: [
+        "A single note played loudly",
+        "Two or more notes played simultaneously",
+        "A rhythm pattern",
+        "A musical key",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Graphic Design": [
+    {
+      questionText: "What does CMYK stand for?",
+      options: [
+        "Computer-Made Yellow Keys",
+        "Cyan, Magenta, Yellow, Key (Black)",
+        "Color, Mix, Yield, Kindle",
+        "Creative Media Yield Kit",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "UX/UI Design": [
+    {
+      questionText: "What is a wireframe?",
+      options: [
+        "A finished design mockup",
+        "A basic structural blueprint of a page or screen",
+        "A type of animation",
+        "A coding framework",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What does 'user persona' mean in UX?",
+      options: [
+        "An actual user interview",
+        "A fictional representation of a target user based on research",
+        "The login screen",
+        "A color palette",
+      ],
+      correctOption: 1,
+      difficulty: "INTERMEDIATE",
+    },
+  ],
+
+  // ─── Languages ───
+  "English Language": [
+    {
+      questionText: "What is a synonym?",
+      options: [
+        "A word with the opposite meaning",
+        "A word with a similar meaning",
+        "A word that sounds the same",
+        "A word with multiple meanings",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Spanish Language": [
+    {
+      questionText: "What does 'Hola' mean in English?",
+      options: ["Goodbye", "Hello", "Thank you", "Please"],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Health & Wellness ───
+  "Nutrition & Dietetics": [
+    {
+      questionText: "Which macronutrient provides the most energy per gram?",
+      options: ["Carbohydrates", "Protein", "Fat", "Fiber"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is a calorie?",
+      options: [
+        "A type of vitamin",
+        "A unit of energy",
+        "A mineral",
+        "A hormone",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Psychology Fundamentals": [
+    {
+      questionText: "Who is considered the father of psychoanalysis?",
+      options: ["Carl Jung", "B.F. Skinner", "Sigmund Freud", "Ivan Pavlov"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+    {
+      questionText: "What is classical conditioning?",
+      options: [
+        "Learning through rewards",
+        "Associating a stimulus with a response through repeated pairing",
+        "Self-reflection",
+        "Group therapy",
+      ],
+      correctOption: 1,
+      difficulty: "INTERMEDIATE",
+    },
+  ],
+  "Mental Health & Wellbeing": [
+    {
+      questionText: "What is mindfulness?",
+      options: [
+        "Multi-tasking efficiently",
+        "Paying attention to the present moment without judgment",
+        "Memorization technique",
+        "A type of medication",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Mathematics ───
+  "Algebra & Calculus": [
+    {
+      questionText: "What is a derivative in calculus?",
+      options: [
+        "The area under a curve",
+        "The rate of change of a function",
+        "A type of equation",
+        "The sum of a series",
+      ],
+      correctOption: 1,
+      difficulty: "INTERMEDIATE",
+    },
+  ],
+  "Linear Algebra": [
+    {
+      questionText: "What is a matrix?",
+      options: [
+        "A single number",
+        "A rectangular array of numbers",
+        "A type of graph",
+        "A geometry formula",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Social Sciences ───
+  "Economics": [
+    {
+      questionText: "What is supply and demand?",
+      options: [
+        "A government regulation",
+        "The relationship between how much of a good is available and how much people want it",
+        "A type of tax",
+        "A stock market indicator",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Law & Legal Studies": [
+    {
+      questionText: "What is a contract?",
+      options: [
+        "A verbal promise",
+        "A legally binding agreement between parties",
+        "A court order",
+        "A type of law",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Media & Communication ───
+  "Public Speaking": [
+    {
+      questionText: "What is the 'rule of three' in public speaking?",
+      options: [
+        "Always speak for three minutes",
+        "Presenting ideas in groups of three for impact and memorability",
+        "Using three slides",
+        "Speaking to three people",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Content Creation": [
+    {
+      questionText: "What is a content calendar?",
+      options: [
+        "A calendar app",
+        "A schedule that plans when and where content will be published",
+        "A social media feed",
+        "A video editing timeline",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Personal Development ───
+  "Critical Thinking": [
+    {
+      questionText: "What is a logical fallacy?",
+      options: [
+        "A correct argument",
+        "An error in reasoning that undermines the logic of an argument",
+        "A scientific theory",
+        "A type of evidence",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+  "Emotional Intelligence": [
+    {
+      questionText: "What is empathy?",
+      options: [
+        "Feeling sorry for someone",
+        "The ability to understand and share the feelings of others",
+        "Being always optimistic",
+        "Ignoring other people's emotions",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Sustainability ───
+  "Renewable Energy": [
+    {
+      questionText: "Which of these is a renewable energy source?",
+      options: ["Coal", "Natural Gas", "Solar", "Oil"],
+      correctOption: 2,
+      difficulty: "BEGINNER",
+    },
+  ],
+
+  // ─── Trades & Vocational ───
+  "Culinary Arts": [
+    {
+      questionText: "What is 'mise en place'?",
+      options: [
+        "A type of dessert",
+        "Having all ingredients measured and prepared before cooking",
+        "A plating technique",
+        "A French restaurant",
+      ],
+      correctOption: 1,
+      difficulty: "BEGINNER",
+    },
+  ],
 };
 
 // ─── Dependencies ───
 const DEPENDENCIES: [string, string][] = [
+  // Tech
   ["React Fundamentals", "HTML & CSS Fundamentals"],
   ["React Fundamentals", "JavaScript Basics"],
   ["Next.js & SSR", "React Fundamentals"],
@@ -408,6 +1066,28 @@ const DEPENDENCIES: [string, string][] = [
   ["CI/CD Pipelines", "Git & Version Control"],
   ["CI/CD Pipelines", "Docker & Containers"],
   ["Cloud Platforms", "Docker & Containers"],
+  ["Deep Learning", "Machine Learning Basics"],
+  ["Natural Language Processing", "Deep Learning"],
+  ["Computer Vision", "Deep Learning"],
+  ["Ethical Hacking", "Network Security Fundamentals"],
+  // Sciences
+  ["Neuroscience Basics", "Biology Fundamentals"],
+  ["Environmental Science", "Chemistry Basics"],
+  // Business
+  ["Business Analytics", "Financial Literacy"],
+  ["E-Commerce", "Digital Marketing"],
+  ["Supply Chain Management", "Project Management"],
+  // Math
+  ["Applied Statistics", "Algebra & Calculus"],
+  ["Linear Algebra", "Algebra & Calculus"],
+  // Engineering
+  ["Aerospace Engineering", "Physics Principles"],
+  ["Biomedical Engineering", "Biology Fundamentals"],
+  // Sustainability
+  ["Renewable Energy", "Environmental Science"],
+  ["Conservation & Ecology", "Environmental Science"],
+  // Education
+  ["Educational Technology", "Curriculum Design"],
 ];
 
 async function seed() {

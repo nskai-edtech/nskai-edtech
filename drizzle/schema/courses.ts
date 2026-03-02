@@ -68,6 +68,7 @@ export const lessons = pgTable(
     position: integer("position").notNull(),
     isFreePreview: boolean("is_free_preview").default(false),
     notes: text("notes"),
+    transcript: text("transcript"),
     type: lessonTypeEnum("type").default("VIDEO").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
