@@ -67,9 +67,9 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const validTypes = ["video/mp4", "video/quicktime", "video/webm"];
-      if (!validTypes.includes(file.type)) {
-        toast.error("Please select an MP4, MOV, or WebM file.");
+      // Check that the file is a video (broad check to support all mobile formats)
+      if (!file.type.startsWith("video/")) {
+        toast.error("Please select a video file (MP4, MOV, or WebM).");
         return;
       }
 
@@ -81,7 +81,9 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
           return;
         }
 
-        setActiveUploadId(result.id);
+        // Store the upload ID locally so it isn't lost to a stale closure
+        const currentUploadId = result.id;
+        setActiveUploadId(currentUploadId);
         setIsMobileUploading(true);
         setMobileUploadProgress(0);
 
@@ -100,7 +102,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
           if (xhr.status >= 200 && xhr.status < 300) {
             setIsMobileUploading(false);
             setUploadUrl(null);
-            startPolling();
+            startPolling(currentUploadId);
           } else {
             toast.error("Upload failed. Please try again.");
             setIsMobileUploading(false);
@@ -125,12 +127,13 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
     [lessonId]
   );
 
-  const startPolling = async () => {
+  const startPolling = async (uploadId?: string) => {
+    const resolvedUploadId = uploadId || activeUploadId;
     setIsProcessing(true);
     setProcessingProgress(0);
     setError(null);
     console.log(
-      `[MUX_UPLOADER] Starting status polling for lesson: ${lessonId}, Upload ID: ${activeUploadId}`,
+      `[MUX_UPLOADER] Starting status polling for lesson: ${lessonId}, Upload ID: ${resolvedUploadId}`,
     );
 
     let attempts = 0;
@@ -149,7 +152,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
       try {
         const result = await checkLessonVideoStatus(
           lessonId,
-          activeUploadId || undefined,
+          resolvedUploadId || undefined,
         );
         console.log(`[MUX_UPLOADER] Poll ${attempts}:`, result);
 
