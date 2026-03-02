@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { PlusCircle, Trash2, Save, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { QuizQuestionWithAnswer } from "@/actions/quiz/types";
 import { deleteQuizQuestion, saveQuizQuestion } from "@/actions/quiz/actions";
 import { AiGenerateButton } from "@/components/ui/ai-generate-button";
-import { getQuizQuestionsAdmin } from "@/actions/quiz/queries";
 
 interface QuizEditorProps {
   lessonId: string;
@@ -20,11 +18,13 @@ function QuestionForm({
   question,
   position,
   onSaved,
+  onCancel,
 }: {
   lessonId: string;
   question?: QuizQuestionWithAnswer;
   position: number;
-  onSaved: () => void;
+  onSaved: (saved: QuizQuestionWithAnswer) => void;
+  onCancel?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [questionText, setQuestionText] = useState(
@@ -63,9 +63,9 @@ function QuestionForm({
       );
       if (res.error) {
         toast.error(res.error);
-      } else {
+      } else if (res.question) {
         toast.success("Question saved!");
-        onSaved();
+        onSaved(res.question);
       }
     });
   }
@@ -105,100 +105,122 @@ function QuestionForm({
           Click the circle to mark the correct answer.
         </p>
       </div>
-      <button
-        onClick={handleSave}
-        disabled={isPending}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 disabled:opacity-50 transition-colors"
-      >
-        <Save className="w-3.5 h-3.5" />
-        {isPending ? "Saving..." : "Save Question"}
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={handleSave}
+          disabled={isPending}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 disabled:opacity-50 transition-colors"
+        >
+          <Save className="w-3.5 h-3.5" />
+          {isPending ? "Saving..." : "Save Question"}
+        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-muted border border-border text-sm font-semibold text-secondary-text hover:bg-surface/80"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
 export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
-  const router = useRouter();
   const [questions, setQuestions] =
     useState<QuizQuestionWithAnswer[]>(initialQuestions);
   const [adding, setAdding] = useState(false);
+  const [enhancingIndex, setEnhancingIndex] = useState<number | null>(null);
+  const [enhanceDraft, setEnhanceDraft] =
+    useState<QuizQuestionWithAnswer | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [generatedDrafts, setGeneratedDrafts] = useState<
+    QuizQuestionWithAnswer[]
+  >([]);
   const [isPending, startTransition] = useTransition();
   const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [rawModal, setRawModal] = useState<{
+    open: boolean;
+    text: string;
+  } | null>(null);
 
-  // Sync state with server changes
+  // Only sync on initial mount — not on every refresh
   useEffect(() => {
     setQuestions(initialQuestions);
   }, [initialQuestions]);
 
-  const handleGenerateQuiz = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const forceRefreshQuestions = async () => {
-      const res = await getQuizQuestionsAdmin(lessonId);
-      if ("questions" in res) {
-        setQuestions(res.questions);
-      }
-    };
-
-    const aiGeneratedQuestions = [
-      {
-        questionText:
-          "What is the main advantage of Server-Side Rendering (SSR)?",
-        options: [
-          "Faster database writes",
-          "Improved SEO and initial load times",
-          "No need for CSS",
-          "Reduces server costs",
-        ],
-        correctOption: 1,
-      },
-      {
-        questionText: "Which hook is used to manage side effects in React?",
-        options: ["useState", "useContext", "useEffect", "useReducer"],
-        correctOption: 2,
-      },
-      {
-        questionText: "What does the 'key' prop do in React lists?",
-        options: [
-          "Defines the type of the element",
-          "Helps React identify which items have changed, are added, or removed",
-          "Specifies the CSS class for styling",
-          "Indicates that the element is a form input",
-        ],
-        correctOption: 1,
-      },
-      {
-        questionText: "What is the purpose of the 'useState' hook in React?",
-        options: [
-          "To manage side effects in functional components",
-          "To manage local state in functional components",
-          "To handle form submissions",
-          "To define component props",
-        ],
-        correctOption: 1,
-      },
-    ];
-
+  // --- Enhance a single question ---
+  const handleEnhance = async (index: number) => {
+    setEnhancingIndex(index);
+    setEnhanceDraft(null);
     try {
-      for (let i = 0; i < aiGeneratedQuestions.length; i++) {
-        const q = aiGeneratedQuestions[i];
-        await saveQuizQuestion(lessonId, {
+      const q = questions[index];
+      const res = await fetch("/api/ai/enhance-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "enhance",
           questionText: q.questionText,
           options: q.options,
           correctOption: q.correctOption,
-          position: questions.length + i,
-        });
+        }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        toast.error(errorData?.error || "AI enhance failed");
+        setEnhancingIndex(null);
+        return;
       }
-
-      toast.success("AI Quiz generated successfully!");
-      setAdding(false);
-      await forceRefreshQuestions();
-    } catch (error) {
-      console.error("Error generating quiz:", error);
-      toast.error("Failed to generate quiz");
+      const data = await res.json();
+      if (!data.question?.questionText) {
+        setRawModal({ open: true, text: JSON.stringify(data) });
+        setEnhancingIndex(null);
+        return;
+      }
+      setEnhanceDraft({ ...data.question, position: q.position });
+    } catch (err) {
+      console.error("Error enhancing question:", err);
+      toast.error("Failed to enhance question");
+      setEnhancingIndex(null);
     }
   };
 
+  // --- Generate 4 more questions ---
+  const handleGenerateMore = async () => {
+    setGenerating(true);
+    setGeneratedDrafts([]);
+    try {
+      const res = await fetch("/api/ai/enhance-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate",
+          existingQuestions: questions.map((q) => ({
+            questionText: q.questionText,
+            options: q.options,
+            correctOption: q.correctOption,
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error("AI generate failed");
+      const data = await res.json();
+      setGeneratedDrafts(
+        (data.questions as QuizQuestionWithAnswer[]).map((q, i) => ({
+          ...q,
+          position: questions.length + i,
+        })),
+      );
+      toast.success("4 questions generated! Scroll down to review and save.");
+    } catch {
+      toast.error("Failed to generate more questions");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  // --- Delete single ---
   function handleDelete(questionId: string) {
     startTransition(async () => {
       const res = await deleteQuizQuestion(questionId);
@@ -207,11 +229,11 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
       } else {
         setQuestions((prev) => prev.filter((q) => q.id !== questionId));
         toast.success("Question deleted.");
-        router.refresh();
       }
     });
   }
 
+  // --- Delete all ---
   const handleDeleteAll = async () => {
     if (
       !window.confirm(
@@ -220,15 +242,11 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
     ) {
       return;
     }
-
     setIsDeletingAll(true);
     try {
-      // Fire all delete requests at the same time
       await Promise.all(questions.map((q) => deleteQuizQuestion(q.id)));
-
       setQuestions([]);
       toast.success("All questions deleted.");
-      router.refresh();
     } catch (error) {
       console.error("Error deleting all questions:", error);
       toast.error("Something went wrong while deleting.");
@@ -236,7 +254,6 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
       setIsDeletingAll(false);
     }
   };
-  // --------------------------------
 
   return (
     <div className="space-y-4">
@@ -244,9 +261,7 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
         <h3 className="font-semibold text-primary-text">
           Quiz Questions ({questions.length})
         </h3>
-
         <div className="flex items-center gap-3">
-          {/* --- NEW DELETE ALL BUTTON --- */}
           {questions.length > 0 && (
             <button
               onClick={handleDeleteAll}
@@ -261,11 +276,6 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
               {isDeletingAll ? "Deleting..." : "Clear All"}
             </button>
           )}
-
-          <AiGenerateButton
-            onGenerate={handleGenerateQuiz}
-            label="Generate Quiz"
-          />
           <button
             onClick={() => setAdding(true)}
             className="flex items-center gap-2 text-sm text-brand font-medium hover:bg-brand/10 px-3 py-1.5 rounded-md transition-colors"
@@ -278,7 +288,12 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
 
       {questions.map((q, qi) => (
         <div key={q.id} className="relative">
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 flex gap-2">
+            <AiGenerateButton
+              onGenerate={() => handleEnhance(qi)}
+              label="Enhance"
+              disabled={enhancingIndex === qi}
+            />
             <button
               onClick={() => handleDelete(q.id)}
               disabled={isPending || isDeletingAll}
@@ -290,45 +305,130 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
           </div>
           <div className="bg-surface border border-border rounded-2xl p-5 pr-12 space-y-2">
             <p className="text-sm font-medium text-secondary-text">Q{qi + 1}</p>
-            <p className="text-primary-text font-semibold">{q.questionText}</p>
-            <div className="grid gap-1 mt-2">
-              {q.options.map((opt, oi) => (
-                <div key={oi} className="flex items-center gap-2 text-sm">
-                  {oi === q.correctOption ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full border border-border shrink-0" />
-                  )}
-                  <span
-                    className={
-                      oi === q.correctOption
-                        ? "text-green-600 font-medium"
-                        : "text-primary-text"
-                    }
-                  >
-                    {opt}
-                  </span>
+            {enhancingIndex === qi && enhanceDraft ? (
+              <QuestionForm
+                lessonId={lessonId}
+                question={enhanceDraft}
+                position={q.position}
+                onSaved={(saved) => {
+                  setQuestions((prev) => {
+                    const updated = [...prev];
+                    updated[qi] = { ...saved, id: q.id };
+                    return updated;
+                  });
+                  setEnhancingIndex(null);
+                  setEnhanceDraft(null);
+                }}
+                onCancel={() => {
+                  setEnhancingIndex(null);
+                  setEnhanceDraft(null);
+                }}
+              />
+            ) : (
+              <>
+                <p className="text-primary-text font-semibold">
+                  {q.questionText}
+                </p>
+                <div className="grid gap-1 mt-2">
+                  {q.options.map((opt, oi) => (
+                    <div key={oi} className="flex items-center gap-2 text-sm">
+                      {oi === q.correctOption ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-border shrink-0" />
+                      )}
+                      <span
+                        className={
+                          oi === q.correctOption
+                            ? "text-green-600 font-medium"
+                            : "text-primary-text"
+                        }
+                      >
+                        {opt}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         </div>
       ))}
+
+      {/* Move Generate 4 More button to bottom */}
+      <div className="flex justify-end pt-4">
+        <AiGenerateButton
+          onGenerate={handleGenerateMore}
+          label="Generate 4 More"
+          disabled={questions.length < 4 || generating}
+        />
+      </div>
 
       {adding && (
         <QuestionForm
           lessonId={lessonId}
           position={questions.length}
-          onSaved={() => {
+          onSaved={(saved) => {
+            setQuestions((prev) => [...prev, saved]);
             setAdding(false);
-            router.refresh();
           }}
+          onCancel={() => setAdding(false)}
         />
+      )}
+
+      {generatedDrafts.length > 0 && (
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-brand">
+            AI Generated Questions (Review & Save)
+          </h4>
+          {generatedDrafts.map((q, i) => (
+            <QuestionForm
+              key={i}
+              lessonId={lessonId}
+              question={q}
+              position={q.position}
+              onSaved={(saved) => {
+                setQuestions((prev) => [...prev, saved]);
+                setGeneratedDrafts((drafts) =>
+                  drafts.filter((_, idx) => idx !== i),
+                );
+              }}
+              onCancel={() =>
+                setGeneratedDrafts((drafts) =>
+                  drafts.filter((_, idx) => idx !== i),
+                )
+              }
+            />
+          ))}
+        </div>
       )}
 
       {questions.length === 0 && !adding && (
         <div className="text-center py-8 text-secondary-text text-sm border border-dashed border-border rounded-2xl">
-          No questions yet. Add one or generate with AI to get started.
+          No questions yet. Add one to get started.
+        </div>
+      )}
+
+      {rawModal?.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-lg w-full relative">
+            <h3 className="text-lg font-bold mb-2">AI Raw Output</h3>
+            <textarea
+              className="w-full h-40 border border-border rounded p-2 text-sm mb-4"
+              value={rawModal.text}
+              readOnly
+              onFocus={(e) => e.target.select()}
+            />
+            <p className="text-xs text-secondary-text mb-2">
+              Copy and manually edit the question below if needed.
+            </p>
+            <button
+              className="px-4 py-2 bg-brand text-white rounded font-semibold"
+              onClick={() => setRawModal(null)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

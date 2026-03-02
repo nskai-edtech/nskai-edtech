@@ -60,7 +60,13 @@ export default function CourseDetailsForm({
       const isTagsSame =
         JSON.stringify(debouncedData.tags) === JSON.stringify(courseTags);
 
-      if (isTitleSame && isDescriptionSame && isPriceSame && isImageSame && isTagsSame) {
+      if (
+        isTitleSame &&
+        isDescriptionSame &&
+        isPriceSame &&
+        isImageSame &&
+        isTagsSame
+      ) {
         return;
       }
 
@@ -98,17 +104,30 @@ export default function CourseDetailsForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedData]);
 
-  const handleGenerateDescription = async () => {
-    // TODO: actual call to the Python API when ready!
-    // simulating a 2-second network request for now.
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+  const handleEnhanceDescription = async () => {
+    try {
+      const res = await fetch("/api/ai/enhance-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: formData.description }),
+      });
 
-    const aiSuggestion =
-      "This comprehensive course is designed to take you from absolute beginner to industry-ready professional. Through a series of hands-on projects and deep-dive lectures, you will master the core concepts, build real-world applications, and learn the best practices used by top engineers today. No prior experience required—just a willingness to learn and build!";
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to enhance description");
+      }
 
-    // Magically type it into the form!
-    setFormData((prev) => ({ ...prev, description: aiSuggestion }));
-    toast.success("Description generated!");
+      const { enhanced } = await res.json();
+      setFormData((prev) => ({ ...prev, description: enhanced }));
+      toast.success("Description enhanced!");
+    } catch (error) {
+      console.error("Enhance description failed:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to enhance description",
+      );
+    }
   };
 
   return (
@@ -229,9 +248,10 @@ export default function CourseDetailsForm({
             <label className="block text-sm font-semibold text-primary-text mb-2">
               Linked Skills
             </label>
-            <CourseSkillsSelector courseId={course.id} />
+            <CourseSkillsSelector courseId={course.id} maxSkills={5} />
             <p className="text-[10px] text-secondary-text mt-2 uppercase tracking-tight">
-              Link skills to this course for diagnostic-based recommendations.
+              Link up to 5 skills to this course for diagnostic-based
+              recommendations.
             </p>
           </div>
 
@@ -357,11 +377,12 @@ export default function CourseDetailsForm({
             className="w-full px-6 py-4 pb-14 bg-transparent text-primary-text placeholder:text-secondary-text focus:outline-none resize-none leading-relaxed"
           />
 
-          {/* --- GENERATE WITH AI BUTTON --- */}
+          {/* --- ENHANCE WITH AI BUTTON --- */}
           <div className="absolute bottom-4 right-4">
             <AiGenerateButton
-              onGenerate={handleGenerateDescription}
-              label="Draft with AI"
+              onGenerate={handleEnhanceDescription}
+              label="Enhance with AI"
+              disabled={!formData.description.trim()}
               className="shadow-md"
             />
           </div>

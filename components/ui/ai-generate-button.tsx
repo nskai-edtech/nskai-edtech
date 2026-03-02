@@ -8,12 +8,14 @@ interface AiGenerateButtonProps {
   onGenerate: () => Promise<void>;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function AiGenerateButton({
   onGenerate,
   label = "Generate with AI",
   className,
+  disabled = false,
 }: AiGenerateButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -30,7 +32,7 @@ export function AiGenerateButton({
     <button
       type="button"
       onClick={handleClick}
-      disabled={isGenerating}
+      disabled={isGenerating || disabled}
       className={cn(
         "group flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md transition-all",
         "bg-brand/10 text-brand hover:bg-brand/20 border border-brand/20",
@@ -43,7 +45,7 @@ export function AiGenerateButton({
       ) : (
         <Sparkles className="w-3.5 h-3.5 group-hover:animate-pulse" />
       )}
-      {isGenerating ? "Generating..." : label}
+      {isGenerating ? "Enhancing..." : label}
     </button>
   );
 }

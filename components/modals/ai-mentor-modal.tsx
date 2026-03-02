@@ -29,6 +29,32 @@ const GREETING: Message = {
     "Hello! I'm your AI Mentor. What question do you have about this lesson?",
 };
 
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-1.5 py-1">
+      <span className="text-xs font-medium text-secondary-text">Typing</span>
+      <span className="flex items-center gap-0.75">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="h-1.25 w-1.25 rounded-full bg-brand/70"
+            style={{
+              animation: "ai-bounce 1.4s ease-in-out infinite",
+              animationDelay: `${i * 0.2}s`,
+            }}
+          />
+        ))}
+      </span>
+      <style>{`
+        @keyframes ai-bounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-4px); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export function AiMentorModal() {
   const { isOpen, onClose, type, data } = useModalStore();
   const isModalOpen = isOpen && type === "aiMentor";
@@ -255,13 +281,11 @@ export function AiMentorModal() {
           </div>
         </div>
 
-        {/* Context quality warning banner */}
-        {contextQuality && contextQuality !== "full" && (
+        {/* Context quality info banner */}
+        {contextQuality && contextQuality === "none" && (
           <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              {contextQuality === "partial"
-                ? "Note: The video transcript isn't available yet. The AI has limited context about this lesson."
-                : "Note: Unable to load lesson context. The AI may not know details about this specific video."}
+              Unable to load lesson context. The AI will use its general knowledge to help you.
             </p>
           </div>
         )}
@@ -298,7 +322,14 @@ export function AiMentorModal() {
                         : "bg-surface-muted text-primary-text font-medium border border-border",
                     )}
                   >
-                    {msg.content}
+                    {msg.role === "ai" &&
+                    !msg.content &&
+                    isLoading &&
+                    index === messages.length - 1 ? (
+                      <TypingIndicator />
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                   {/* Feedback thumbs for AI messages (not the greeting, not while loading) */}
                   {msg.role === "ai" &&

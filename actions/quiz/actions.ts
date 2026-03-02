@@ -48,16 +48,24 @@ export async function saveQuizQuestion(
   });
   if (!lesson) return { error: "Lesson not found" };
 
+  let savedQuestion;
+
   if (questionId) {
     await db
       .update(quizQuestions)
       .set(data)
       .where(eq(quizQuestions.id, questionId));
+    savedQuestion = await db.query.quizQuestions.findFirst({
+      where: eq(quizQuestions.id, questionId),
+    });
   } else {
-    await db.insert(quizQuestions).values({ lessonId, ...data });
+    const inserted = await db
+      .insert(quizQuestions)
+      .values({ lessonId, ...data })
+      .returning();
+    savedQuestion = inserted[0];
   }
 
-  // Ensure the lesson is marked as a quiz so the watch page renders it
   await db
     .update(lessons)
     .set({ type: "QUIZ" })
@@ -65,7 +73,7 @@ export async function saveQuizQuestion(
 
   revalidatePath(`/tutor/courses`);
   revalidatePath(`/watch`, "layout");
-  return { success: true };
+  return { success: true, question: savedQuestion };
 }
 
 // ─── Delete Question ───
@@ -163,14 +171,26 @@ export async function submitQuiz(
 
   if (lessonData?.chapterId) {
     if (passed) {
-      const moduleResult = await checkModuleCompletion(userId, lessonData.chapterId);
+      const moduleResult = await checkModuleCompletion(
+        userId,
+        lessonData.chapterId,
+      );
       if (moduleResult && !moduleResult.success) {
-        console.warn("[GAMIFICATION] Failed to award module XP for chapter", lessonData.chapterId);
+        console.warn(
+          "[GAMIFICATION] Failed to award module XP for chapter",
+          lessonData.chapterId,
+        );
       }
     }
-    const quizMasteryResult = await checkModuleQuizzesPassed(userId, lessonData.chapterId);
+    const quizMasteryResult = await checkModuleQuizzesPassed(
+      userId,
+      lessonData.chapterId,
+    );
     if (quizMasteryResult && !quizMasteryResult.success) {
-      console.warn("[GAMIFICATION] Failed to award quiz mastery XP for chapter", lessonData.chapterId);
+      console.warn(
+        "[GAMIFICATION] Failed to award quiz mastery XP for chapter",
+        lessonData.chapterId,
+      );
     }
   }
 
