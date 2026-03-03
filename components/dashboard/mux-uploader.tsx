@@ -96,6 +96,12 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
         setIsMobileUploading(true);
         setMobileUploadProgress(0);
 
+        toast("Uploading video — please keep this window open.", {
+          id: "mobile-upload-toast",
+          icon: "🎬",
+          duration: Infinity,
+        });
+
         const xhr = new XMLHttpRequest();
         xhr.open("PUT", result.url);
 
@@ -108,9 +114,11 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
         };
 
         xhr.onload = () => {
+          toast.dismiss("mobile-upload-toast");
           if (xhr.status >= 200 && xhr.status < 300) {
             setIsMobileUploading(false);
             setUploadUrl(null);
+            toast.success("Upload complete! Processing your video...");
             startPolling(currentUploadId);
           } else {
             toast.error("Upload failed. Please try again.");
@@ -119,6 +127,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
         };
 
         xhr.onerror = () => {
+          toast.dismiss("mobile-upload-toast");
           toast.error("Upload failed. Check your connection and try again.");
           setIsMobileUploading(false);
         };
@@ -350,13 +359,18 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
             />
             <button
               onClick={() => mobileFileInputRef.current?.click()}
-              disabled={isGeneratingUrl}
-              className="flex items-center gap-2 px-8 py-3 bg-brand hover:bg-brand/90 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:opacity-50 active:scale-95"
+              disabled={isGeneratingUrl || isMobileUploading}
+              className="flex items-center gap-2 px-8 py-3 bg-brand hover:bg-brand/90 text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isGeneratingUrl ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Preparing...
+                </>
+              ) : isMobileUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading...
                 </>
               ) : (
                 <>
