@@ -4,7 +4,9 @@
 |____.env.sentry-build-plugin
 |____.github
 | |____prompts
+| | |____plan-buildWireCourseRejectedEmail.prompt.md
 | | |____plan-nskaiedtechplatform.prompt.md
+| | |____plan-wireWelcomeEmailIntoClerkWebhook.prompt.md
 | |____workflows
 | | |____playwright.yml
 |____.gitignore
@@ -13,10 +15,12 @@
 |____actions
 | |____admin
 | | |____auth.ts
+| | |____course-delete-review.ts
 | | |____dashboard.ts
 | | |____learners.ts
 | | |____tutors.ts
 | |____analytics
+| | |____admin.ts
 | | |____queries.ts
 | | |____tutor.ts
 | | |____types.ts
@@ -28,6 +32,7 @@
 | | |____queries.ts
 | | |____types.ts
 | |____chapters.ts
+| |____chat.ts
 | |____continue-learning.ts
 | |____courses
 | | |____admin.ts
@@ -39,10 +44,12 @@
 | | |____points.ts
 | | |____queries.ts
 | | |____types.ts
+| | |____xp-breakdown.ts
 | |____learning-paths
 | | |____actions.ts
 | | |____queries.ts
 | | |____types.ts
+| |____lesson-assets.ts
 | |____lesson-viewer.ts
 | |____mux.ts
 | |____notes.ts
@@ -75,6 +82,13 @@
 | | |____queries.ts
 | |____reviews
 | | |____actions.ts
+| | |____queries.ts
+| | |____types.ts
+| |____skills
+| | |____admin.ts
+| | |____assessments-admin.ts
+| | |____course-skills.ts
+| | |____diagnostic.ts
 | | |____queries.ts
 | | |____types.ts
 | |____tutor-settings.ts
@@ -133,10 +147,16 @@
 | | | |____page.tsx
 | |____(protected)
 | | |____learner
+| | | |____ai-mentor
+| | | | |____page.tsx
 | | | |____certificates
 | | | | |____page.tsx
 | | | | |____[courseId]
 | | | | | |____page.tsx
+| | | |____code-review
+| | | | |____page.tsx
+| | | |____completed
+| | | | |____page.tsx
 | | | |____enrolled
 | | | | |____page.tsx
 | | | |____layout.tsx
@@ -157,6 +177,12 @@
 | | | |____portfolio
 | | | | |____page.tsx
 | | | |____profile
+| | | | |____page.tsx
+| | | | |____xp
+| | | | | |____page.tsx
+| | | |____skills
+| | | | |____assess
+| | | | | |____page.tsx
 | | | | |____page.tsx
 | | | |____tutor
 | | | | |____[tutorId]
@@ -198,6 +224,16 @@
 | | | | | |____remove-course-button.tsx
 | | | |____requests
 | | | | |____page.tsx
+| | | | |____[requestId]
+| | | | | |____review-delete
+| | | | | | |____page.tsx
+| | | |____skills
+| | | | |____page.tsx
+| | | | |____skills-actions.tsx
+| | | | |____[skillId]
+| | | | | |____page.tsx
+| | | | | |____question-manager.tsx
+| | | | | |____skill-detail-actions.tsx
 | | | |____tutor-approvals
 | | | | |____page.tsx
 | | | |____tutors
@@ -232,6 +268,16 @@
 | | |____ai
 | | | |____chat
 | | | | |____route.ts
+| | | |____enhance-description
+| | | | |____route.ts
+| | | |____enhance-quiz
+| | | | |____route.ts
+| | | |____feedback
+| | | | |____route.ts
+| | | |____lesson-assets
+| | | | |____route.ts
+| | | |____review
+| | | | |____route.ts
 | | |____mux-webhook
 | | | |____route.ts
 | | |____paystack-webhook
@@ -265,15 +311,22 @@
 | |____verify
 | | |____[certificateId]
 | | | |____page.tsx
+|____build-full.log
+|____build-output.txt
 |____components
 | |____analytics
 | | |____activity-panels.tsx
+| | |____bar-chart.tsx
 | | |____course-performance-table.tsx
+| | |____engagement-summary.tsx
+| | |____failed-payments-panel.tsx
 | | |____kpi-and-charts.tsx
 | | |____revenue-chart.tsx
+| | |____user-growth-chart.tsx
 | |____certificates
 | | |____certificate-download-button.tsx
 | | |____certificate-template.tsx
+| |____cookie-consent.tsx
 | |____courses
 | | |____course-card.tsx
 | | |____course-curriculum.tsx
@@ -281,12 +334,16 @@
 | | |____course-enroll-button.tsx
 | | |____course-reviews.tsx
 | | |____course-video-preview.tsx
+| | |____marketplace-filters.tsx
 | | |____star-rating-input.tsx
 | |____dashboard
 | | |____activity-feed.tsx
 | | |____assessment-editor.tsx
+| | |____course-delete-review.tsx
 | | |____course-details-form.tsx
 | | |____course-editor.tsx
+| | |____course-skills-selector.tsx
+| | |____course-tags-selector.tsx
 | | |____lesson-editor.tsx
 | | |____low-performing-courses.tsx
 | | |____mobile-sidebar.tsx
@@ -302,27 +359,37 @@
 | |____landing-page
 | | |____features.tsx
 | | |____footer.tsx
-| | |____hero-progress-image.tsx
 | | |____hero-section.tsx
 | | |____navbar.tsx
-| | |____testimonials.tsx
 | |____layout
 | | |____learner-sidebar.tsx
 | | |____page-shell.tsx
+| | |____user-button-client.tsx
 | |____learner
 | | |____continue-learning-widget.tsx
+| | |____delete-account-section.tsx
+| | |____how-it-works.tsx
 | | |____interests-selector.tsx
 | | |____learner-greeting.tsx
 | | |____notes-panel.tsx
 | | |____profile-form.tsx
+| | |____xp-activity-timeline.tsx
+| | |____xp-course-breakdown.tsx
+| | |____xp-time-filter.tsx
 | |____modals
 | | |____ai-mentor-modal.tsx
 | | |____approve-modal.tsx
+| | |____course-completed-modal.tsx
 | | |____course-request-modal.tsx
 | | |____manager-modal.tsx
 | |____ModeToggle.tsx
 | |____providers
 | | |____modal-provider.tsx
+| |____scroll-reset.tsx
+| |____skills
+| | |____assessment-player.tsx
+| | |____skill-gap-courses.tsx
+| | |____skill-mastery.tsx
 | |____tutor
 | | |____quiz-editor.tsx
 | | |____settings-form.tsx
@@ -341,6 +408,7 @@
 | | |____qa-form.tsx
 | | |____qa-section.tsx
 | | |____question-item.tsx
+| | |____quiz-gate.tsx
 | | |____quiz-player.tsx
 |____debug-enum.ts
 |____drizzle
@@ -349,15 +417,27 @@
 | | |____0001_strange_doctor_octopus.sql
 | | |____0002_purple_zemo.sql
 | | |____0003_next_storm.sql
+| | |____0004_add_lesson_quiz_point_reasons.sql
+| | |____0005_add_course_tags.sql
+| | |____0005_burly_marvex.sql
+| | |____0006_add-failed-payments.sql
+| | |____0007_add-archived-course-status.sql
+| | |____0008_add-ai-chat-history.sql
+| | |____0009_shiny_changeling.sql
 | | |____meta
 | | | |____0000_snapshot.json
 | | | |____0001_snapshot.json
 | | | |____0002_snapshot.json
 | | | |____0003_snapshot.json
+| | | |____0005_snapshot.json
+| | | |____0006_snapshot.json
+| | | |____0008_snapshot.json
+| | | |____0009_snapshot.json
 | | | |_____journal.json
 | |____schema
 | | |____assessments.ts
 | | |____certificates.ts
+| | |____chat.ts
 | | |____courses.ts
 | | |____enums.ts
 | | |____gamification.ts
@@ -371,6 +451,10 @@
 | |____schema.ts
 |____drizzle.config.ts
 |____emails
+| |____config.ts
+| |____CourseApprovedEmail.tsx
+| |____CourseRejectedEmail.tsx
+| |____PaymentFailedEmail.tsx
 | |____PurchaseConfirmationEmail.tsx
 | |____TutorApprovedEmail.tsx
 | |____WelcomeEmail.tsx
@@ -382,9 +466,14 @@
 |____instrumentation-client.ts
 |____instrumentation.ts
 |____lib
+| |____ai-service.ts
+| |____chat-local.ts
+| |____code-review-local.ts
 | |____db.ts
 | |____email.ts
 | |____format.ts
+| |____mux-transcript.ts
+| |____rate-limit.ts
 | |____topics.tsx
 | |____uploadthing.ts
 | |____utils.ts
@@ -404,15 +493,48 @@
 |____project_structure.txt
 |____proxy.ts
 |____public
+| |____ai-mentor-screen-dark.png
+| |____ai-mentor-screen-light.png
+| |____code-reviewer-screen-light.png
+| |____course-marketplace-dark.png
+| |____course-marketplace-light.png
+| |____course-review-screen-dark.png
+| |____curriculum-editor-screen.png
+| |____delete-course-modal-screen.png
+| |____features-screen-dark.png
+| |____footer-screen-light.png
 | |____icon.tsx
+| |____impact-screen-light.png
+| |____leaderboard-screen-light.png
+| |____learner-dashboard-dark.png
+| |____learner-dashboard-light.png
+| |____mobile-screen.png
 | |____og-image.svg
+| |____qa-screen-light.png
+| |____quiz-editor-screen.png
+| |____skills-assessment-screen-dark.png
+| |____skills-assessment-screen-light.png
+| |____tutor-aanlytics-screen-dark.png
+| |____tutor-analytics-screen-1.png
+| |____tutor-analytics-screen-2.png
+| |____watch-screen-light.png
+| |____xp-breakdown-screen-dark.png
 |____README.md
+|____remaining-issues.md
 |____scripts
+| |____add-course-tags.ts
+| |____backfill-course-tags.ts
+| |____backfill-lesson-quiz-xp.ts
+| |____backfill-points.ts
+| |____check-lessons.ts
 | |____check_enum.ts
 | |____delete-all-seeds.ts
 | |____delete-seed-tutors.ts
+| |____diagnose-points.ts
 | |____fix_enum.ts
+| |____migrate-transcripts.ts
 | |____seed-courses.ts
+| |____seed-skills.ts
 | |____seed-tutors.ts
 |____sentry.edge.config.ts
 |____sentry.server.config.ts
