@@ -5,38 +5,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "plus.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
-      {
-        protocol: "https",
-        hostname: "api.dicebear.com",
-      },
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-      },
-      {
-        protocol: "https",
-        hostname: "*.utfs.io",
-      },
-      {
-        protocol: "https",
-        hostname: "ufs.sh",
-      },
-      {
-        protocol: "https",
-        hostname: "*.ufs.sh",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+      { protocol: "https", hostname: "img.clerk.com" },
+      { protocol: "https", hostname: "api.dicebear.com" },
+      { protocol: "https", hostname: "utfs.io" },
+      { protocol: "https", hostname: "*.utfs.io" },
+      { protocol: "https", hostname: "ufs.sh" },
+      { protocol: "https", hostname: "*.ufs.sh" },
     ],
   },
   async headers() {
@@ -45,6 +21,11 @@ const nextConfig: NextConfig = {
         // Apply to all routes
         source: "/(.*)",
         headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          // -----------------------
           {
             key: "X-Frame-Options",
             value: "SAMEORIGIN",
