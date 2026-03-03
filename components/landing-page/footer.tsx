@@ -5,7 +5,6 @@ import {
   Send,
   CreditCard,
   Wallet,
-  Twitter,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -62,11 +61,11 @@ function FooterSection() {
             {/* Brand */}
             <div className="flex flex-col gap-6 max-w-sm">
               <div className="flex items-center gap-2">
-                <Link href="/">
-                  <div className="bg-brand p-1.5 rounded-lg">
+                <Link href="/" className="flex items-center gap-1">
+                  <div className="bg-brand p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
                     <Globe className="w-5 h-5 text-white" />
                   </div>
-                <span className="text-xl font-bold">ZERRA</span>
+                  <span className="text-xl font-bold">ZERRA</span>
                 </Link>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
@@ -75,7 +74,7 @@ function FooterSection() {
                 knowledge with 24/7 AI tutoring.
               </p>
               <div className="flex items-center gap-4">
-                {[Twitter, Linkedin, Globe, Github].map((Icon, i) => (
+                {[Linkedin, Globe, Github].map((Icon, i) => (
                   <button
                     key={i}
                     className="p-2 bg-gray-100 dark:bg-surface-muted rounded-lg hover:bg-gray-200 dark:hover:bg-border transition-colors group"
