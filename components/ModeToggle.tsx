@@ -48,9 +48,9 @@ export default function ThemeToggle() {
       className="p-2 border rounded-md bg-surface text-primary-text"
     >
       {isDark ? (
-        <SunIcon className="w-6 h-6" />
+        <SunIcon className="w-3 h-3 md:w-6 md:h-6" />
       ) : (
-        <MoonIcon className="w-6 h-6" />
+        <MoonIcon className="w-3 h-3 md:w-6 md:h-6" />
       )}
     </button>
   );
