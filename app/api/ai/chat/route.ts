@@ -1,3 +1,5 @@
+import { Ratelimit } from "@upstash/ratelimit";
+import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createRateLimiter } from "@/lib/rate-limit";
@@ -16,18 +18,46 @@ import { aiMentorChatStream, type ChatRequest } from "@/lib/ai-service";
 import { fetchMuxTranscript } from "@/lib/mux-transcript";
 import { localMentorChatStream, type LocalChatMessage } from "@/lib/chat-local";
 
+const ratelimit = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(10, "10 s"), // max 10 requests per 10 seconds
+});
+
 // 20 messages per 60-second window per user
 const rateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000 });
 
 export async function POST(req: Request) {
   try {
+    // ── Upstash IP Rate limit ──
+    const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
+    const {
+      success,
+      limit,
+      reset,
+      remaining: ipRemaining,
+    } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests from your IP. Please wait a moment." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)),
+            "X-RateLimit-Limit": String(limit),
+            "X-RateLimit-Remaining": String(ipRemaining),
+          },
+        },
+      );
+    }
+
     // ── Auth ──
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // ── Rate limit ──
+    // ── User Rate limit ──
     const { allowed, remaining, resetInMs } = rateLimiter(clerkId);
     if (!allowed) {
       return NextResponse.json(
@@ -389,10 +419,10 @@ export async function POST(req: Request) {
 
     /**
      * The AI Core streams structured SSE events:
-     *   data: {"type":"status","payload":{"step":"..."}}
-     *   data: {"type":"token","payload":{"delta":"..."}}
-     *   data: {"type":"metadata","payload":{...}}
-     *   data: {"type":"done"}
+     * data: {"type":"status","payload":{"step":"..."}}
+     * data: {"type":"token","payload":{"delta":"..."}}
+     * data: {"type":"metadata","payload":{...}}
+     * data: {"type":"done"}
      *
      * We parse these and forward only the token deltas as plain text
      * so the frontend can simply append chunks to the message bubble.

@@ -31,6 +31,22 @@ export default clerkMiddleware(async (auth, req) => {
   // Generate a CSP nonce for this request
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
+  // Block weird HTTP methods that regular users shouldn't be using on standard pages
+  const allowedMethods = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "PATCH",
+    "OPTIONS",
+    "HEAD",
+  ];
+
+  // FIXED: Using 'req' instead of 'request'
+  if (!allowedMethods.includes(req.method)) {
+    return new NextResponse("Method Not Allowed", { status: 405 });
+  }
+
   const { userId, sessionClaims } = await auth();
 
   // @ts-ignore
