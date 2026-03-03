@@ -1,5 +1,5 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis"; // <-- NEW IMPORT
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createRateLimiter } from "@/lib/rate-limit";
@@ -18,8 +18,10 @@ import { aiMentorChatStream, type ChatRequest } from "@/lib/ai-service";
 import { fetchMuxTranscript } from "@/lib/mux-transcript";
 import { localMentorChatStream, type LocalChatMessage } from "@/lib/chat-local";
 
+const redis = Redis.fromEnv();
+
 const ratelimit = new Ratelimit({
-  redis: kv,
+  redis: redis,
   limiter: Ratelimit.slidingWindow(10, "10 s"), // max 10 requests per 10 seconds
 });
 
