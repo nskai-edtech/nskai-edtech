@@ -81,9 +81,9 @@ export default function CourseDetailsForm({
 
         const result = await updateCourse(course.id, {
           title: debouncedData.title,
-          description: debouncedData.description || undefined,
+          description: debouncedData.description,
           price: priceValue,
-          imageUrl: debouncedData.imageUrl || undefined,
+          imageUrl: debouncedData.imageUrl,
           tags: debouncedData.tags,
         });
 
