@@ -48,14 +48,22 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   const handleGenerateNotes = async () => {
-    // TODO: Replace with real Python API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await fetch("/api/ai/enhance-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: formData.notes }),
+      });
 
-    const aiSuggestion =
-      "<h3>Key Takeaways</h3><ul><li>Always verify your environment variables before deployment.</li><li>Keep your component states localized when possible.</li></ul><p><strong>Resource:</strong> <a href='#'>Download the cheat sheet here</a></p>";
+      if (!res.ok) throw new Error("Failed to enhance notes");
 
-    setFormData((prev) => ({ ...prev, notes: aiSuggestion }));
-    toast.success("Lesson notes generated!");
+      const data = await res.json();
+      setFormData((prev) => ({ ...prev, notes: data.enhanced }));
+      toast.success("Notes enhanced!");
+    } catch (error) {
+      console.error("Enhance notes error:", error);
+      toast.error("Failed to enhance notes");
+    }
   };
 
   useEffect(() => {
@@ -338,7 +346,8 @@ export default function LessonEditor({ lesson, onUpdate }: LessonEditorProps) {
           </div>
           <AiGenerateButton
             onGenerate={handleGenerateNotes}
-            label="Generate Notes"
+            label="Enhance Notes"
+            disabled={!formData.notes || formData.notes.trim() === ""}
           />
         </div>
         <div className="border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-brand/50 transition-all">

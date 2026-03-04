@@ -179,7 +179,7 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
         setEnhancingIndex(null);
         return;
       }
-      setEnhanceDraft({ ...data.question, position: q.position });
+      setEnhanceDraft({ ...data.question, position: q.position, id: q.id });
     } catch (err) {
       console.error("Error enhancing question:", err);
       toast.error("Failed to enhance question");
@@ -197,6 +197,7 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "generate",
+          // Map to only send the necessary fields to the AI
           existingQuestions: questions.map((q) => ({
             questionText: q.questionText,
             options: q.options,
@@ -204,14 +205,18 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
           })),
         }),
       });
+
       if (!res.ok) throw new Error("AI generate failed");
+
       const data = await res.json();
+
       setGeneratedDrafts(
         (data.questions as QuizQuestionWithAnswer[]).map((q, i) => ({
           ...q,
           position: questions.length + i,
         })),
       );
+
       toast.success("4 questions generated! Scroll down to review and save.");
     } catch {
       toast.error("Failed to generate more questions");
@@ -381,21 +386,25 @@ export function QuizEditor({ lessonId, initialQuestions }: QuizEditorProps) {
           <h4 className="text-sm font-semibold text-brand">
             AI Generated Questions (Review & Save)
           </h4>
-          {generatedDrafts.map((q, i) => (
+          {generatedDrafts.map((q) => (
             <QuestionForm
-              key={i}
+              key={q.questionText}
               lessonId={lessonId}
               question={q}
               position={q.position}
               onSaved={(saved) => {
                 setQuestions((prev) => [...prev, saved]);
                 setGeneratedDrafts((drafts) =>
-                  drafts.filter((_, idx) => idx !== i),
+                  drafts.filter(
+                    (draft) => draft.questionText !== q.questionText,
+                  ),
                 );
               }}
               onCancel={() =>
                 setGeneratedDrafts((drafts) =>
-                  drafts.filter((_, idx) => idx !== i),
+                  drafts.filter(
+                    (draft) => draft.questionText !== q.questionText,
+                  ),
                 )
               }
             />
