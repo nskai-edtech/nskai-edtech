@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -20,6 +20,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#000000", // Should match your manifest
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
@@ -30,6 +34,12 @@ export const metadata: Metadata = {
   },
   description:
     "Zerra (formerly NSK.AI) is the next generation of online learning. Experience AI-powered tutoring, interactive courses, and real-time progress tracking on the Zerra platform.",
+  manifest: "/manifest.json", // Tells the browser where the ID card is
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Zerra",
+  },
   keywords: [
     "Zerra",
     "NSK AI",
