@@ -8,6 +8,8 @@ import {
   courses,
   purchases,
   users,
+  quizQuestions,
+  userQuizAttempts,
 } from "@/drizzle/schema";
 import { eq, and, count, desc, inArray, asc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
@@ -149,11 +151,6 @@ export async function getCourseCompletion(): Promise<
   });
 }
 
-/**
- * Internal helper: given a lessonId + userId, resolves the course and checks
- * whether every lesson in that course is completed.
- * NOT a server action — called from other server actions.
- */
 export async function checkCourseCompletionByLesson(
   userId: string,
   lessonId: string,
@@ -162,7 +159,7 @@ export async function checkCourseCompletionByLesson(
   courseId: string;
   courseTitle: string;
 }> {
-  // Resolve lesson → chapter → course
+  // Resolve lesson → chapter → course ──
   const lessonRow = await db.query.lessons.findFirst({
     where: eq(lessons.id, lessonId),
     columns: { chapterId: true },
@@ -186,8 +183,13 @@ export async function checkCourseCompletionByLesson(
     .where(eq(chapters.courseId, course.id));
 
   const totalLessons = totalResult?.count ?? 0;
-  if (totalLessons === 0)
-    return { courseCompleted: false, courseId: course.id, courseTitle: course.title };
+  if (totalLessons === 0) {
+    return {
+      courseCompleted: false,
+      courseId: course.id,
+      courseTitle: course.title,
+    };
+  }
 
   const [completedResult] = await db
     .select({ count: count() })
@@ -204,8 +206,51 @@ export async function checkCourseCompletionByLesson(
 
   const completedLessons = completedResult?.count ?? 0;
 
+  if (completedLessons < totalLessons) {
+    return {
+      courseCompleted: false,
+      courseId: course.id,
+      courseTitle: course.title,
+    };
+  }
+
+  const lessonsWithQuizzes = await db
+    .selectDistinct({ lessonId: quizQuestions.lessonId })
+    .from(quizQuestions)
+    .innerJoin(lessons, eq(quizQuestions.lessonId, lessons.id))
+    .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+    .where(eq(chapters.courseId, course.id));
+
+  const totalRequiredQuizzes = lessonsWithQuizzes.length;
+
+  if (totalRequiredQuizzes > 0) {
+    const passedQuizzes = await db
+      .selectDistinct({ lessonId: userQuizAttempts.lessonId })
+      .from(userQuizAttempts)
+      .innerJoin(lessons, eq(userQuizAttempts.lessonId, lessons.id))
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(
+        and(
+          eq(chapters.courseId, course.id),
+          eq(userQuizAttempts.userId, userId),
+          eq(userQuizAttempts.passed, true),
+        ),
+      );
+
+    const totalPassed = passedQuizzes.length;
+
+    // If they haven't passed every required quiz, the course is not complete
+    if (totalPassed < totalRequiredQuizzes) {
+      return {
+        courseCompleted: false,
+        courseId: course.id,
+        courseTitle: course.title,
+      };
+    }
+  }
+
   return {
-    courseCompleted: completedLessons >= totalLessons,
+    courseCompleted: true,
     courseId: course.id,
     courseTitle: course.title,
   };
