@@ -120,7 +120,6 @@ export async function submitQuiz(
 
   if (rows.length === 0) return { error: "No questions found for this quiz" };
 
-  // Server-side guard: if the lesson has a video, the learner must watch it first
   if (muxRow) {
     const progress = await db.query.userProgress.findFirst({
       where: and(
