@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import {
   Sparkles,
@@ -12,17 +13,18 @@ import {
   X,
   Loader2,
   AlertTriangle,
+  Menu,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface BackendChatMessage {
+export interface BackendChatMessage {
   id: string;
   role: "user" | "ai" | "system";
   content: string;
   createdAt: string;
 }
 
-interface Conversation {
+export interface Conversation {
   id: string;
   title: string;
   updatedAt: string;
@@ -35,7 +37,7 @@ interface ConfirmDeleteModalProps {
   isDeleting: boolean;
 }
 
-function ConfirmDeleteModal({
+export function ConfirmDeleteModal({
   title,
   onConfirm,
   onCancel,
@@ -43,7 +45,7 @@ function ConfirmDeleteModal({
 }: ConfirmDeleteModalProps) {
   return (
     <div
-      className="fixed inset-0 z-1005 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={onCancel}
     >
       <div
@@ -51,8 +53,8 @@ function ConfirmDeleteModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-            <AlertTriangle className="h-6 w-6 text-destructive" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
+            <AlertTriangle className="h-6 w-6 text-red-500" />
           </div>
           <h3 className="text-base font-bold text-primary-text">
             Delete this chat?
@@ -70,14 +72,14 @@ function ConfirmDeleteModal({
           <button
             onClick={onCancel}
             disabled={isDeleting}
-            className="flex-1 rounded-xl border border-border bg-surface-muted px-4 py-2.5 text-sm font-semibold text-primary-text transition hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-xl border border-border bg-surface-muted px-4 py-2.5 text-sm font-semibold text-primary-text transition hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="flex-1 rounded-xl bg-destructive px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-destructive/90 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isDeleting ? (
               <>
@@ -100,18 +102,22 @@ interface ChatSidebarProps {
   activeConvId: string | null;
   isChatLoading: boolean;
   deletingId: string | null;
+  isMobileSidebarOpen: boolean;
+  onCloseMobileSidebar: () => void;
   onSelectConversation: (conv: Conversation) => void;
   onNewChat: (conv: Conversation) => void;
   onTriggerDelete: (conv: Conversation) => void;
   onUpdateTitle: (id: string, title: string) => void;
 }
 
-function ChatSidebar({
+export function ChatSidebar({
   conversations,
   loadingConversations,
   activeConvId,
   isChatLoading,
   deletingId,
+  isMobileSidebarOpen,
+  onCloseMobileSidebar,
   onSelectConversation,
   onNewChat,
   onTriggerDelete,
@@ -151,8 +157,8 @@ function ChatSidebar({
     setEditingId(null);
   };
 
-  return (
-    <aside className="h-full w-64 flex-col border-r border-border bg-surface shrink-0 hidden md:flex">
+  const sidebarContent = (
+    <aside className="h-full w-64 flex-col border-r border-border bg-surface shrink-0 flex">
       <div className="flex items-center justify-between border-b border-border p-4">
         <span className="text-sm font-semibold text-primary-text">Chats</span>
         <button
@@ -267,13 +273,36 @@ function ChatSidebar({
       </nav>
     </aside>
   );
+
+  return (
+    <>
+      {/* Desktop: always visible */}
+      <div className="hidden lg:flex h-full">{sidebarContent}</div>
+
+      {/* Mobile/Tablet: slide-over overlay */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-1010 flex lg:hidden"
+          onClick={onCloseMobileSidebar}
+        >
+          <div
+            className="h-full w-64 shrink-0 animate-in slide-in-from-left duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarContent}
+          </div>
+          <div className="flex-1 bg-black/30" />
+        </div>
+      )}
+    </>
+  );
 }
 
 interface UseDashboardChatOptions {
   onAutoTitle: (convId: string, title: string) => void;
 }
 
-function useDashboardChat({ onAutoTitle }: UseDashboardChatOptions) {
+export function useDashboardChat({ onAutoTitle }: UseDashboardChatOptions) {
   const [loading, setLoading] = useState(false);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -408,7 +437,7 @@ interface ChatMessageListProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function ChatMessageList({
+export function ChatMessageList({
   messages,
   streamedResponse,
   loading,
@@ -508,7 +537,7 @@ interface ChatInputProps {
   disabled: boolean;
 }
 
-function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -567,218 +596,45 @@ function ChatInput({ onSend, disabled }: ChatInputProps) {
 }
 
 export default function DashboardAiChatModal() {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
   const [showFabText, setShowFabText] = useState(true);
-  const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loadingConversations, setLoadingConversations] = useState(true);
-
-  // Lifted state for the delete modal so both Sidebar and Header can trigger it
-  const [pendingDeleteConv, setPendingDeleteConv] =
-    useState<Conversation | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const {
-    loading,
-    isChatLoading,
-    messages,
-    streamedResponse,
-    conversationId,
-    sendMessage,
-    loadConversation,
-    startNewConversation,
-  } = useDashboardChat({
-    onAutoTitle: (id, title) =>
-      setConversations((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, title } : c)),
-      ),
-  });
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const handleConfirmDelete = async () => {
-    if (!pendingDeleteConv) return;
-    setDeletingId(pendingDeleteConv.id);
-    try {
-      await fetch(
-        `/api/ai/dashboard-chat/conversations/${pendingDeleteConv.id}`,
-        { method: "DELETE" },
-      );
-      setConversations((prev) =>
-        prev.filter((c) => c.id !== pendingDeleteConv.id),
-      );
-      if (conversationId === pendingDeleteConv.id) startNewConversation();
-      setPendingDeleteConv(null);
-    } catch {
-      toast.error("Failed to delete chat");
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  useEffect(() => {
-    if (!open) return;
-
-    setLoadingConversations(true);
-
-    fetch("/api/ai/dashboard-chat/conversations")
-      .then((r) => r.json())
-      .then((d) => {
-        const fetchedConvs = d.conversations ?? [];
-        setConversations(fetchedConvs);
-
-        if (fetchedConvs.length > 0) {
-          loadConversation(fetchedConvs[0].id);
-        } else {
-          fetch("/api/ai/dashboard-chat/conversations", { method: "POST" })
-            .then((res) => res.json())
-            .then(({ conversation }) => {
-              setConversations([conversation]);
-              startNewConversation(conversation);
-            })
-            .catch(() => toast.error("Failed to start chat"));
-        }
-      })
-      .catch(() => toast.error("Failed to load conversations"))
-      .finally(() => setLoadingConversations(false));
-  }, [open, loadConversation, startNewConversation]);
-
-  useEffect(() => {
-    if (messagesEndRef.current && open && !isChatLoading) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
-    }
-  }, [messages, streamedResponse, loading, open, isChatLoading]);
+  const [navigating, setNavigating] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowFabText(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleNewChatFromHeader = async () => {
-    setIsCreatingNewChat(true);
-    try {
-      const res = await fetch("/api/ai/dashboard-chat/conversations", {
-        method: "POST",
-      });
-      const { conversation } = await res.json();
-      setConversations((prev) => [conversation, ...prev]);
-      startNewConversation(conversation);
-    } finally {
-      setIsCreatingNewChat(false);
-    }
+  const handleClick = () => {
+    setNavigating(true);
+    router.push("/learner/concierge");
   };
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-1000 h-14 px-4 bg-brand text-white rounded-full shadow-[0_4px_20px_rgba(255,0,4,0.3)] flex items-center justify-center hover:scale-105 transition-all duration-500 ease-in-out border-none cursor-pointer group"
-        aria-label="Open AI Concierge Chat"
-      >
+  return (
+    <button
+      onClick={handleClick}
+      disabled={navigating}
+      className={`fixed bottom-6 right-6 z-1000 h-14 px-4 bg-brand text-white rounded-full shadow-[0_4px_20px_rgba(255,0,4,0.3)] flex items-center justify-center hover:scale-105 transition-all duration-500 ease-in-out border-none cursor-pointer group ${navigating ? "opacity-80 cursor-wait" : ""}`}
+      aria-label="Open AI Concierge Chat"
+    >
+      {navigating ? (
+        <Loader2 className="w-6 h-6 shrink-0 animate-spin" />
+      ) : (
         <Sparkles className="w-6 h-6 shrink-0" />
-        <span
-          className={`font-semibold text-sm whitespace-nowrap overflow-hidden transition-all duration-500 ease-in-out flex items-center ${
-            showFabText
+      )}
+      <span
+        className={`font-semibold text-sm whitespace-nowrap overflow-hidden transition-all duration-500 ease-in-out flex items-center ${
+          navigating
+            ? "max-w-[150px] ml-2 opacity-100"
+            : showFabText
               ? "max-w-[150px] ml-2 opacity-100"
               : "max-w-0 ml-0 opacity-0 md:max-w-[150px] md:ml-2 md:opacity-100"
-          }`}
-        >
-          Chat with Zerra
-        </span>
-      </button>
-    );
-  }
-
-  return (
-    <>
-      {pendingDeleteConv && (
-        <ConfirmDeleteModal
-          title={pendingDeleteConv.title}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setPendingDeleteConv(null)}
-          isDeleting={deletingId !== null}
-        />
-      )}
-
-      <div
-        className="fixed inset-0 z-1001 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-        onClick={() => setOpen(false)}
+        }`}
       >
-        <div
-          className="w-full max-w-4xl h-[85vh] sm:h-[80vh] bg-surface border border-border rounded-2xl shadow-2xl flex overflow-hidden relative"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ChatSidebar
-            conversations={conversations}
-            loadingConversations={loadingConversations}
-            activeConvId={conversationId}
-            isChatLoading={isChatLoading}
-            deletingId={deletingId}
-            onSelectConversation={(conv) => loadConversation(conv.id)}
-            onNewChat={(conv) => {
-              setConversations((prev) => [conv, ...prev]);
-              startNewConversation(conv);
-            }}
-            onTriggerDelete={(conv) => setPendingDeleteConv(conv)}
-            onUpdateTitle={(id, title) =>
-              setConversations((prev) =>
-                prev.map((c) => (c.id === id ? { ...c, title } : c)),
-              )
-            }
-          />
-          <div className="flex-1 flex flex-col min-w-0 bg-surface">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-surface">
-              <h2 className="text-lg font-bold text-primary-text flex items-center gap-2">
-                <span className="text-brand">✨</span> Zerra Concierge
-              </h2>
-              <div className="flex items-center gap-3">
-                {conversationId && (
-                  <button
-                    onClick={() =>
-                      setPendingDeleteConv(
-                        conversations.find((c) => c.id === conversationId) ||
-                          null,
-                      )
-                    }
-                    className="text-red-500/80 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-red-500/10"
-                    title="Delete current chat"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <button
-                  onClick={handleNewChatFromHeader}
-                  disabled={isCreatingNewChat}
-                  className="text-xs font-bold text-brand bg-brand/10 px-3 py-1.5 rounded-lg hover:bg-brand/20 transition-colors border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5"
-                >
-                  {isCreatingNewChat ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Creating…
-                    </>
-                  ) : (
-                    "New Chat"
-                  )}
-                </button>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="text-secondary-text hover:text-primary-text text-3xl leading-none bg-transparent border-none cursor-pointer transition-colors"
-                >
-                  &times;
-                </button>
-              </div>
-            </div>
-            <ChatMessageList
-              messages={messages}
-              streamedResponse={streamedResponse}
-              loading={loading}
-              isChatLoading={isChatLoading}
-              messagesEndRef={messagesEndRef}
-            />
-            <ChatInput onSend={sendMessage} disabled={loading} />
-          </div>
-        </div>
-      </div>
-    </>
+        {navigating ? "Loading…" : "Chat with Zerra"}
+      </span>
+    </button>
   );
 }
+
+

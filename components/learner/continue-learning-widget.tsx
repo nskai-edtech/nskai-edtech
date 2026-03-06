@@ -30,26 +30,9 @@ export async function ContinueLearningWidget() {
           key={course.courseId}
           className="bg-surface border border-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden group"
         >
-          {/* Course Image/Icon */}
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden mb-4 bg-surface-muted">
-            {course.courseImageUrl ? (
-              <Image
-                src={course.courseImageUrl}
-                alt={course.courseTitle}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-brand/50" />
-              </div>
-            )}
-          </div>
-
           {/* Progress Circle */}
           <div className="absolute top-6 right-6">
             <div className="relative w-14 h-14">
-              {/* Background circle */}
               <svg className="w-14 h-14 transform -rotate-90">
                 <circle
                   cx="28"
@@ -60,7 +43,6 @@ export async function ContinueLearningWidget() {
                   fill="none"
                   className="text-surface-muted"
                 />
-                {/* Progress circle */}
                 <circle
                   cx="28"
                   cy="28"
@@ -74,7 +56,6 @@ export async function ContinueLearningWidget() {
                   strokeLinecap="round"
                 />
               </svg>
-              {/* Percentage text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-xs font-bold text-primary-text">
                   {course.progressPercentage}%
@@ -83,24 +64,38 @@ export async function ContinueLearningWidget() {
             </div>
           </div>
 
-          {/* Course Title */}
-          <h3 className="font-bold text-lg text-primary-text mb-1 line-clamp-1 pr-16">
-            {course.courseTitle}
-          </h3>
-
-          {/* Last Lesson */}
-          <p className="text-sm text-secondary-text mb-2 line-clamp-1">
-            {course.lessonTitle}
-          </p>
-
-          {/* Last Accessed Time */}
-          <div className="flex items-center gap-1.5 text-xs text-secondary-text mb-6">
-            <Clock className="w-3.5 h-3.5" />
-            <span>
-              {course.lastAccessedAt
-                ? formatTimeAgo(new Date(course.lastAccessedAt))
-                : "Recently"}
-            </span>
+          {/* Image + Text row */}
+          <div className="flex items-start gap-4 mb-6 pr-16">
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-surface-muted shrink-0">
+              {course.courseImageUrl ? (
+                <Image
+                  src={course.courseImageUrl}
+                  alt={course.courseTitle}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen className="w-8 h-8 text-brand/50" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-base sm:text-lg text-primary-text mb-1 line-clamp-1">
+                {course.courseTitle}
+              </h3>
+              <p className="text-sm text-secondary-text mb-1 line-clamp-1">
+                {course.lessonTitle}
+              </p>
+              <div className="flex items-center gap-1.5 text-xs text-secondary-text">
+                <Clock className="w-3.5 h-3.5" />
+                <span>
+                  {course.lastAccessedAt
+                    ? formatTimeAgo(new Date(course.lastAccessedAt))
+                    : "Recently"}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Continue Button */}

@@ -79,7 +79,7 @@ async function ProfileContent() {
       <div className="bg-surface border border-border rounded-3xl p-8">
         <div className="flex items-start gap-6">
           {/* Avatar */}
-          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-surface-muted shrink-0 shadow-sm border border-border">
+          <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-muted shrink-0 shadow-sm border border-border">
             {profile.imageUrl ? (
               <Image
                 src={profile.imageUrl}
@@ -96,14 +96,14 @@ async function ProfileContent() {
 
           {/* User Info */}
           <div className="flex-1">
-            <h1 className="text-3xl font-black text-primary-text mb-2">
+            <h1 className="text-xl font-black text-primary-text mb-2">
               {profile.firstName && profile.lastName
                 ? `${profile.firstName} ${profile.lastName}`
                 : profile.firstName || "Learner"}
             </h1>
-            <p className="text-secondary-text mb-1">{profile.email}</p>
-            <div className="flex items-center gap-2 text-sm text-secondary-text">
-              <Calendar className="w-4 h-4" />
+            <p className="text-secondary-text text-sm mb-1">{profile.email}</p>
+            <div className="flex items-center gap-2 text-xs text-secondary-text">
+              <Calendar className="w-3 h-3" />
               <span>Member since {memberSince}</span>
             </div>
           </div>
