@@ -173,13 +173,34 @@ export default function OnboardingPage() {
                   setFormData({ ...formData, expertise: e.target.value })
                 }
               >
-                <option value="Software Development">
-                  Software Development
-                </option>
-                <option value="Data Science">Data Science</option>
-                <option value="Design">Product Design</option>
-                <option value="Business">Business & Marketing</option>
-                <option value="Mathematics">Mathematics</option>
+                <option value="Software Development">Software Development</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Mobile App Development">Mobile App Development</option>
+                <option value="Data Science & Machine Learning">Data Science & Machine Learning</option>
+                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                <option value="Cloud Computing (AWS, Google Cloud, Azure)">Cloud Computing</option>
+                <option value="Cyber Security & Ethical Hacking">Cyber Security & Ethical Hacking</option>
+                <option value="Product & UX/UI Design">Product & UX/UI Design</option>
+                <option value="Graphic Design & Illustration">Graphic Design & Illustration</option>
+                <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
+                <option value="Digital Marketing & SEO">Digital Marketing & SEO</option>
+                <option value="Finance & Accounting">Finance & Accounting</option>
+                <option value="Project Management">Project Management</option>
+                <option value="Writing & Content Creation">Writing & Content Creation</option>
+                <option value="Video Production & Animation">Video Production & Animation</option>
+                <option value="Photography">Photography</option>
+                <option value="Music & Audio Production">Music & Audio Production</option>
+                <option value="Personal Development">Personal Development</option>
+                <option value="Health & Fitness">Health & Fitness</option>
+                <option value="Mathematics & Science">Mathematics & Science</option>
+                <option value="Languages & Linguistics">Languages & Linguistics</option>
+                <option value="Biology">Biology</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Physics">Physics</option>
+                <option value="Geology">Geology</option>
+                <option value="Geography">Geography</option>
+                <option value="Arts">Arts</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 

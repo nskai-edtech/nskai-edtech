@@ -108,3 +108,42 @@ export async function completeOnboarding(
     return { error: "Something went wrong" };
   }
 }
+
+export async function resetTutorApplication() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { error: "No Logged In User" };
+  }
+
+  const client = await clerkClient();
+
+  try {
+    const updatePayload = {
+      role: "LEARNER" as const,
+      status: "ACTIVE" as const,
+      expertise: null,
+      bio: null,
+    };
+
+    const clerkMetadataPayload = {
+      role: null,
+      status: null,
+    };
+
+    await Promise.all([
+      db
+        .update(users)
+        .set(updatePayload)
+        .where(eq(users.clerkId, userId)),
+      client.users.updateUserMetadata(userId, {
+        publicMetadata: clerkMetadataPayload,
+      }),
+    ]);
+
+    return { success: true };
+  } catch (err) {
+    console.error("[RESET_TUTOR_APP_ERROR]", err);
+    return { error: "Something went wrong while resetting the application" };
+  }
+}
