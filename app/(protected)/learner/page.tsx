@@ -8,6 +8,7 @@ import { getLearnerStats } from "@/actions/profile/actions";
 import { getRecommendedCourses } from "@/actions/recommendations/actions";
 import { getUserSkillProfile } from "@/actions/skills/queries";
 import { SkillSummaryWidget } from "@/components/skills/skill-mastery";
+import DashboardAiChatModal from "@/components/dashboard/DashboardAiChatModal";
 
 interface Session {
   id: string;
@@ -164,8 +165,7 @@ export default async function LearnerDashboard() {
 
             <div className="grid md:grid-cols-2 gap-6">
               {recommendedCourses.map((course) => {
-                const isNew =
-                  new Date(course.createdAt) > thirtyDaysAgo;
+                const isNew = new Date(course.createdAt) > thirtyDaysAgo;
 
                 return (
                   <Link
@@ -273,46 +273,11 @@ export default async function LearnerDashboard() {
               </button>
             </div>
           </div>
-
-          {/* Ask EduAI Widget */}
-          <div className="bg-blue-600 rounded-4xl p-6 text-white relative overflow-hidden shadow-2xl shadow-blue-600/20">
-            {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-
-            <div className="relative z-10">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-
-              <h3 className="text-xl font-black mb-2">Ask EduAI</h3>
-              <p className="text-blue-100 text-sm leading-relaxed mb-6 font-medium">
-                Stuck on a lesson? Ask me to explain a concept, summarize a
-                video, or help with your code.
-              </p>
-
-              <div className="space-y-3 mb-6">
-                <button className="w-full text-left p-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-medium transition-colors border border-white/5">
-                  &quot;Summarize my last lesson in AI Ethics&quot;
-                </button>
-                <button className="w-full text-left p-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-medium transition-colors border border-white/5">
-                  &quot;What&apos;s my next deadline?&quot;
-                </button>
-              </div>
-
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Type a question..."
-                  className="w-full pl-4 pr-10 py-3 rounded-xl bg-white text-blue-900 placeholder:text-blue-300 text-sm font-bold focus:outline-none shadow-lg"
-                />
-                <button className="absolute right-2 top-2 p-1 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors">
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* CONCIERGE MODAL HERE */}
+      <DashboardAiChatModal />
     </div>
   );
 }

@@ -6,15 +6,16 @@ import {
   uniqueIndex,
   index,
   serial,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { lessons } from "./courses";
-import { pgEnum } from "drizzle-orm/pg-core";
 
+// --- ENUMS ---
 export const chatRoleEnum = pgEnum("chat_role", ["user", "ai"]);
 
-// One conversation per user + lesson pair
+// --- AI CHAT (per lesson) ---
 export const aiChatConversations = pgTable(
   "ai_chat_conversations",
   {
@@ -55,15 +56,11 @@ export const aiChatMessages = pgTable(
   },
   (table) => [
     index("ai_chat_msg_conv_id_idx").on(table.conversationId),
-    index("ai_chat_msg_order_idx").on(
-      table.conversationId,
-      table.orderIndex,
-    ),
+    index("ai_chat_msg_order_idx").on(table.conversationId, table.orderIndex),
   ],
 );
 
-// --- RELATIONS ---
-
+// --- AI CHAT RELATIONS ---
 export const aiChatConversationRelations = relations(
   aiChatConversations,
   ({ one, many }) => ({
@@ -85,3 +82,67 @@ export const aiChatMessageRelations = relations(aiChatMessages, ({ one }) => ({
     references: [aiChatConversations.id],
   }),
 }));
+
+// --- DASHBOARD CHAT (platform concierge) ---
+export const dashboardChatConversations = pgTable(
+  "dashboard_chat_conversations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").default("New Chat").notNull(), // ✅ added for sidebar display
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    // ✅ removed uniqueIndex — users can now have many conversations
+    index("dashboard_chat_conv_user_id_idx").on(table.userId),
+  ],
+);
+
+export const dashboardChatMessages = pgTable(
+  "dashboard_chat_messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    conversationId: uuid("conversation_id")
+      .references(() => dashboardChatConversations.id, { onDelete: "cascade" })
+      .notNull(),
+    role: chatRoleEnum("role").notNull(),
+    content: text("content").notNull(),
+    orderIndex: serial("order_index").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("dashboard_chat_msg_conv_id_idx").on(table.conversationId),
+    index("dashboard_chat_msg_order_idx").on(
+      table.conversationId,
+      table.orderIndex,
+    ),
+  ],
+);
+
+// --- DASHBOARD CHAT RELATIONS ---
+export const dashboardChatConversationRelations = relations(
+  dashboardChatConversations,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [dashboardChatConversations.userId],
+      references: [users.id],
+    }),
+    messages: many(dashboardChatMessages),
+  }),
+);
+
+export const dashboardChatMessageRelations = relations(
+  dashboardChatMessages,
+  ({ one }) => ({
+    conversation: one(dashboardChatConversations, {
+      fields: [dashboardChatMessages.conversationId],
+      references: [dashboardChatConversations.id],
+    }),
+  }),
+);

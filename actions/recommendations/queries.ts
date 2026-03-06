@@ -8,7 +8,7 @@ function escapeIlike(value: string): string {
   return value.replace(/[%_\\]/g, "\\$&");
 }
 
-// ─── Skill-Gap Based Recommendations (Priority 0) ───
+// ─── Skill-Gap Based Recommendations
 export async function fetchCoursesBySkillGap(
   userId: string,
   limit: number,
@@ -118,9 +118,7 @@ export async function fetchCoursesByInterests(
     tags: row.tags as string[] | null,
     createdAt: new Date(row.createdAt as string),
     matchCount: Number(row.matchCount),
-    matchScore: Math.round(
-      (Number(row.matchCount) / interests.length) * 100,
-    ),
+    matchScore: Math.round((Number(row.matchCount) / interests.length) * 100),
     enrollmentCount: 0,
     averageRating: null,
     tutor: row.tutorId
@@ -162,7 +160,14 @@ export async function fetchPopularCourses(
         SELECT 1 FROM purchase p2
         WHERE p2.course_id = c.id AND p2.user_id = ${userId}
       )
-      ${excludeIds.length > 0 ? sql`AND c.id NOT IN (${sql.join(excludeIds.map((id) => sql`${id}::uuid`), sql`, `)})` : sql``}
+      ${
+        excludeIds.length > 0
+          ? sql`AND c.id NOT IN (${sql.join(
+              excludeIds.map((id) => sql`${id}::uuid`),
+              sql`, `,
+            )})`
+          : sql``
+      }
     GROUP BY c.id, u.id
     ORDER BY "enrollmentCount" DESC, c.created_at DESC
     LIMIT ${limit}
@@ -220,7 +225,14 @@ export async function fetchHighlyRatedCourses(
         SELECT 1 FROM purchase p
         WHERE p.course_id = c.id AND p.user_id = ${userId}
       )
-      ${excludeIds.length > 0 ? sql`AND c.id NOT IN (${sql.join(excludeIds.map((id) => sql`${id}::uuid`), sql`, `)})` : sql``}
+      ${
+        excludeIds.length > 0
+          ? sql`AND c.id NOT IN (${sql.join(
+              excludeIds.map((id) => sql`${id}::uuid`),
+              sql`, `,
+            )})`
+          : sql``
+      }
     GROUP BY c.id, u.id
     HAVING AVG(r.rating) >= 3.5 AND COUNT(r.id) >= 2
     ORDER BY "averageRating" DESC, "reviewCount" DESC
@@ -276,7 +288,14 @@ export async function fetchFallbackCourses(
         SELECT 1 FROM purchase p
         WHERE p.course_id = c.id AND p.user_id = ${userId}
       )
-      ${excludeIds.length > 0 ? sql`AND c.id NOT IN (${sql.join(excludeIds.map((id) => sql`${id}::uuid`), sql`, `)})` : sql``}
+      ${
+        excludeIds.length > 0
+          ? sql`AND c.id NOT IN (${sql.join(
+              excludeIds.map((id) => sql`${id}::uuid`),
+              sql`, `,
+            )})`
+          : sql``
+      }
     ORDER BY c.created_at DESC
     LIMIT ${limit}
   `);

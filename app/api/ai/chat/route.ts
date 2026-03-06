@@ -236,27 +236,19 @@ export async function POST(req: Request) {
       }
     }
 
-    // ── Build the full message history for the AI Core ──
-    // The new AI backend requires the full conversation history each request.
     const aiMessages: { role: string; content: string }[] = [];
 
-    // Inject lesson context as a system message so the AI knows the lesson.
-    // The prompt treats ALL sources (transcript, notes, descriptions) as
-    // complementary materials — never comparing them for consistency.
     if (lessonContext && hasTranscriptOrNotes) {
-      // Rich context available — transcript and/or tutor notes present
       aiMessages.push({
         role: "system",
         content: `You are an AI Mentor helping a student who is currently learning from a video lesson. Below is all the available context for the lesson they are watching. It may include a video transcript, the tutor's lesson notes, and course/lesson descriptions.\n\n${lessonContext}\n\nIMPORTANT INSTRUCTIONS:\n- Use ALL of these sources together to understand the lesson topic and help the student.\n- The video transcript captures what was spoken in the video. The tutor's notes and descriptions provide the tutor's own summary or outline. They are complementary — one may contain details the other does not.\n- Do NOT compare or contrast these sources for consistency. Never tell the student that the transcript does not match the notes, or that a topic appears in one source but not another.\n- Synthesise all available information into a single coherent understanding of the lesson, and use it alongside your general knowledge to give the most helpful answer.\n- Be educational, concise, and supportive.`,
       });
     } else if (lessonContext) {
-      // Only metadata available — no transcript or notes
       aiMessages.push({
         role: "system",
         content: `You are an AI Mentor helping a student who is currently learning from a video lesson. Below is the available metadata for the lesson:\n\n${lessonContext}\n\nUse this information along with your general knowledge of the topic to help the student as fully as possible. Be educational, concise, and supportive.`,
       });
     } else {
-      // No lesson context at all (lessonId not provided or DB lookup failed)
       aiMessages.push({
         role: "system",
         content:
@@ -270,7 +262,7 @@ export async function POST(req: Request) {
         content: `[LESSON MATERIALS — use all of these to help me]\n\n${lessonContext}\n\nPlease use all the above lesson materials together to help answer my questions about this video lesson.`,
       });
       aiMessages.push({
-        role: "assistant",
+        role: "ai",
         content:
           "Got it! I have the available materials for this lesson. Ask me anything and I'll reference what I know to help you.",
       });
@@ -362,7 +354,7 @@ export async function POST(req: Request) {
     // ── Groq fallback path ──
     if (useFallback || !pythonResponse?.body) {
       const groqMessages: LocalChatMessage[] = aiMessages.map((m) => ({
-        role: (m.role === "assistant"
+        role: (m.role === "ai"
           ? "assistant"
           : m.role === "system"
             ? "system"
@@ -419,16 +411,6 @@ export async function POST(req: Request) {
       return new Response(groqStream, { headers: responseHeaders });
     }
 
-    /**
-     * The AI Core streams structured SSE events:
-     * data: {"type":"status","payload":{"step":"..."}}
-     * data: {"type":"token","payload":{"delta":"..."}}
-     * data: {"type":"metadata","payload":{...}}
-     * data: {"type":"done"}
-     *
-     * We parse these and forward only the token deltas as plain text
-     * so the frontend can simply append chunks to the message bubble.
-     */
     function createSseParserStream(onText: (text: string) => void) {
       const encoder = new TextEncoder();
       let buffer = "";

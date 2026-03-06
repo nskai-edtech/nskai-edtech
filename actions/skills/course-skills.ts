@@ -6,7 +6,6 @@ import { auth } from "@clerk/nextjs/server";
 import { eq, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-// ─── Helper: get DB user and verify they own the course ───
 async function verifyCourseOwner(courseId: string) {
   const { userId: clerkId, sessionClaims } = await auth();
   if (!clerkId) return null;
@@ -15,7 +14,6 @@ async function verifyCourseOwner(courseId: string) {
   // @ts-ignore
   const role = sessionClaims?.metadata?.role;
 
-  // Admin can always edit
   if (role === "ORG_ADMIN") return true;
 
   // Tutors can only edit their own courses
@@ -48,7 +46,9 @@ export async function addSkillToCourse(courseId: string, skillId: string) {
       .where(eq(courseSkills.courseId, courseId));
 
     if ((countResult?.count ?? 0) >= MAX_COURSE_SKILLS) {
-      return { error: `Maximum of ${MAX_COURSE_SKILLS} linked skills per course` };
+      return {
+        error: `Maximum of ${MAX_COURSE_SKILLS} linked skills per course`,
+      };
     }
 
     await db
@@ -64,7 +64,6 @@ export async function addSkillToCourse(courseId: string, skillId: string) {
   }
 }
 
-// ─── Remove Skill from Course ───
 export async function removeSkillFromCourse(courseId: string, skillId: string) {
   const canEdit = await verifyCourseOwner(courseId);
   if (!canEdit) return { error: "Unauthorized" };
@@ -87,7 +86,6 @@ export async function removeSkillFromCourse(courseId: string, skillId: string) {
   }
 }
 
-// ─── Get Skills for a Course ───
 export async function getCourseSkills(
   courseId: string,
 ): Promise<
@@ -116,7 +114,6 @@ export async function getCourseSkills(
   }
 }
 
-// ─── Get Courses for a Skill ───
 export async function getCoursesForSkill(skillId: string): Promise<
   | { error: string }
   | {
