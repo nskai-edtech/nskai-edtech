@@ -71,61 +71,50 @@ export default async function LearnerDashboard() {
   return (
     <div className="space-y-8 min-w-0">
       {/* Header Section */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div>
-          <LearnerGreeting name={user?.firstName || "Learner"} />
-          <p className="text-secondary-text mt-2 text-lg">
-            Keep up the great work on your learning journey!
-          </p>
-        </div>
+      <div>
+        <LearnerGreeting name={user?.firstName || "Learner"} />
+        <p className="text-secondary-text mt-2 text-lg">
+          Keep up the great work on your learning journey!
+        </p>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="flex flex-wrap gap-4">
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1">📚</span>
-            <span className="font-extrabold text-xl text-primary-text">
-              {stats.totalCoursesEnrolled}
-            </span>
-            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Enrolled
-            </span>
-          </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1">✅</span>
-            <span className="font-extrabold text-xl text-primary-text">
-              {stats.totalLessonsCompleted}
-            </span>
-            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Lessons
-            </span>
-          </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1 text-brand">📈</span>
-            <span className="font-extrabold text-xl text-primary-text">
-              {stats.completionRate}%
-            </span>
-            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Progress
-            </span>
-          </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1">🔥</span>
-            <span className="font-extrabold text-xl text-primary-text">
-              {stats.currentStreak || 0}
-            </span>
-            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              Days
-            </span>
-          </div>
-          <div className="bg-surface border border-border rounded-3xl p-4 min-w-30 flex flex-col items-center justify-center shadow-sm">
-            <span className="text-2xl mb-1">🏆</span>
-            <span className="font-extrabold text-xl text-brand">
-              {(stats.points || 0).toLocaleString()}
-            </span>
-            <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
-              XP
-            </span>
-          </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-4 sm:p-5 flex flex-col items-center justify-center">
+          <span className="text-2xl mb-1">📚</span>
+          <span className="font-extrabold text-xl text-primary-text">
+            {stats.totalCoursesEnrolled}
+          </span>
+          <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+            Enrolled
+          </span>
+        </div>
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-3xl p-4 sm:p-5 flex flex-col items-center justify-center">
+          <span className="text-2xl mb-1">📈</span>
+          <span className="font-extrabold text-xl text-primary-text">
+            {stats.completionRate}%
+          </span>
+          <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+            Progress
+          </span>
+        </div>
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-3xl p-4 sm:p-5 flex flex-col items-center justify-center">
+          <span className="text-2xl mb-1">🔥</span>
+          <span className="font-extrabold text-xl text-primary-text">
+            {stats.currentStreak || 0}
+          </span>
+          <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+            Days
+          </span>
+        </div>
+        <div className="bg-brand/10 border border-brand/20 rounded-3xl p-4 sm:p-5 flex flex-col items-center justify-center">
+          <span className="text-2xl mb-1">🏆</span>
+          <span className="font-extrabold text-xl text-brand">
+            {(stats.points || 0).toLocaleString()}
+          </span>
+          <span className="text-xs font-bold text-secondary-text tracking-wider uppercase">
+            XP
+          </span>
         </div>
       </div>
 
@@ -163,7 +152,7 @@ export default async function LearnerDashboard() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4">
               {recommendedCourses.map((course) => {
                 const isNew = new Date(course.createdAt) > thirtyDaysAgo;
 
@@ -174,46 +163,57 @@ export default async function LearnerDashboard() {
                     className="block group"
                   >
                     <div className="bg-surface rounded-3xl p-4 border border-border hover:-translate-y-1 transition-transform">
-                      <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 bg-gray-100">
-                        {course.imageUrl ? (
-                          <Image
-                            src={course.imageUrl}
-                            alt={course.title}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <Sparkles className="w-8 h-8" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        {isNew && (
-                          <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
-                            New
-                          </span>
-                        )}
-                        {course.matchScore > 0 && (
-                          <span className="text-xs font-bold text-brand">
-                            {course.matchScore}% Match
-                          </span>
-                        )}
-                        {course.averageRating !== null &&
-                          course.averageRating > 0 && (
-                            <span className="text-xs font-bold text-yellow-600">
-                              {course.averageRating} rating
-                            </span>
+                      {/* Image + Text row */}
+                      <div className="flex items-start gap-4">
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-surface-muted shrink-0">
+                          {course.imageUrl ? (
+                            <Image
+                              src={course.imageUrl}
+                              alt={course.title}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Sparkles className="w-8 h-8" />
+                            </div>
                           )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            {isNew && (
+                              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
+                                New
+                              </span>
+                            )}
+                            {course.matchScore > 0 && (
+                              <span className="text-[11px] font-bold text-brand">
+                                {course.matchScore}% Match
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-bold text-base text-primary-text mb-1 line-clamp-1 group-hover:text-brand transition-colors">
+                            {course.title}
+                          </h3>
+                          <p className="text-xs text-secondary-text mb-2 line-clamp-1">
+                            {course.tutor?.firstName || "Unknown Tutor"}
+                          </p>
+                          {/* Stats row */}
+                          <div className="flex items-center gap-3 text-xs text-secondary-text flex-wrap">
+                            {course.averageRating !== null &&
+                              course.averageRating > 0 && (
+                                <span className="flex items-center gap-1 text-yellow-500 font-semibold">
+                                  ⭐ {course.averageRating.toFixed(1)}
+                                </span>
+                              )}
+                            {course.enrollmentCount > 0 && (
+                              <span className="flex items-center gap-1">
+                                👥 {course.enrollmentCount.toLocaleString()} enrolled
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="font-bold text-primary-text text-lg leading-snug mb-1 group-hover:text-brand transition-colors line-clamp-2">
-                        {course.title}
-                      </h3>
-                      <p className="text-xs text-secondary-text">
-                        {course.tutor?.firstName || "Unknown Tutor"}
-                        {course.enrollmentCount > 0 &&
-                          ` \u2022 ${course.enrollmentCount.toLocaleString()} enrolled`}
-                      </p>
                     </div>
                   </Link>
                 );
