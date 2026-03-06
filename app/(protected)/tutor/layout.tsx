@@ -3,16 +3,30 @@ import Link from "next/link";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { getPendingSubmissionsCount } from "@/actions/assessments/queries";
+import { db } from "@/lib/db";
+import { users } from "@/drizzle/schema";
+import { eq } from "drizzle-orm";
+import { ResubmitButton } from "./_components/resubmit-button";
 
 export default async function TutorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { sessionClaims } = await auth();
+  const { sessionClaims, userId } = await auth();
 
   const status = sessionClaims?.metadata?.status as string;
   const pendingSubmissions = await getPendingSubmissionsCount();
+
+  let expertise = "your field";
+  if (userId) {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.clerkId, userId),
+    });
+    if (dbUser?.expertise) {
+      expertise = dbUser.expertise;
+    }
+  }
 
   // IF PENDING: Show the blocking screen
   if (status === "PENDING") {
@@ -41,6 +55,40 @@ export default async function TutorLayout({
           <Link
             href="/"
             className="block mt-4 text-blue-600 dark:text-blue-400 underline text-sm"
+          >
+            Go back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // IF REJECTED: Show the rejection screen
+  if (status === "REJECTED") {
+    return (
+      <div
+        className="h-screen flex flex-col items-center justify-center bg-red-50 dark:bg-red-950/20 text-center p-6"
+        suppressHydrationWarning
+      >
+        <div className="bg-surface p-8 rounded-xl shadow-lg max-w-md border dark:border-gray-700">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-500 mb-4">
+            Application Rejected
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Your application as a {expertise} tutor was rejected. Please try again or give more details about your background/expertise.
+          </p>
+          <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded mb-6">
+            Status:{" "}
+            <span className="font-semibold text-red-600 dark:text-red-500">
+              REJECTED
+            </span>
+          </div>
+          <div className="w-full flex items-center justify-center">
+          <ResubmitButton />
+          </div>
+          <Link
+            href="/"
+            className="block mt-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline text-sm transition-colors"
           >
             Go back to Home
           </Link>

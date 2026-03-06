@@ -5,11 +5,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
-import { approveTutor } from "../../actions/admin/tutors";
+import { approveTutor, rejectTutor } from "../../actions/admin/tutors";
 
 export const ApproveModal = () => {
   const { isOpen, onClose, type, data } = useModalStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const router = useRouter();
 
   const isModalOpen =
@@ -38,6 +39,29 @@ export const ApproveModal = () => {
       toast.error("Failed to approve tutor. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const onReject = async () => {
+    try {
+      const tutorId = data.tutorId || data.tutor?.id;
+      if (!tutorId) return;
+      setIsRejecting(true);
+      const result = await rejectTutor(tutorId);
+
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Tutor application rejected.");
+      }
+
+      onClose();
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to reject tutor. Please try again.");
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -87,7 +111,7 @@ export const ApproveModal = () => {
         {/* Footer / Actions */}
         <div className="p-6 flex items-center justify-end gap-3 bg-surface">
           <button
-            disabled={isLoading}
+            disabled={isLoading || isRejecting}
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-secondary-text hover:bg-surface-muted rounded-lg transition-colors"
           >
@@ -95,14 +119,24 @@ export const ApproveModal = () => {
           </button>
 
           {!isViewOnly && (
-            <button
-              disabled={isLoading}
-              onClick={onConfirm}
-              className="px-4 py-2 text-sm font-bold text-surface bg-primary-text hover:opacity-90 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Confirm Approval
-            </button>
+            <>
+              <button
+                disabled={isLoading || isRejecting}
+                onClick={onReject}
+                className="px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                {isRejecting && <Loader2 className="w-4 h-4 animate-spin" />}
+                Reject Application
+              </button>
+              <button
+                disabled={isLoading || isRejecting}
+                onClick={onConfirm}
+                className="px-4 py-2 text-sm font-bold text-surface bg-primary-text hover:opacity-90 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirm Approval
+              </button>
+            </>
           )}
         </div>
       </div>

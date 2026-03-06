@@ -230,7 +230,7 @@ function ChatSidebar({
                       {activeConvId === conv.id && isChatLoading ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-secondary-text shrink-0" />
                       ) : (
-                        <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="flex shrink-0 items-center gap-1">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -348,10 +348,15 @@ function useDashboardChat({ onAutoTitle }: UseDashboardChatOptions) {
     setStreamedResponse("");
 
     try {
+      const historyPayload = messages.map(m => ({ role: m.role, content: m.content }));
+      
       const res = await fetch("/api/ai/dashboard-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userContent }),
+        body: JSON.stringify({ 
+          message: userContent,
+          history: historyPayload
+        }),
       });
       if (!res.body) throw new Error("No response");
 
@@ -453,7 +458,7 @@ function ChatMessageList({
             <div
               className={`prose dark:prose-invert max-w-none prose-a:font-bold prose-p:leading-relaxed ${
                 msg.role === "user"
-                  ? "text-white prose-a:text-white"
+                  ? "text-white **:text-white"
                   : "prose-a:text-brand"
               }`}
             >
@@ -735,7 +740,7 @@ export default function DashboardAiChatModal() {
                           null,
                       )
                     }
-                    className="text-secondary-text hover:text-destructive transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-destructive/10"
+                    className="text-red-500/80 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-red-500/10"
                     title="Delete current chat"
                   >
                     <Trash2 className="w-4 h-4" />

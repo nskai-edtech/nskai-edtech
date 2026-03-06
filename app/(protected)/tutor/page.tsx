@@ -19,10 +19,22 @@ import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { LowPerformingCourses } from "@/components/dashboard/low-performing-courses";
 
 export default async function TutorDashboard() {
-  const stats = await getTutorDashboardStats();
-  const recentSubmissions = await getRecentSubmissions(5);
-  const activityFeedData = await getTutorActivityFeed(8);
-  const lowPerformingCourses = await getLowPerformingCourses();
+  let stats;
+  let recentSubmissions;
+  let activityFeedData;
+  let lowPerformingCourses;
+
+  try {
+    stats = await getTutorDashboardStats();
+    recentSubmissions = await getRecentSubmissions(5);
+    activityFeedData = await getTutorActivityFeed(8);
+    lowPerformingCourses = await getLowPerformingCourses();
+  } catch (error) {
+    // If they aren't fully a tutor yet, layout.tsx handles showing Pending/Rejected UI.
+    // We just return null here so we don't crash.
+    console.log(error);
+    return null;
+  }
 
   // Transform null comments to undefined
   const activityFeed = activityFeedData.map((item) => ({

@@ -7,6 +7,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/email";
 import TutorApprovedEmail from "@/emails/TutorApprovedEmail";
+import TutorRejectedEmail from "@/emails/TutorRejectedEmail";
 import { checkAdmin } from "./auth";
 
 export async function getTutors() {
@@ -92,7 +93,7 @@ export async function getTutorCoursesForAdmin(tutorId: string) {
 
 async function updateTutorStatus(
   tutorId: string,
-  status: "ACTIVE" | "SUSPENDED" | "BANNED",
+  status: "ACTIVE" | "SUSPENDED" | "BANNED" | "REJECTED",
 ) {
   await checkAdmin();
 
@@ -124,6 +125,22 @@ export async function approveTutor(tutorId: string) {
       to: result.tutor.email,
       subject: "Your NSKAI tutor application is approved!",
       react: TutorApprovedEmail({ name: result.tutor.firstName || "Tutor" }),
+    }).catch(() => {});
+  }
+  return result;
+}
+
+export async function rejectTutor(tutorId: string) {
+  const result = await updateTutorStatus(tutorId, "REJECTED");
+
+  if (result.success && result.tutor) {
+    sendEmail({
+      to: result.tutor.email,
+      subject: "Update on your NSKAI tutor application",
+      react: TutorRejectedEmail({ 
+        name: result.tutor.firstName || "Tutor", 
+        expertise: result.tutor.expertise || undefined 
+      }),
     }).catch(() => {});
   }
   return result;
