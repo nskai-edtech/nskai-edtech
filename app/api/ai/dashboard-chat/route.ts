@@ -1,0 +1,115 @@
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+import { db } from "@/lib/db";
+import { eq } from "drizzle-orm";
+import { users, userProgress } from "@/drizzle/schema";
+import { localMentorChatStream, type LocalChatMessage } from "@/lib/chat-local";
+
+const redis = Redis.fromEnv();
+const ratelimit = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(10, "10 s"),
+});
+
+export async function POST(req: Request) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return new NextResponse("Unauthorized", { status: 401 });
+
+    const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
+    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)),
+            "X-RateLimit-Limit": String(limit),
+            "X-RateLimit-Remaining": String(remaining),
+          },
+        },
+      );
+    }
+
+    const { message } = await req.json();
+    if (!message) return new NextResponse("Missing message", { status: 400 });
+
+    const [user, allCourses] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(users.clerkId, clerkId),
+        columns: {
+          id: true,
+          firstName: true,
+          learningGoal: true,
+          interests: true,
+        },
+      }),
+      db.query.courses.findMany({
+        columns: { id: true, title: true },
+        with: {
+          tutor: { columns: { firstName: true } },
+          chapters: {
+            with: { lessons: { columns: { id: true, title: true } } },
+          },
+        },
+      }),
+    ]);
+
+    const dbUserId = user?.id;
+    let studentHistory = "No progress found.";
+    if (dbUserId) {
+      const progress = await db.query.userProgress.findMany({
+        where: eq(userProgress.userId, dbUserId),
+        with: { lesson: { columns: { title: true } } },
+      });
+      const completed = progress
+        .filter((p) => p.isCompleted)
+        .map((p) => p.lesson?.title);
+      studentHistory = `Goal: ${user?.learningGoal}. Interests: ${user?.interests?.join(", ")}. Completed Lessons: ${completed.join(", ") || "None"}`;
+    }
+
+    const catalog = allCourses
+      .map((c) => {
+        const lessonList = c.chapters
+          .flatMap((ch) => ch.lessons.map((l) => l.title))
+          .join(", ");
+        return `COURSE: "${c.title}" by ${c.tutor?.firstName}. (Link: /learner/${c.id}). LESSONS: ${lessonList}`;
+      })
+      .join("\n\n");
+
+    const systemPrompt = `You are the Zerra Concierge. 
+    OFFICIAL MARKETPLACE CATALOG:
+    ${catalog}
+
+    STUDENT CONTEXT:
+    ${studentHistory}
+
+    STRICT RULES:
+    1. ONLY recommend courses/lessons from the OFFICIAL CATALOG above.
+    2. If a topic is missing, inform the student and suggest the closest alternative from the catalog.
+    3. Use Markdown for links: [Course Title](/learner/courseId) or [Lesson Title](/learner/courseId/lessonId).
+    4. Be concise, supportive, and act as a guide for the Zerra platform.`;
+
+    const groqMessages: LocalChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: message },
+    ];
+
+    const groqStream = await localMentorChatStream(groqMessages);
+
+    return new Response(groqStream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (error) {
+    console.error("[DASHBOARD_CHAT_ERROR]", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
