@@ -1,4 +1,3 @@
-
 "use server";
 
 import { and, eq } from "drizzle-orm";
@@ -13,6 +12,8 @@ import {
 } from "@/lib/live/invite";
 import { requireTutorUser } from "@/actions/live-sessions/auth";
 import { notifyLearnersOfScheduledSession } from "@/lib/live-sessions/notifications";
+import { getLiveSessionById } from "@/lib/live-sessions/queries";
+import { pushLiveSessionEvent } from "@/lib/live-sessions/broadcast";
 
 const createSessionSchema = z.object({
     title: z.string().trim().min(3).max(255),
@@ -70,6 +71,13 @@ export async function createLiveSession(input: {
         console.error("[createLiveSession] Failed to notify learners:", error);
     });
 
+    // Push real-time WS event (fire and forget — falls back to polling)
+    getLiveSessionById(session.id)
+        .then((full) => {
+            if (full) void pushLiveSessionEvent({ type: "SESSION_UPSERTED", session: full });
+        })
+        .catch(() => undefined);
+
     return session;
 }
 
@@ -99,6 +107,13 @@ export async function startLiveSession(sessionId: string) {
 
     revalidatePath("/tutor/live");
 
+    // Push real-time WS event (fire and forget)
+    getLiveSessionById(session.id)
+        .then((full) => {
+            if (full) void pushLiveSessionEvent({ type: "SESSION_UPSERTED", session: full });
+        })
+        .catch(() => undefined);
+
     return session;
 }
 
@@ -126,6 +141,13 @@ export async function endLiveSession(sessionId: string) {
     }
 
     revalidatePath("/tutor/live");
+
+    // Push real-time WS event (fire and forget)
+    getLiveSessionById(session.id)
+        .then((full) => {
+            if (full) void pushLiveSessionEvent({ type: "SESSION_UPSERTED", session: full });
+        })
+        .catch(() => undefined);
 
     return session;
 }
@@ -254,6 +276,9 @@ export async function cancelLiveSession(input: {
     }
 
     revalidatePath("/tutor/live-sessions");
+
+    // Push real-time WS event — cancelled sessions are removed from the feed
+    void pushLiveSessionEvent({ type: "SESSION_REMOVED", sessionId: session.id });
 
     return session;
 }

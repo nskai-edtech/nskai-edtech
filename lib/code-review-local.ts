@@ -4,14 +4,12 @@
  * Uses Llama 3.3 70B via Groq's free tier (30 req/min, 6000 tokens/min).
  */
 
-import Groq from "groq-sdk";
+import { getGroq } from "@/lib/groq";
 import type {
   CodeReviewRequest,
   CodeReviewResponse,
   ErrorCategory,
 } from "./ai-service";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const SYSTEM_PROMPT = `You are an expert code reviewer for an educational platform.
 Your role is to help students learn by reviewing their code thoroughly.
@@ -64,7 +62,7 @@ function buildUserPrompt(req: CodeReviewRequest): string {
 export async function reviewCodeLocal(
   req: CodeReviewRequest,
 ): Promise<CodeReviewResponse> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0.4,
     max_tokens: 1024,
