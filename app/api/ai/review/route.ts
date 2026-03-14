@@ -17,7 +17,10 @@ export async function POST(req: Request) {
     const { allowed, remaining, resetInMs } = rateLimiter(clerkId);
     if (!allowed) {
       return NextResponse.json(
-        { error: "Too many requests. Please wait before submitting another review." },
+        {
+          error:
+            "Too many requests. Please wait before submitting another review.",
+        },
         {
           status: 429,
           headers: {
@@ -53,11 +56,16 @@ export async function POST(req: Request) {
 
       // If the backend returned a low-quality fallback, retry with local OpenAI
       if (isLowQualityFallback(result)) {
-        console.warn("[CODE_REVIEW] Python backend returned low-quality fallback, using local OpenAI");
+        console.warn(
+          "[CODE_REVIEW] Python backend returned low-quality fallback, using local OpenAI",
+        );
         result = await reviewCodeLocal(reviewRequest);
       }
     } catch (backendError) {
-      console.warn("[CODE_REVIEW] Python backend unavailable, using local OpenAI:", backendError);
+      console.warn(
+        "[CODE_REVIEW] Python backend unavailable, using local OpenAI:",
+        backendError,
+      );
       result = await reviewCodeLocal(reviewRequest);
     }
 

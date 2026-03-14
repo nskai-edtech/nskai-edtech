@@ -22,7 +22,7 @@ function useIsMobile() {
       setIsMobile(
         "ontouchstart" in window ||
           navigator.maxTouchPoints > 0 ||
-          window.innerWidth < 768
+          window.innerWidth < 768,
       );
     };
     check();
@@ -108,7 +108,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
             setMobileUploadProgress(
-              Math.round((event.loaded / event.total) * 100)
+              Math.round((event.loaded / event.total) * 100),
             );
           }
         };
@@ -142,7 +142,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lessonId]
+    [lessonId],
   );
 
   const startPolling = async (uploadId?: string) => {
@@ -237,7 +237,9 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
         <div className="relative mb-5">
           <div
             className="absolute inset-0 rounded-full bg-brand/20"
-            style={{ animation: "ping-slow 2s cubic-bezier(0,0,0.2,1) infinite" }}
+            style={{
+              animation: "ping-slow 2s cubic-bezier(0,0,0.2,1) infinite",
+            }}
           />
           <div className="relative w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center">
             <StageIcon className="w-7 h-7 text-brand" />
@@ -423,8 +425,7 @@ export const MuxVideoUploader = ({ lessonId, onSuccess }: MuxUploaderProps) => {
             <div
               className="absolute inset-0 rounded-full bg-brand/20"
               style={{
-                animation:
-                  "ping-slow 2s cubic-bezier(0,0,0.2,1) infinite",
+                animation: "ping-slow 2s cubic-bezier(0,0,0.2,1) infinite",
               }}
             />
             <div className="relative w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">

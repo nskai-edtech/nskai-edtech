@@ -147,12 +147,18 @@ export async function checkLessonVideoStatus(
               const audioTrack = asset.tracks?.find((t) => t.type === "audio");
               if (audioTrack?.id) {
                 try {
-                  await mux.video.assets.generateSubtitles(asset.id, audioTrack.id, {
-                    generated_subtitles: [
-                      { language_code: "en", name: "English (auto)" },
-                    ],
-                  });
-                  console.log(`[MUX] Triggered auto-subtitle generation for asset ${asset.id}`);
+                  await mux.video.assets.generateSubtitles(
+                    asset.id,
+                    audioTrack.id,
+                    {
+                      generated_subtitles: [
+                        { language_code: "en", name: "English (auto)" },
+                      ],
+                    },
+                  );
+                  console.log(
+                    `[MUX] Triggered auto-subtitle generation for asset ${asset.id}`,
+                  );
                 } catch (subErr) {
                   // 409 = already exists/in-progress, safe to ignore
                   console.warn("[MUX] Subtitle generation request:", subErr);

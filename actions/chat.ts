@@ -1,11 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import {
-  aiChatConversations,
-  aiChatMessages,
-  users,
-} from "@/drizzle/schema";
+import { aiChatConversations, aiChatMessages, users } from "@/drizzle/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 

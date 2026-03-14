@@ -17,7 +17,10 @@ interface TutorRejectedEmailProps {
   expertise?: string;
 }
 
-export default function TutorRejectedEmail({ name, expertise = "subject" }: TutorRejectedEmailProps) {
+export default function TutorRejectedEmail({
+  name,
+  expertise = "subject",
+}: TutorRejectedEmailProps) {
   return (
     <Html>
       <Head />
@@ -34,18 +37,24 @@ export default function TutorRejectedEmail({ name, expertise = "subject" }: Tuto
             <Heading style={styles.heading}>Application Update</Heading>
 
             <Text style={styles.text}>
-              Hi {name}, thank you for your interest in becoming a {expertise} tutor on {PLATFORM_NAME}.
+              Hi {name}, thank you for your interest in becoming a {expertise}{" "}
+              tutor on {PLATFORM_NAME}.
             </Text>
 
             <Text style={styles.text}>
-              After careful review, we regret to inform you that your application as a {expertise} tutor has not been approved at this time. We often look for specific details regarding your background and expertise to ensure the best experience for our learners.
+              After careful review, we regret to inform you that your
+              application as a {expertise} tutor has not been approved at this
+              time. We often look for specific details regarding your background
+              and expertise to ensure the best experience for our learners.
             </Text>
 
             {/* Highlight box */}
             <Section style={styles.highlight}>
               <Text style={styles.highlightTitle}>What can you do next?</Text>
               <Text style={styles.highlightText}>
-                We encourage you to try again! When reapplying, please provide more comprehensive details about your background, expertise, and teaching experience.
+                We encourage you to try again! When reapplying, please provide
+                more comprehensive details about your background, expertise, and
+                teaching experience.
               </Text>
             </Section>
 

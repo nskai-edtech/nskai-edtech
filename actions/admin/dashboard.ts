@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { users, courses, purchases, courseRequests } from "@/drizzle/schema";
+import { schools } from "@/drizzle/schema/schools";
 import { eq, desc, and, count, sql, aliasedTable } from "drizzle-orm";
 import { checkAdmin } from "./auth";
 
@@ -23,10 +24,16 @@ export async function getAdminPendingCounts() {
     .from(courseRequests)
     .where(eq(courseRequests.status, "PENDING"));
 
+  const [pendingSchools] = await db
+    .select({ count: count() })
+    .from(users)
+    .where(and(eq(users.role, "SCHOOL_ADMIN"), eq(users.status, "PENDING")));
+
   return {
     pendingCourses: pendingCourses?.count ?? 0,
     pendingTutors: pendingTutors?.count ?? 0,
     pendingRequests: pendingRequests?.count ?? 0,
+    pendingSchools: pendingSchools?.count ?? 0,
   };
 }
 
@@ -92,5 +99,19 @@ export async function getRecentPendingActivity() {
     .orderBy(desc(courses.createdAt))
     .limit(5);
 
-  return { pendingTutors, pendingCourses };
+  const pendingSchools = await db
+    .select({
+      id: schools.id,
+      name: schools.name,
+      createdAt: schools.createdAt,
+      adminFirstName: users.firstName,
+      adminLastName: users.lastName,
+    })
+    .from(schools)
+    .innerJoin(users, eq(schools.id, users.schoolId))
+    .where(and(eq(users.role, "SCHOOL_ADMIN"), eq(users.status, "PENDING")))
+    .orderBy(desc(schools.createdAt))
+    .limit(5);
+
+  return { pendingTutors, pendingCourses, pendingSchools };
 }

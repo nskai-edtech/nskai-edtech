@@ -1,5 +1,12 @@
 import { Metadata } from "next";
-import { Handshake, DollarSign, Eye, Megaphone, Zap, Users } from "lucide-react";
+import {
+  Handshake,
+  DollarSign,
+  Eye,
+  Megaphone,
+  Zap,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {

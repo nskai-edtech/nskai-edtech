@@ -54,12 +54,8 @@
           "name": "answer_question_id_question_id_fk",
           "tableFrom": "answer",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -67,12 +63,8 @@
           "name": "answer_user_id_user_id_fk",
           "tableFrom": "answer",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -139,12 +131,8 @@
           "name": "assessment_skill_id_skill_id_fk",
           "tableFrom": "assessment",
           "tableTo": "skill",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -198,12 +186,8 @@
           "name": "chapter_course_id_course_id_fk",
           "tableFrom": "chapter",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -273,12 +257,8 @@
           "name": "course_like_user_id_user_id_fk",
           "tableFrom": "course_like",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -286,12 +266,8 @@
           "name": "course_like_course_id_course_id_fk",
           "tableFrom": "course_like",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -372,12 +348,8 @@
           "name": "course_tutor_id_user_id_fk",
           "tableFrom": "course",
           "tableTo": "user",
-          "columnsFrom": [
-            "tutor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tutor_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -464,12 +436,8 @@
           "name": "lesson_chapter_id_chapter_id_fk",
           "tableFrom": "lesson",
           "tableTo": "chapter",
-          "columnsFrom": [
-            "chapter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -516,12 +484,8 @@
           "name": "mux_data_lesson_id_lesson_id_fk",
           "tableFrom": "mux_data",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -531,9 +495,7 @@
         "mux_data_lesson_id_unique": {
           "name": "mux_data_lesson_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "lesson_id"
-          ]
+          "columns": ["lesson_id"]
         }
       },
       "policies": {},
@@ -596,12 +558,8 @@
           "name": "purchase_user_id_user_id_fk",
           "tableFrom": "purchase",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -609,12 +567,8 @@
           "name": "purchase_course_id_course_id_fk",
           "tableFrom": "purchase",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -624,9 +578,7 @@
         "purchase_paystack_reference_unique": {
           "name": "purchase_paystack_reference_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "paystack_reference"
-          ]
+          "columns": ["paystack_reference"]
         }
       },
       "policies": {},
@@ -683,12 +635,8 @@
           "name": "question_user_id_user_id_fk",
           "tableFrom": "question",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -696,12 +644,8 @@
           "name": "question_lesson_id_lesson_id_fk",
           "tableFrom": "question",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -768,12 +712,8 @@
           "name": "quiz_question_lesson_id_lesson_id_fk",
           "tableFrom": "quiz_question",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -855,12 +795,8 @@
           "name": "review_user_id_user_id_fk",
           "tableFrom": "review",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -868,12 +804,8 @@
           "name": "review_course_id_course_id_fk",
           "tableFrom": "review",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -921,12 +853,8 @@
           "name": "skill_dependency_skill_id_skill_id_fk",
           "tableFrom": "skill_dependency",
           "tableTo": "skill",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -934,12 +862,8 @@
           "name": "skill_dependency_prerequisite_skill_id_skill_id_fk",
           "tableFrom": "skill_dependency",
           "tableTo": "skill",
-          "columnsFrom": [
-            "prerequisite_skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["prerequisite_skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1038,12 +962,8 @@
           "name": "user_assessment_result_user_id_user_id_fk",
           "tableFrom": "user_assessment_result",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1051,12 +971,8 @@
           "name": "user_assessment_result_assessment_id_assessment_id_fk",
           "tableFrom": "user_assessment_result",
           "tableTo": "assessment",
-          "columnsFrom": [
-            "assessment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assessment_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1139,12 +1055,8 @@
           "name": "user_notes_user_id_user_id_fk",
           "tableFrom": "user_notes",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1152,12 +1064,8 @@
           "name": "user_notes_lesson_id_lesson_id_fk",
           "tableFrom": "user_notes",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1234,12 +1142,8 @@
           "name": "user_progress_user_id_user_id_fk",
           "tableFrom": "user_progress",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1247,12 +1151,8 @@
           "name": "user_progress_lesson_id_lesson_id_fk",
           "tableFrom": "user_progress",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1313,12 +1213,8 @@
           "name": "user_quiz_attempt_user_id_user_id_fk",
           "tableFrom": "user_quiz_attempt",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1326,12 +1222,8 @@
           "name": "user_quiz_attempt_lesson_id_lesson_id_fk",
           "tableFrom": "user_quiz_attempt",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1386,12 +1278,8 @@
           "name": "user_skill_user_id_user_id_fk",
           "tableFrom": "user_skill",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1399,12 +1287,8 @@
           "name": "user_skill_skill_id_skill_id_fk",
           "tableFrom": "user_skill",
           "tableTo": "skill",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["skill_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1517,9 +1401,7 @@
         "user_clerk_id_unique": {
           "name": "user_clerk_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_id"
-          ]
+          "columns": ["clerk_id"]
         }
       },
       "policies": {},
@@ -1531,40 +1413,22 @@
     "public.course_status": {
       "name": "course_status",
       "schema": "public",
-      "values": [
-        "DRAFT",
-        "PENDING",
-        "PUBLISHED",
-        "REJECTED"
-      ]
+      "values": ["DRAFT", "PENDING", "PUBLISHED", "REJECTED"]
     },
     "public.lesson_type": {
       "name": "lesson_type",
       "schema": "public",
-      "values": [
-        "VIDEO",
-        "QUIZ"
-      ]
+      "values": ["VIDEO", "QUIZ"]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "ADMIN",
-        "TUTOR",
-        "LEARNER"
-      ]
+      "values": ["ADMIN", "TUTOR", "LEARNER"]
     },
     "public.status": {
       "name": "status",
       "schema": "public",
-      "values": [
-        "PENDING",
-        "ACTIVE",
-        "REJECTED",
-        "SUSPENDED",
-        "BANNED"
-      ]
+      "values": ["PENDING", "ACTIVE", "REJECTED", "SUSPENDED", "BANNED"]
     }
   },
   "schemas": {},

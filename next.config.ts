@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             // Note: If your QR scanner needs the camera later, you might need to update this line!
             value:
-              "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+              "camera=(self), microphone=(self), geolocation=(), interest-cohort=()",
           },
           // CSP is set dynamically in proxy.ts middleware (with nonce)
         ],

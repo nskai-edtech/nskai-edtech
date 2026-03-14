@@ -160,7 +160,11 @@ export default function LearnerOnboardingPage() {
       setIsLoadingDiagnostic(true);
       try {
         const res = await startDiagnostic();
-        if ("error" in res || !("questions" in res) || res.questions.length === 0) {
+        if (
+          "error" in res ||
+          !("questions" in res) ||
+          res.questions.length === 0
+        ) {
           // No questions available — skip diagnostic silently
           setDiagnosticQuestions(null);
         } else {
@@ -222,7 +226,8 @@ export default function LearnerOnboardingPage() {
   const canContinue =
     (currentStep === 1 && selectedTopics.length >= 3) ||
     (currentStep === 2 && selectedGoal) ||
-    (currentStep === 3 && (diagnosticResults !== null || diagnosticQuestions === null)) ||
+    (currentStep === 3 &&
+      (diagnosticResults !== null || diagnosticQuestions === null)) ||
     currentStep === 4;
 
   return (
@@ -373,7 +378,9 @@ export default function LearnerOnboardingPage() {
                   Preparing your diagnostic assessment...
                 </p>
               </div>
-            ) : diagnosticQuestions && diagnosticQuestions.length > 0 && !diagnosticResults ? (
+            ) : diagnosticQuestions &&
+              diagnosticQuestions.length > 0 &&
+              !diagnosticResults ? (
               <>
                 <div className="text-center mb-8">
                   <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
@@ -481,8 +488,11 @@ export default function LearnerOnboardingPage() {
                   {diagnosticResults.overallScore}%
                 </p>
                 <p className="text-xs text-secondary-text">
-                  {diagnosticResults.results.filter((r) => r.masteryScore >= 80)
-                    .length}{" "}
+                  {
+                    diagnosticResults.results.filter(
+                      (r) => r.masteryScore >= 80,
+                    ).length
+                  }{" "}
                   skills mastered
                 </p>
               </div>
@@ -492,7 +502,9 @@ export default function LearnerOnboardingPage() {
       </div>
 
       {/* Footer with Navigation — hidden only while actively taking the diagnostic */}
-      <div className={`sticky bottom-0 bg-surface border-t border-border py-4 px-6 ${currentStep === 3 && diagnosticQuestions && diagnosticQuestions.length > 0 && !diagnosticResults ? 'hidden' : ''}`}>
+      <div
+        className={`sticky bottom-0 bg-surface border-t border-border py-4 px-6 ${currentStep === 3 && diagnosticQuestions && diagnosticQuestions.length > 0 && !diagnosticResults ? "hidden" : ""}`}
+      >
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Selected Topics Indicator */}

@@ -76,8 +76,17 @@ export default function InputModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop with blur */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal backdrop"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={handleClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClose();
+          }
+        }}
       />
 
       {/* Modal */}
@@ -87,9 +96,10 @@ export default function InputModal({
           <h2 className="text-xl font-bold text-primary-text">{title}</h2>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-surface-muted rounded-lg transition-colors"
+            aria-label="Close modal"
+            className="p-1 hover:bg-surface-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
-            <X className="w-5 h-5 text-secondary-text" />
+            <X className="w-5 h-5 text-secondary-text" aria-hidden="true" />
           </button>
         </div>
 

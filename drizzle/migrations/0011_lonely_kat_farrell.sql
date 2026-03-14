@@ -1,0 +1,1 @@
+ALTER TABLE "school_locations" ADD COLUMN "country" varchar(100) NOT NULL;

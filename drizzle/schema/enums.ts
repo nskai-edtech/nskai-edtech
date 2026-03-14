@@ -1,10 +1,20 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
 // 1. ROLES
-// ADMIN = The "Organization" (NSKAI)
-// TUTOR = Content Creator
-// LEARNER = Student
-export const roleEnum = pgEnum("role", ["ADMIN", "TUTOR", "LEARNER"]);
+// ADMIN = Zerra Platform Admin
+// TUTOR = Zerra Content Creator (B2C)
+// LEARNER = Zerra Direct Student (B2C)
+// SCHOOL_ADMIN = The "Organization" Administrator (B2B)
+// TEACHER = School Staff / Class Manager (B2B)
+// STUDENT = School Learner (B2B)
+export const roleEnum = pgEnum("role", [
+  "ADMIN",
+  "TUTOR",
+  "LEARNER",
+  "SCHOOL_ADMIN",
+  "TEACHER",
+  "STUDENT",
+]);
 export const statusEnum = pgEnum("status", [
   "PENDING",
   "ACTIVE",

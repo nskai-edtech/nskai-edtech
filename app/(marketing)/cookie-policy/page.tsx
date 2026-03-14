@@ -10,19 +10,17 @@ export default function CookiePolicyPage() {
   return (
     <div className="max-w-4xl mx-auto prose dark:prose-invert">
       <h1>Cookie Policy</h1>
-      <p className="text-sm text-secondary-text">
-        Last updated: February 2026
-      </p>
+      <p className="text-sm text-secondary-text">Last updated: February 2026</p>
 
       <p className="lead">
-        This Cookie Policy explains what cookies are, how NSKAI uses them on
-        the ZERRA platform, and what choices you have regarding their use.
+        This Cookie Policy explains what cookies are, how NSKAI uses them on the
+        ZERRA platform, and what choices you have regarding their use.
       </p>
 
       <h2>What Are Cookies?</h2>
       <p>
-        Cookies are small text files stored on your device (computer, tablet,
-        or mobile) when you visit a website. They help websites remember your
+        Cookies are small text files stored on your device (computer, tablet, or
+        mobile) when you visit a website. They help websites remember your
         preferences, keep you signed in, and understand how you interact with
         the platform.
       </p>
@@ -31,8 +29,8 @@ export default function CookiePolicyPage() {
 
       <h3>Essential Cookies (Required)</h3>
       <p>
-        These cookies are necessary for ZERRA to function properly. They
-        enable core features such as:
+        These cookies are necessary for ZERRA to function properly. They enable
+        core features such as:
       </p>
       <ul>
         <li>User authentication and session management via Clerk.</li>
@@ -47,8 +45,8 @@ export default function CookiePolicyPage() {
 
       <h3>Analytics Cookies (Optional)</h3>
       <p>
-        These cookies help us understand how visitors interact with ZERRA so
-        we can improve the platform. They collect anonymized data such as:
+        These cookies help us understand how visitors interact with ZERRA so we
+        can improve the platform. They collect anonymized data such as:
       </p>
       <ul>
         <li>Pages visited and time spent on each page.</li>
@@ -66,7 +64,9 @@ export default function CookiePolicyPage() {
       </p>
       <ul>
         <li>Display preferences and UI settings.</li>
-        <li>Last-visited course or lesson for the continue-learning feature.</li>
+        <li>
+          Last-visited course or lesson for the continue-learning feature.
+        </li>
         <li>Language and regional preferences.</li>
       </ul>
 
@@ -111,9 +111,9 @@ export default function CookiePolicyPage() {
 
       <h2>Updates to This Policy</h2>
       <p>
-        We may update this Cookie Policy from time to time to reflect changes
-        in our practices or for legal reasons. Changes will be posted on this
-        page with an updated revision date.
+        We may update this Cookie Policy from time to time to reflect changes in
+        our practices or for legal reasons. Changes will be posted on this page
+        with an updated revision date.
       </p>
 
       <h2>Contact Us</h2>

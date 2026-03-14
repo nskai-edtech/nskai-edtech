@@ -13,61 +13,130 @@ const SKILLS_DATA = [
   {
     category: "Web Development",
     skills: [
-      { title: "HTML & CSS Fundamentals", description: "Core web markup and styling" },
-      { title: "JavaScript Basics", description: "Variables, functions, DOM manipulation" },
-      { title: "React Fundamentals", description: "Components, hooks, state management" },
-      { title: "Next.js & SSR", description: "Server-side rendering, app router, data fetching" },
-      { title: "CSS Frameworks", description: "Tailwind CSS, Bootstrap, responsive design" },
+      {
+        title: "HTML & CSS Fundamentals",
+        description: "Core web markup and styling",
+      },
+      {
+        title: "JavaScript Basics",
+        description: "Variables, functions, DOM manipulation",
+      },
+      {
+        title: "React Fundamentals",
+        description: "Components, hooks, state management",
+      },
+      {
+        title: "Next.js & SSR",
+        description: "Server-side rendering, app router, data fetching",
+      },
+      {
+        title: "CSS Frameworks",
+        description: "Tailwind CSS, Bootstrap, responsive design",
+      },
     ],
   },
   {
     category: "Backend Development",
     skills: [
-      { title: "Node.js & Express", description: "Server-side JavaScript, REST APIs" },
-      { title: "SQL & Databases", description: "Relational databases, queries, schema design" },
-      { title: "API Design", description: "REST principles, authentication, versioning" },
+      {
+        title: "Node.js & Express",
+        description: "Server-side JavaScript, REST APIs",
+      },
+      {
+        title: "SQL & Databases",
+        description: "Relational databases, queries, schema design",
+      },
+      {
+        title: "API Design",
+        description: "REST principles, authentication, versioning",
+      },
       { title: "Python Backend", description: "Django, FastAPI, Flask" },
     ],
   },
   {
     category: "Data Science",
     skills: [
-      { title: "Python for Data Science", description: "NumPy, pandas, matplotlib" },
-      { title: "Statistics & Probability", description: "Distributions, hypothesis testing, regression" },
-      { title: "Machine Learning Basics", description: "Supervised & unsupervised learning" },
-      { title: "Data Visualization", description: "Creating effective charts and dashboards" },
+      {
+        title: "Python for Data Science",
+        description: "NumPy, pandas, matplotlib",
+      },
+      {
+        title: "Statistics & Probability",
+        description: "Distributions, hypothesis testing, regression",
+      },
+      {
+        title: "Machine Learning Basics",
+        description: "Supervised & unsupervised learning",
+      },
+      {
+        title: "Data Visualization",
+        description: "Creating effective charts and dashboards",
+      },
     ],
   },
   {
     category: "DevOps & Cloud",
     skills: [
-      { title: "Git & Version Control", description: "Branching, merging, collaboration workflows" },
-      { title: "Docker & Containers", description: "Image creation, docker-compose, registries" },
-      { title: "CI/CD Pipelines", description: "Automated testing and deployment" },
+      {
+        title: "Git & Version Control",
+        description: "Branching, merging, collaboration workflows",
+      },
+      {
+        title: "Docker & Containers",
+        description: "Image creation, docker-compose, registries",
+      },
+      {
+        title: "CI/CD Pipelines",
+        description: "Automated testing and deployment",
+      },
       { title: "Cloud Platforms", description: "AWS, GCP, Azure fundamentals" },
     ],
   },
   {
     category: "Mobile Development",
     skills: [
-      { title: "React Native", description: "Cross-platform mobile development with React" },
-      { title: "iOS Basics (Swift)", description: "Swift programming, UIKit, SwiftUI" },
-      { title: "Mobile UI/UX", description: "Touch interactions, responsive layout, accessibility" },
+      {
+        title: "React Native",
+        description: "Cross-platform mobile development with React",
+      },
+      {
+        title: "iOS Basics (Swift)",
+        description: "Swift programming, UIKit, SwiftUI",
+      },
+      {
+        title: "Mobile UI/UX",
+        description: "Touch interactions, responsive layout, accessibility",
+      },
     ],
   },
   {
     category: "Cybersecurity",
     skills: [
-      { title: "Network Security Fundamentals", description: "Firewalls, encryption, threat detection" },
-      { title: "Ethical Hacking", description: "Penetration testing, vulnerability assessment" },
+      {
+        title: "Network Security Fundamentals",
+        description: "Firewalls, encryption, threat detection",
+      },
+      {
+        title: "Ethical Hacking",
+        description: "Penetration testing, vulnerability assessment",
+      },
     ],
   },
   {
     category: "Artificial Intelligence",
     skills: [
-      { title: "Deep Learning", description: "Neural networks, CNNs, RNNs, transformers" },
-      { title: "Natural Language Processing", description: "Text analysis, sentiment, chatbots, LLMs" },
-      { title: "Computer Vision", description: "Image recognition, object detection, OCR" },
+      {
+        title: "Deep Learning",
+        description: "Neural networks, CNNs, RNNs, transformers",
+      },
+      {
+        title: "Natural Language Processing",
+        description: "Text analysis, sentiment, chatbots, LLMs",
+      },
+      {
+        title: "Computer Vision",
+        description: "Image recognition, object detection, OCR",
+      },
     ],
   },
 
@@ -75,16 +144,46 @@ const SKILLS_DATA = [
   {
     category: "Business & Finance",
     skills: [
-      { title: "Financial Literacy", description: "Budgeting, investing, personal finance management" },
-      { title: "Accounting Fundamentals", description: "Bookkeeping, financial statements, auditing" },
-      { title: "Entrepreneurship", description: "Business planning, startup strategy, fundraising" },
-      { title: "Digital Marketing", description: "SEO, social media marketing, email campaigns, analytics" },
-      { title: "Project Management", description: "Agile, Scrum, Kanban, stakeholder management" },
-      { title: "Leadership & Management", description: "Team building, delegation, conflict resolution" },
-      { title: "Business Analytics", description: "Data-driven decisions, KPIs, dashboards" },
-      { title: "E-Commerce", description: "Online stores, payment systems, dropshipping" },
-      { title: "Supply Chain Management", description: "Logistics, inventory, procurement" },
-      { title: "Real Estate Basics", description: "Property investing, valuation, market analysis" },
+      {
+        title: "Financial Literacy",
+        description: "Budgeting, investing, personal finance management",
+      },
+      {
+        title: "Accounting Fundamentals",
+        description: "Bookkeeping, financial statements, auditing",
+      },
+      {
+        title: "Entrepreneurship",
+        description: "Business planning, startup strategy, fundraising",
+      },
+      {
+        title: "Digital Marketing",
+        description: "SEO, social media marketing, email campaigns, analytics",
+      },
+      {
+        title: "Project Management",
+        description: "Agile, Scrum, Kanban, stakeholder management",
+      },
+      {
+        title: "Leadership & Management",
+        description: "Team building, delegation, conflict resolution",
+      },
+      {
+        title: "Business Analytics",
+        description: "Data-driven decisions, KPIs, dashboards",
+      },
+      {
+        title: "E-Commerce",
+        description: "Online stores, payment systems, dropshipping",
+      },
+      {
+        title: "Supply Chain Management",
+        description: "Logistics, inventory, procurement",
+      },
+      {
+        title: "Real Estate Basics",
+        description: "Property investing, valuation, market analysis",
+      },
     ],
   },
 
@@ -92,12 +191,30 @@ const SKILLS_DATA = [
   {
     category: "Sciences",
     skills: [
-      { title: "Biology Fundamentals", description: "Cell biology, genetics, ecology, evolution" },
-      { title: "Chemistry Basics", description: "Atomic structure, reactions, organic chemistry" },
-      { title: "Physics Principles", description: "Mechanics, thermodynamics, electromagnetism" },
-      { title: "Environmental Science", description: "Climate change, ecosystems, sustainability" },
-      { title: "Neuroscience Basics", description: "Brain function, cognition, behavior" },
-      { title: "Astronomy & Astrophysics", description: "Stars, galaxies, cosmology, space exploration" },
+      {
+        title: "Biology Fundamentals",
+        description: "Cell biology, genetics, ecology, evolution",
+      },
+      {
+        title: "Chemistry Basics",
+        description: "Atomic structure, reactions, organic chemistry",
+      },
+      {
+        title: "Physics Principles",
+        description: "Mechanics, thermodynamics, electromagnetism",
+      },
+      {
+        title: "Environmental Science",
+        description: "Climate change, ecosystems, sustainability",
+      },
+      {
+        title: "Neuroscience Basics",
+        description: "Brain function, cognition, behavior",
+      },
+      {
+        title: "Astronomy & Astrophysics",
+        description: "Stars, galaxies, cosmology, space exploration",
+      },
     ],
   },
 
@@ -105,16 +222,46 @@ const SKILLS_DATA = [
   {
     category: "Arts & Humanities",
     skills: [
-      { title: "Creative Writing", description: "Fiction, poetry, screenwriting, narrative craft" },
-      { title: "Philosophy & Ethics", description: "Logic, critical reasoning, moral philosophy" },
-      { title: "Art History", description: "Major movements, prominent artists, visual analysis" },
-      { title: "Music Theory", description: "Scales, harmony, rhythm, composition" },
-      { title: "Film Studies", description: "Cinema analysis, directing, storytelling techniques" },
-      { title: "Photography", description: "Composition, lighting, editing, visual storytelling" },
-      { title: "Graphic Design", description: "Typography, layout, branding, visual identity" },
-      { title: "UX/UI Design", description: "User research, wireframing, prototyping, usability" },
-      { title: "Animation & Motion Graphics", description: "2D/3D animation, motion design, storyboarding" },
-      { title: "Music Production", description: "DAWs, mixing, mastering, sound design" },
+      {
+        title: "Creative Writing",
+        description: "Fiction, poetry, screenwriting, narrative craft",
+      },
+      {
+        title: "Philosophy & Ethics",
+        description: "Logic, critical reasoning, moral philosophy",
+      },
+      {
+        title: "Art History",
+        description: "Major movements, prominent artists, visual analysis",
+      },
+      {
+        title: "Music Theory",
+        description: "Scales, harmony, rhythm, composition",
+      },
+      {
+        title: "Film Studies",
+        description: "Cinema analysis, directing, storytelling techniques",
+      },
+      {
+        title: "Photography",
+        description: "Composition, lighting, editing, visual storytelling",
+      },
+      {
+        title: "Graphic Design",
+        description: "Typography, layout, branding, visual identity",
+      },
+      {
+        title: "UX/UI Design",
+        description: "User research, wireframing, prototyping, usability",
+      },
+      {
+        title: "Animation & Motion Graphics",
+        description: "2D/3D animation, motion design, storyboarding",
+      },
+      {
+        title: "Music Production",
+        description: "DAWs, mixing, mastering, sound design",
+      },
     ],
   },
 
@@ -122,15 +269,42 @@ const SKILLS_DATA = [
   {
     category: "Languages",
     skills: [
-      { title: "English Language", description: "Grammar, vocabulary, reading, writing proficiency" },
-      { title: "Spanish Language", description: "Conversational and written Spanish" },
-      { title: "French Language", description: "Conversational and written French" },
-      { title: "Mandarin Chinese", description: "Characters, tones, conversational Mandarin" },
-      { title: "Arabic Language", description: "Script, grammar, conversational Arabic" },
-      { title: "German Language", description: "Grammar, vocabulary, conversational German" },
-      { title: "Japanese Language", description: "Hiragana, katakana, kanji, conversational Japanese" },
-      { title: "Portuguese Language", description: "Brazilian & European Portuguese" },
-      { title: "Korean Language", description: "Hangul, grammar, conversational Korean" },
+      {
+        title: "English Language",
+        description: "Grammar, vocabulary, reading, writing proficiency",
+      },
+      {
+        title: "Spanish Language",
+        description: "Conversational and written Spanish",
+      },
+      {
+        title: "French Language",
+        description: "Conversational and written French",
+      },
+      {
+        title: "Mandarin Chinese",
+        description: "Characters, tones, conversational Mandarin",
+      },
+      {
+        title: "Arabic Language",
+        description: "Script, grammar, conversational Arabic",
+      },
+      {
+        title: "German Language",
+        description: "Grammar, vocabulary, conversational German",
+      },
+      {
+        title: "Japanese Language",
+        description: "Hiragana, katakana, kanji, conversational Japanese",
+      },
+      {
+        title: "Portuguese Language",
+        description: "Brazilian & European Portuguese",
+      },
+      {
+        title: "Korean Language",
+        description: "Hangul, grammar, conversational Korean",
+      },
     ],
   },
 
@@ -138,12 +312,30 @@ const SKILLS_DATA = [
   {
     category: "Health & Wellness",
     skills: [
-      { title: "Nutrition & Dietetics", description: "Macros, meal planning, dietary science" },
-      { title: "Psychology Fundamentals", description: "Cognitive, behavioral, and developmental psychology" },
-      { title: "Mental Health & Wellbeing", description: "Stress management, mindfulness, resilience" },
-      { title: "Public Health", description: "Epidemiology, health policy, community health" },
-      { title: "Fitness & Exercise Science", description: "Training principles, kinesiology, program design" },
-      { title: "First Aid & Emergency Care", description: "CPR, wound care, emergency response" },
+      {
+        title: "Nutrition & Dietetics",
+        description: "Macros, meal planning, dietary science",
+      },
+      {
+        title: "Psychology Fundamentals",
+        description: "Cognitive, behavioral, and developmental psychology",
+      },
+      {
+        title: "Mental Health & Wellbeing",
+        description: "Stress management, mindfulness, resilience",
+      },
+      {
+        title: "Public Health",
+        description: "Epidemiology, health policy, community health",
+      },
+      {
+        title: "Fitness & Exercise Science",
+        description: "Training principles, kinesiology, program design",
+      },
+      {
+        title: "First Aid & Emergency Care",
+        description: "CPR, wound care, emergency response",
+      },
     ],
   },
 
@@ -151,10 +343,22 @@ const SKILLS_DATA = [
   {
     category: "Mathematics",
     skills: [
-      { title: "Algebra & Calculus", description: "Functions, derivatives, integrals, limits" },
-      { title: "Linear Algebra", description: "Vectors, matrices, transformations" },
-      { title: "Discrete Mathematics", description: "Logic, sets, combinatorics, graph theory" },
-      { title: "Applied Statistics", description: "Regression, probability distributions, inference" },
+      {
+        title: "Algebra & Calculus",
+        description: "Functions, derivatives, integrals, limits",
+      },
+      {
+        title: "Linear Algebra",
+        description: "Vectors, matrices, transformations",
+      },
+      {
+        title: "Discrete Mathematics",
+        description: "Logic, sets, combinatorics, graph theory",
+      },
+      {
+        title: "Applied Statistics",
+        description: "Regression, probability distributions, inference",
+      },
     ],
   },
 
@@ -162,12 +366,31 @@ const SKILLS_DATA = [
   {
     category: "Social Sciences",
     skills: [
-      { title: "Sociology", description: "Social structures, culture, inequality, institutions" },
-      { title: "Political Science", description: "Government systems, policy analysis, international relations" },
-      { title: "Economics", description: "Micro and macroeconomics, market dynamics, trade" },
-      { title: "Law & Legal Studies", description: "Legal systems, contracts, constitutional law" },
-      { title: "Anthropology", description: "Cultural anthropology, human evolution, ethnography" },
-      { title: "Geography", description: "Physical and human geography, GIS, cartography" },
+      {
+        title: "Sociology",
+        description: "Social structures, culture, inequality, institutions",
+      },
+      {
+        title: "Political Science",
+        description:
+          "Government systems, policy analysis, international relations",
+      },
+      {
+        title: "Economics",
+        description: "Micro and macroeconomics, market dynamics, trade",
+      },
+      {
+        title: "Law & Legal Studies",
+        description: "Legal systems, contracts, constitutional law",
+      },
+      {
+        title: "Anthropology",
+        description: "Cultural anthropology, human evolution, ethnography",
+      },
+      {
+        title: "Geography",
+        description: "Physical and human geography, GIS, cartography",
+      },
     ],
   },
 
@@ -175,11 +398,26 @@ const SKILLS_DATA = [
   {
     category: "Engineering",
     skills: [
-      { title: "Mechanical Engineering", description: "Thermodynamics, mechanics, materials science" },
-      { title: "Electrical Engineering", description: "Circuits, electronics, signal processing" },
-      { title: "Civil Engineering", description: "Structural analysis, construction, geotechnics" },
-      { title: "Aerospace Engineering", description: "Aerodynamics, propulsion, spacecraft design" },
-      { title: "Biomedical Engineering", description: "Medical devices, biomechanics, biocompatibility" },
+      {
+        title: "Mechanical Engineering",
+        description: "Thermodynamics, mechanics, materials science",
+      },
+      {
+        title: "Electrical Engineering",
+        description: "Circuits, electronics, signal processing",
+      },
+      {
+        title: "Civil Engineering",
+        description: "Structural analysis, construction, geotechnics",
+      },
+      {
+        title: "Aerospace Engineering",
+        description: "Aerodynamics, propulsion, spacecraft design",
+      },
+      {
+        title: "Biomedical Engineering",
+        description: "Medical devices, biomechanics, biocompatibility",
+      },
     ],
   },
 
@@ -187,11 +425,26 @@ const SKILLS_DATA = [
   {
     category: "Media & Communication",
     skills: [
-      { title: "Journalism", description: "Reporting, investigative journalism, media ethics" },
-      { title: "Public Speaking", description: "Presentation skills, rhetoric, audience engagement" },
-      { title: "Content Creation", description: "Blogging, video production, podcasting" },
-      { title: "Social Media Strategy", description: "Platform management, engagement, analytics" },
-      { title: "Public Relations", description: "Brand reputation, crisis communication, media relations" },
+      {
+        title: "Journalism",
+        description: "Reporting, investigative journalism, media ethics",
+      },
+      {
+        title: "Public Speaking",
+        description: "Presentation skills, rhetoric, audience engagement",
+      },
+      {
+        title: "Content Creation",
+        description: "Blogging, video production, podcasting",
+      },
+      {
+        title: "Social Media Strategy",
+        description: "Platform management, engagement, analytics",
+      },
+      {
+        title: "Public Relations",
+        description: "Brand reputation, crisis communication, media relations",
+      },
     ],
   },
 
@@ -199,9 +452,18 @@ const SKILLS_DATA = [
   {
     category: "Education",
     skills: [
-      { title: "Curriculum Design", description: "Learning objectives, assessment design, pedagogy" },
-      { title: "Educational Technology", description: "EdTech tools, LMS, online learning design" },
-      { title: "Teaching & Instruction", description: "Classroom management, differentiated instruction" },
+      {
+        title: "Curriculum Design",
+        description: "Learning objectives, assessment design, pedagogy",
+      },
+      {
+        title: "Educational Technology",
+        description: "EdTech tools, LMS, online learning design",
+      },
+      {
+        title: "Teaching & Instruction",
+        description: "Classroom management, differentiated instruction",
+      },
     ],
   },
 
@@ -209,10 +471,22 @@ const SKILLS_DATA = [
   {
     category: "Personal Development",
     skills: [
-      { title: "Critical Thinking", description: "Logical reasoning, analysis, problem solving" },
-      { title: "Emotional Intelligence", description: "Self-awareness, empathy, relationship management" },
-      { title: "Time Management & Productivity", description: "Goal setting, prioritization, focus techniques" },
-      { title: "Networking & Communication", description: "Professional relationships, negotiation, collaboration" },
+      {
+        title: "Critical Thinking",
+        description: "Logical reasoning, analysis, problem solving",
+      },
+      {
+        title: "Emotional Intelligence",
+        description: "Self-awareness, empathy, relationship management",
+      },
+      {
+        title: "Time Management & Productivity",
+        description: "Goal setting, prioritization, focus techniques",
+      },
+      {
+        title: "Networking & Communication",
+        description: "Professional relationships, negotiation, collaboration",
+      },
     ],
   },
 
@@ -220,9 +494,18 @@ const SKILLS_DATA = [
   {
     category: "Sustainability",
     skills: [
-      { title: "Renewable Energy", description: "Solar, wind, hydro, energy storage systems" },
-      { title: "Sustainable Agriculture", description: "Organic farming, permaculture, food systems" },
-      { title: "Conservation & Ecology", description: "Biodiversity, wildlife management, habitat restoration" },
+      {
+        title: "Renewable Energy",
+        description: "Solar, wind, hydro, energy storage systems",
+      },
+      {
+        title: "Sustainable Agriculture",
+        description: "Organic farming, permaculture, food systems",
+      },
+      {
+        title: "Conservation & Ecology",
+        description: "Biodiversity, wildlife management, habitat restoration",
+      },
     ],
   },
 
@@ -230,10 +513,22 @@ const SKILLS_DATA = [
   {
     category: "Trades & Vocational",
     skills: [
-      { title: "Culinary Arts", description: "Cooking techniques, baking, food safety, cuisine styles" },
-      { title: "Fashion & Textile Design", description: "Pattern making, sewing, fashion illustration" },
-      { title: "Carpentry & Woodworking", description: "Joinery, furniture making, hand & power tools" },
-      { title: "Automotive Basics", description: "Vehicle maintenance, engines, diagnostics" },
+      {
+        title: "Culinary Arts",
+        description: "Cooking techniques, baking, food safety, cuisine styles",
+      },
+      {
+        title: "Fashion & Textile Design",
+        description: "Pattern making, sewing, fashion illustration",
+      },
+      {
+        title: "Carpentry & Woodworking",
+        description: "Joinery, furniture making, hand & power tools",
+      },
+      {
+        title: "Automotive Basics",
+        description: "Vehicle maintenance, engines, diagnostics",
+      },
     ],
   },
 ];
@@ -283,7 +578,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "INTERMEDIATE",
     },
     {
-      questionText: "Which pseudo-element is used to style the first line of a block?",
+      questionText:
+        "Which pseudo-element is used to style the first line of a block?",
       options: ["::first-line", "::before", ":first-child", "::first-letter"],
       correctOption: 0,
       difficulty: "ADVANCED",
@@ -291,7 +587,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
   "JavaScript Basics": [
     {
-      questionText: "What keyword declares a block-scoped variable in JavaScript?",
+      questionText:
+        "What keyword declares a block-scoped variable in JavaScript?",
       options: ["var", "let", "define", "dim"],
       correctOption: 1,
       difficulty: "BEGINNER",
@@ -308,7 +605,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "BEGINNER",
     },
     {
-      questionText: "Which array method returns a new array with transformed elements?",
+      questionText:
+        "Which array method returns a new array with transformed elements?",
       options: ["forEach", "filter", "map", "reduce"],
       correctOption: 2,
       difficulty: "INTERMEDIATE",
@@ -338,7 +636,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
   "React Fundamentals": [
     {
-      questionText: "What hook is used to manage state in a functional component?",
+      questionText:
+        "What hook is used to manage state in a functional component?",
       options: ["useEffect", "useState", "useRef", "useMemo"],
       correctOption: 1,
       difficulty: "BEGINNER",
@@ -356,12 +655,7 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
     },
     {
       questionText: "When does useEffect run with an empty dependency array?",
-      options: [
-        "On every render",
-        "Only on mount",
-        "Only on unmount",
-        "Never",
-      ],
+      options: ["On every render", "Only on mount", "Only on unmount", "Never"],
       correctOption: 1,
       difficulty: "INTERMEDIATE",
     },
@@ -379,7 +673,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
   "Next.js & SSR": [
     {
-      questionText: "What is the default rendering strategy in Next.js App Router?",
+      questionText:
+        "What is the default rendering strategy in Next.js App Router?",
       options: [
         "Client-side rendering",
         "Server-side rendering",
@@ -396,7 +691,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "BEGINNER",
     },
     {
-      questionText: "What directive marks a component as client-side in Next.js?",
+      questionText:
+        "What directive marks a component as client-side in Next.js?",
       options: ["'use server'", "'use client'", "'use browser'", "'use csr'"],
       correctOption: 1,
       difficulty: "INTERMEDIATE",
@@ -434,7 +730,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
   "SQL & Databases": [
     {
-      questionText: "Which SQL keyword is used to retrieve data from a database?",
+      questionText:
+        "Which SQL keyword is used to retrieve data from a database?",
       options: ["GET", "FETCH", "SELECT", "RETRIEVE"],
       correctOption: 2,
       difficulty: "BEGINNER",
@@ -451,7 +748,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "BEGINNER",
     },
     {
-      questionText: "Which JOIN returns rows that have matching values in both tables?",
+      questionText:
+        "Which JOIN returns rows that have matching values in both tables?",
       options: ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "CROSS JOIN"],
       correctOption: 2,
       difficulty: "INTERMEDIATE",
@@ -500,7 +798,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
   "Python for Data Science": [
     {
-      questionText: "Which Python library is primarily used for data manipulation?",
+      questionText:
+        "Which Python library is primarily used for data manipulation?",
       options: ["NumPy", "pandas", "matplotlib", "scikit-learn"],
       correctOption: 1,
       difficulty: "BEGINNER",
@@ -518,7 +817,12 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
     },
     {
       questionText: "Which function is used to read a CSV file in pandas?",
-      options: ["pd.open_csv()", "pd.read_csv()", "pd.load()", "pd.import_csv()"],
+      options: [
+        "pd.open_csv()",
+        "pd.read_csv()",
+        "pd.load()",
+        "pd.import_csv()",
+      ],
       correctOption: 1,
       difficulty: "BEGINNER",
     },
@@ -526,7 +830,12 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   "Statistics & Probability": [
     {
       questionText: "What does the mean of a dataset represent?",
-      options: ["Most frequent value", "Middle value", "Average value", "Range"],
+      options: [
+        "Most frequent value",
+        "Middle value",
+        "Average value",
+        "Range",
+      ],
       correctOption: 2,
       difficulty: "BEGINNER",
     },
@@ -556,7 +865,12 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
     },
     {
       questionText: "What file defines a Docker image's build instructions?",
-      options: ["docker-compose.yml", "Dockerfile", "package.json", ".dockerignore"],
+      options: [
+        "docker-compose.yml",
+        "Dockerfile",
+        "package.json",
+        ".dockerignore",
+      ],
       correctOption: 1,
       difficulty: "BEGINNER",
     },
@@ -569,7 +883,8 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "BEGINNER",
     },
     {
-      questionText: "Which component is used for scrollable lists in React Native?",
+      questionText:
+        "Which component is used for scrollable lists in React Native?",
       options: ["ScrollView", "ListView", "FlatList", "TableView"],
       correctOption: 2,
       difficulty: "INTERMEDIATE",
@@ -673,7 +988,7 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
       difficulty: "BEGINNER",
     },
   ],
-  "Entrepreneurship": [
+  Entrepreneurship: [
     {
       questionText: "What is an MVP in startup context?",
       options: [
@@ -943,7 +1258,7 @@ const QUESTION_MAP: Record<string, QuestionSeed[]> = {
   ],
 
   // ─── Social Sciences ───
-  "Economics": [
+  Economics: [
     {
       questionText: "What is supply and demand?",
       options: [
@@ -1128,7 +1443,9 @@ async function seed() {
     const skillId = skillIdMap[skillTitle];
     const prereqId = skillIdMap[prereqTitle];
     if (!skillId || !prereqId) {
-      console.log(`  ⚠ Skipping dep: ${skillTitle} → ${prereqTitle} (missing skill)`);
+      console.log(
+        `  ⚠ Skipping dep: ${skillTitle} → ${prereqTitle} (missing skill)`,
+      );
       continue;
     }
 

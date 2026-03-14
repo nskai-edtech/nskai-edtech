@@ -10,28 +10,25 @@ export default function TermsOfServicePage() {
   return (
     <div className="max-w-4xl mx-auto prose dark:prose-invert">
       <h1>Terms of Service</h1>
-      <p className="text-sm text-secondary-text">
-        Last updated: February 2026
-      </p>
+      <p className="text-sm text-secondary-text">Last updated: February 2026</p>
 
       <p className="lead">
-        These Terms of Service (&quot;Terms&quot;) govern your access to and use of the
-        ZERRA platform operated by NSKAI (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). By accessing or
-        using ZERRA, you agree to be bound by these Terms.
+        These Terms of Service (&quot;Terms&quot;) govern your access to and use
+        of the ZERRA platform operated by NSKAI (&quot;we&quot;, &quot;us&quot;,
+        or &quot;our&quot;). By accessing or using ZERRA, you agree to be bound
+        by these Terms.
       </p>
 
       <h2>1. Acceptance of Terms</h2>
       <p>
-        By creating an account or accessing the ZERRA platform at any capacity
-        — whether as a Learner, Tutor, or Organization Administrator — you
-        confirm that you have read, understood, and agree to these Terms. If you
-        do not agree, you must not use the platform.
+        By creating an account or accessing the ZERRA platform at any capacity —
+        whether as a Learner, Tutor, or Organization Administrator — you confirm
+        that you have read, understood, and agree to these Terms. If you do not
+        agree, you must not use the platform.
       </p>
 
       <h2>2. Description of Service</h2>
-      <p>
-        ZERRA is an AI-powered learning management system that enables:
-      </p>
+      <p>ZERRA is an AI-powered learning management system that enables:</p>
       <ul>
         <li>
           <strong>Learners</strong> to browse, purchase, and consume video-based
@@ -89,9 +86,9 @@ export default function TermsOfServicePage() {
 
       <h2>6. Intellectual Property</h2>
       <p>
-        The ZERRA platform, including its design, code, AI models, branding,
-        and documentation, is the exclusive property of NSKAI. Course content
-        is owned by the respective Tutors or Organizations that created it.
+        The ZERRA platform, including its design, code, AI models, branding, and
+        documentation, is the exclusive property of NSKAI. Course content is
+        owned by the respective Tutors or Organizations that created it.
         Learners receive a limited, non-transferable license to access purchased
         course content for personal educational use only.
       </p>
@@ -134,18 +131,18 @@ export default function TermsOfServicePage() {
 
       <h2>10. Limitation of Liability</h2>
       <p>
-        ZERRA is provided &quot;as is&quot; and &quot;as available.&quot; To the maximum extent
-        permitted by law, NSKAI shall not be liable for any indirect,
-        incidental, special, consequential, or punitive damages, including
-        loss of profits, data, or other intangible losses arising from your
-        use of the platform.
+        ZERRA is provided &quot;as is&quot; and &quot;as available.&quot; To the
+        maximum extent permitted by law, NSKAI shall not be liable for any
+        indirect, incidental, special, consequential, or punitive damages,
+        including loss of profits, data, or other intangible losses arising from
+        your use of the platform.
       </p>
 
       <h2>11. Modifications to Terms</h2>
       <p>
         We may update these Terms from time to time. When we do, we will revise
-        the &quot;Last updated&quot; date above. Continued use of ZERRA after changes
-        constitutes acceptance of the updated Terms.
+        the &quot;Last updated&quot; date above. Continued use of ZERRA after
+        changes constitutes acceptance of the updated Terms.
       </p>
 
       <h2>12. Governing Law</h2>

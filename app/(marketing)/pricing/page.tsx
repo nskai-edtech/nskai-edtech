@@ -106,8 +106,8 @@ export default function PricingPage() {
           Simple, Transparent <span className="text-brand">Pricing</span>
         </h1>
         <p className="text-lg text-secondary-text max-w-2xl mx-auto">
-          Start learning for free. Upgrade when you&apos;re ready for
-          unlimited access, advanced AI features, and certificates.
+          Start learning for free. Upgrade when you&apos;re ready for unlimited
+          access, advanced AI features, and certificates.
         </p>
       </div>
 

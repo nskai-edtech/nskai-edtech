@@ -271,12 +271,13 @@ export default function CourseEditor({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed left-4 top-4 z-50 lg:hidden p-2 bg-surface rounded-lg border border-border text-primary-text hover:bg-surface-muted"
+        className="fixed left-4 top-4 z-50 lg:hidden p-2 bg-surface rounded-lg border border-border text-primary-text hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        aria-label={isSidebarOpen ? "Close menu" : "Open menu"}
       >
         {isSidebarOpen ? (
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         ) : (
-          <Menu className="w-5 h-5" />
+          <Menu className="w-5 h-5" aria-hidden="true" />
         )}
       </button>
 
@@ -285,6 +286,15 @@ export default function CourseEditor({
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close menu"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsSidebarOpen(false);
+            }
+          }}
         />
       )}
 
@@ -295,9 +305,10 @@ export default function CourseEditor({
         }`}
       >
         {/* Header */}
-        <div
-          className="p-4 pt-20 lg:pt-4 border-b border-border cursor-pointer hover:bg-surface-muted transition-colors group"
+        <button
+          className="w-full text-left p-4 pt-20 lg:pt-4 border-b border-border cursor-pointer hover:bg-surface-muted transition-colors group focus-visible:outline-none focus-visible:bg-surface-muted"
           onClick={() => setSelectedLesson(null)}
+          aria-label="Back to Course Overview"
         >
           <h2 className="text-sm font-semibold text-secondary-text uppercase tracking-wider mb-2 group-hover:text-brand transition-colors">
             Curriculum Editor
@@ -309,7 +320,7 @@ export default function CourseEditor({
             {course.chapters?.length ?? 0}{" "}
             {(course.chapters?.length ?? 0) === 1 ? "Module" : "Modules"}
           </p>
-        </div>
+        </button>
 
         {/* Chapters List */}
         <div className="flex-1 overflow-y-auto p-3">
@@ -327,12 +338,13 @@ export default function CourseEditor({
                   <div className="group flex items-center gap-2 p-2 rounded-lg hover:bg-surface-muted transition-colors">
                     <button
                       onClick={() => toggleChapter(chapter.id)}
-                      className="flex items-center gap-2 flex-1 text-left"
+                      className="flex items-center gap-2 flex-1 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded px-1"
+                      aria-expanded={expandedChapters.has(chapter.id)}
                     >
                       {expandedChapters.has(chapter.id) ? (
-                        <ChevronDown className="w-4 h-4 text-secondary-text" />
+                        <ChevronDown className="w-4 h-4 text-secondary-text" aria-hidden="true" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-secondary-text" />
+                        <ChevronRight className="w-4 h-4 text-secondary-text" aria-hidden="true" />
                       )}
                       <span className="text-xs font-semibold text-secondary-text">
                         Module {chapterIndex + 1}
@@ -343,9 +355,10 @@ export default function CourseEditor({
                     </button>
                     <button
                       onClick={() => handleDeleteChapter(chapter.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/10 rounded transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/10 rounded transition-all focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      aria-label={`Delete module ${chapterIndex + 1}: ${chapter.title}`}
                     >
-                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                      <Trash2 className="w-3.5 h-3.5 text-red-500" aria-hidden="true" />
                     </button>
                   </div>
 
@@ -353,19 +366,20 @@ export default function CourseEditor({
                   {expandedChapters.has(chapter.id) && (
                     <div className="ml-6 mt-1 space-y-1">
                       {chapter.lessons.map((lesson, lessonIndex) => (
-                        <div
+                        <button
                           key={lesson.id}
                           onClick={() => {
                             setSelectedLesson(lesson);
                             setIsSidebarOpen(false);
                           }}
-                          className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                          className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                             selectedLesson?.id === lesson.id
                               ? "bg-brand text-white"
                               : "hover:bg-surface-muted"
                           }`}
+                          aria-current={selectedLesson?.id === lesson.id ? "location" : undefined}
                         >
-                          <GripVertical className="w-3.5 h-3.5 opacity-50" />
+                          <GripVertical className="w-3.5 h-3.5 opacity-50" aria-hidden="true" />
                           <span className="text-xs font-medium flex-1 truncate">
                             {lessonIndex + 1}. {lesson.title}
                           </span>
@@ -374,11 +388,12 @@ export default function CourseEditor({
                               e.stopPropagation();
                               handleDeleteLesson(lesson.id);
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/10 rounded transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/10 rounded transition-all focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                            aria-label={`Delete lesson ${lessonIndex + 1}: ${lesson.title}`}
                           >
-                            <Trash2 className="w-3 h-3 text-red-500" />
+                            <Trash2 className="w-3 h-3 text-red-500" aria-hidden="true" />
                           </button>
-                        </div>
+                        </button>
                       ))}
 
                       <button
@@ -389,9 +404,10 @@ export default function CourseEditor({
                             chapterId: chapter.id,
                           })
                         }
-                        className="flex items-center gap-2 w-full p-2 text-xs text-brand hover:bg-brand/5 rounded-lg transition-colors"
+                        className="flex items-center gap-2 w-full p-2 text-xs text-brand hover:bg-brand/5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        aria-label={`Add lesson to module: ${chapter.title}`}
                       >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                         Add Lesson
                       </button>
                     </div>
@@ -406,9 +422,9 @@ export default function CourseEditor({
         <div className="p-3 border-t border-border">
           <button
             onClick={() => setModalState({ isOpen: true, type: "chapter" })}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-lg font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             Add Module
           </button>
         </div>
@@ -530,9 +546,9 @@ export default function CourseEditor({
         {/* Floating View Courses Button */}
         <button
           onClick={() => router.push("/tutor/courses")}
-          className="fixed z-99 bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105"
+          className="fixed z-99 bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-brand hover:bg-brand/90 text-white rounded-full font-medium shadow-lg transition-all hover:shadow-xl hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
-          <List className="w-5 h-5" />
+          <List className="w-5 h-5" aria-hidden="true" />
           <span className=" sm:inline">View All Courses</span>
         </button>
       </main>

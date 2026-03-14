@@ -4,10 +4,12 @@ import {
   text,
   timestamp,
   integer,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { roleEnum, statusEnum } from "./enums";
+import { schools } from "./schools";
 import { courses } from "./courses";
 import { purchases, userProgress, courseLikes, reviews } from "./interactions";
 import { pointTransactions, dailyWatchTime } from "./gamification";
@@ -24,12 +26,22 @@ export const users = pgTable(
 
     clerkId: text("clerk_id").unique().notNull(),
 
+    // [NEW] SYSTEM LEVEL
+    isSuperAdmin: boolean("is_super_admin").default(false).notNull(),
+
+    // [NEW] TENANT LEVEL
+    schoolId: uuid("school_id").references(() => schools.id, {
+      onDelete: "cascade",
+    }), // Nullable! Super-Admins might not have a school
+
     email: text("email").notNull(),
     firstName: text("first_name"),
     lastName: text("last_name"),
     bio: text("bio"),
     expertise: text("expertise"),
 
+    // Defaults to LEARNER (B2C)
+    // Updated to TEACHER or STUDENT during B2B onboarding
     role: roleEnum("role").default("LEARNER").notNull(),
     status: statusEnum("status").default("PENDING").notNull(),
 

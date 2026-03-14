@@ -81,11 +81,7 @@ export function SkillMasteryCard({ skill }: { skill: UserSkillProfile }) {
 }
 
 // ─── Skill Profile (Grouped by Category) ───
-export function SkillProfile({
-  skills,
-}: {
-  skills: UserSkillProfile[];
-}) {
+export function SkillProfile({ skills }: { skills: UserSkillProfile[] }) {
   // Group by category
   const grouped = skills.reduce(
     (acc, skill) => {
@@ -162,11 +158,7 @@ export function SkillProfile({
 }
 
 // ─── Compact Skill Summary Widget (for dashboard) ───
-export function SkillSummaryWidget({
-  skills,
-}: {
-  skills: UserSkillProfile[];
-}) {
+export function SkillSummaryWidget({ skills }: { skills: UserSkillProfile[] }) {
   if (skills.length === 0) return null;
 
   const sorted = [...skills].sort((a, b) => a.masteryScore - b.masteryScore);

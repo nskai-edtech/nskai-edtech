@@ -222,7 +222,8 @@ export default async function OrgCoursesPage({ searchParams }: PageProps) {
                       {course.tutor.imageUrl ? (
                         <Image
                           src={course.tutor.imageUrl}
-                          alt={`${course.tutor.firstName} ${course.tutor.lastName}`}
+                          alt=""
+                          aria-hidden="true"
                           width={24}
                           height={24}
                           className="object-cover"

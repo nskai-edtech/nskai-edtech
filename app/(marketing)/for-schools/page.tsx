@@ -76,8 +76,7 @@ export default function ForSchoolsPage() {
           For Schools
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-primary-text mb-6">
-          A Modern LMS for{" "}
-          <span className="text-brand">Your Institution</span>
+          A Modern LMS for <span className="text-brand">Your Institution</span>
         </h1>
         <p className="text-lg text-secondary-text max-w-3xl mx-auto">
           ZERRA gives schools, universities, and training organizations a

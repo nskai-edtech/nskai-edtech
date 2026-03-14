@@ -111,7 +111,8 @@ export function DeleteAccountSection() {
             <p className="text-sm text-secondary-text text-center mb-6">
               This will permanently delete your account, including all your
               course progress, certificates, achievements, and personal data.
-              This action is <strong className="text-red-500">irreversible</strong>.
+              This action is{" "}
+              <strong className="text-red-500">irreversible</strong>.
             </p>
 
             {/* Confirmation Input */}

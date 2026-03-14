@@ -15,8 +15,7 @@ export default async function SkillsPage() {
     getSkillGaps(),
   ]);
 
-  const profile =
-    "error" in profileResult ? [] : profileResult.skills;
+  const profile = "error" in profileResult ? [] : profileResult.skills;
   const gaps = "error" in gapsResult ? [] : gapsResult.gaps;
 
   const hasSkills = profile.length > 0;
@@ -69,7 +68,8 @@ export default async function SkillsPage() {
           </h2>
           <p className="text-secondary-text max-w-md mb-8">
             Take a quick diagnostic assessment to discover your strengths,
-            identify knowledge gaps, and get personalized course recommendations.
+            identify knowledge gaps, and get personalized course
+            recommendations.
           </p>
           <Link
             href="/learner/skills/assess"

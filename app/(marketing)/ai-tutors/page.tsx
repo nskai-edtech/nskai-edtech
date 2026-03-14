@@ -184,9 +184,7 @@ export default function AITutorsPage() {
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-primary-text mb-1">
-              Privacy First
-            </h3>
+            <h3 className="font-bold text-primary-text mb-1">Privacy First</h3>
             <p className="text-secondary-text text-sm leading-relaxed">
               Your conversations with the AI tutor are private. We do not use
               your questions to train external models or share them with third

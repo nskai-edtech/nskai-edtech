@@ -72,8 +72,8 @@ export default function CommunityPage() {
         </h1>
         <p className="text-lg text-secondary-text max-w-2xl mx-auto">
           The ZERRA community brings together learners, tutors, and developers
-          who are passionate about the future of education. Share knowledge,
-          get support, and contribute to a growing ecosystem.
+          who are passionate about the future of education. Share knowledge, get
+          support, and contribute to a growing ecosystem.
         </p>
       </div>
 

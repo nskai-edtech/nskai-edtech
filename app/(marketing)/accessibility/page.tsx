@@ -64,8 +64,8 @@ export default function AccessibilityPage() {
         <p className="text-secondary-text leading-relaxed mb-4">
           The Web Content Accessibility Guidelines (WCAG) define requirements
           for making web content more accessible to people with disabilities.
-          WCAG defines three levels of conformance: Level A, Level AA, and
-          Level AAA.
+          WCAG defines three levels of conformance: Level A, Level AA, and Level
+          AAA.
         </p>
         <p className="text-secondary-text leading-relaxed">
           ZERRA is <strong>partially conformant with WCAG 2.1 Level AA</strong>.
@@ -115,7 +115,9 @@ export default function AccessibilityPage() {
             Improving screen reader compatibility across the course player and
             dashboard.
           </li>
-          <li>Enhancing ARIA labels and semantic HTML throughout the platform.</li>
+          <li>
+            Enhancing ARIA labels and semantic HTML throughout the platform.
+          </li>
           <li>
             Conducting regular accessibility audits with automated and manual
             testing.
@@ -134,8 +136,7 @@ export default function AccessibilityPage() {
         </p>
         <ul>
           <li>
-            Email:{" "}
-            <a href="mailto:contact@nskai.org">contact@nskai.org</a>
+            Email: <a href="mailto:contact@nskai.org">contact@nskai.org</a>
           </li>
         </ul>
         <p>

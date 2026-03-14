@@ -52,21 +52,38 @@ export async function markLessonComplete(lessonId: string) {
     });
 
     // Award individual lesson XP (deduplicated by unique index)
-    const lessonResult = await awardPoints(user.id, 2, "LESSON_COMPLETED", lessonId);
+    const lessonResult = await awardPoints(
+      user.id,
+      2,
+      "LESSON_COMPLETED",
+      lessonId,
+    );
     if (lessonResult && !lessonResult.success) {
       console.warn("[GAMIFICATION] Failed to award lesson XP for", lessonId);
     }
 
     if (lessonData?.chapterId) {
-      const moduleResult = await checkModuleCompletion(user.id, lessonData.chapterId);
+      const moduleResult = await checkModuleCompletion(
+        user.id,
+        lessonData.chapterId,
+      );
       if (moduleResult && !moduleResult.success) {
-        console.warn("[GAMIFICATION] Failed to award module XP for chapter", lessonData.chapterId);
+        console.warn(
+          "[GAMIFICATION] Failed to award module XP for chapter",
+          lessonData.chapterId,
+        );
       }
       // Also re-check quiz mastery — covers the case where quizzes were passed
       // before the last video lesson was completed
-      const quizResult = await checkModuleQuizzesPassed(user.id, lessonData.chapterId);
+      const quizResult = await checkModuleQuizzesPassed(
+        user.id,
+        lessonData.chapterId,
+      );
       if (quizResult && !quizResult.success) {
-        console.warn("[GAMIFICATION] Failed to award quiz mastery XP for chapter", lessonData.chapterId);
+        console.warn(
+          "[GAMIFICATION] Failed to award quiz mastery XP for chapter",
+          lessonData.chapterId,
+        );
       }
     }
 

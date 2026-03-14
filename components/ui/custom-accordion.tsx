@@ -29,10 +29,12 @@ export function CustomAccordion({
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full p-4 font-medium transition-colors hover:bg-surface-muted/50"
+        aria-expanded={isOpen}
+        className="flex items-center justify-between w-full p-4 font-medium transition-colors hover:bg-surface-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand relative z-10"
       >
         <span className="text-left text-primary-text">{title}</span>
         <ChevronDown
+          aria-hidden="true"
           className={cn(
             "h-5 w-5 shrink-0 text-secondary-text transition-transform duration-200",
             isOpen && "rotate-180",

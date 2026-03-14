@@ -13,6 +13,8 @@ import {
   Layers,
   FileText,
   Target,
+  School,
+  Video,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -31,6 +33,7 @@ export const useSidebarRoutes = (
     pendingTutors?: number;
     pendingSubmissions?: number;
     pendingRequests?: number;
+    pendingSchools?: number;
   },
 ): SidebarRoute[] => {
   const pathname = usePathname();
@@ -54,6 +57,12 @@ export const useSidebarRoutes = (
       href: "/tutor/submissions",
       active: pathname.includes("/tutor/submissions"),
       badgeCount: counts?.pendingSubmissions,
+    },
+    {
+      icon: Video,
+      label: "Live Sessions",
+      href: "/tutor/live-sessions",
+      active: pathname.includes("/tutor/live-sessions"),
     },
     {
       icon: BarChart,
@@ -91,6 +100,13 @@ export const useSidebarRoutes = (
       badgeCount: counts?.pendingCourses,
     },
     {
+      icon: School,
+      label: "School Approvals",
+      href: "/org/school-approvals",
+      active: pathname.includes("/org/school-approvals"),
+      badgeCount: counts?.pendingSchools,
+    },
+    {
       icon: FileText,
       label: "Course Requests",
       href: "/org/requests",
@@ -120,6 +136,12 @@ export const useSidebarRoutes = (
       label: "Learners",
       href: "/org/learners",
       active: pathname.includes("/org/learners"),
+    },
+    {
+      icon: School,
+      label: "Schools", 
+      href: "/org/schools",
+      active: pathname.includes("/org/schools") && !pathname.includes("schema"),
     },
     {
       icon: Target,

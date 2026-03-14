@@ -78,7 +78,8 @@ export async function CourseHero({
               >
                 <Image
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123 + courseId.charCodeAt(0)}`}
-                  alt="student"
+                  alt=""
+                  aria-hidden="true"
                   width={24}
                   height={24}
                 />
@@ -99,7 +100,7 @@ export async function CourseHero({
           {tutor?.imageUrl ? (
             <Image
               src={tutor.imageUrl}
-              alt={tutor.firstName || "Tutor"}
+              alt={tutor.firstName ? `${tutor.firstName}'s profile picture` : "Tutor profile picture"}
               fill
               className="object-cover"
             />

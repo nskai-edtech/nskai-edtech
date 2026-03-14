@@ -68,7 +68,9 @@ export function AiMentorModal() {
   const [feedbackGiven, setFeedbackGiven] = useState<
     Record<number, "up" | "down">
   >({});
-  const [contextQuality, setContextQuality] = useState<"full" | "partial" | "none" | null>(null);
+  const [contextQuality, setContextQuality] = useState<
+    "full" | "partial" | "none" | null
+  >(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -208,7 +210,11 @@ export function AiMentorModal() {
       if (!response.body) throw new Error("No response body");
 
       // Read context quality header from the API response
-      const ctxQuality = response.headers.get("X-Lesson-Context") as "full" | "partial" | "none" | null;
+      const ctxQuality = response.headers.get("X-Lesson-Context") as
+        | "full"
+        | "partial"
+        | "none"
+        | null;
       if (ctxQuality && !contextQuality) {
         setContextQuality(ctxQuality);
       }
@@ -285,7 +291,8 @@ export function AiMentorModal() {
         {contextQuality && contextQuality === "none" && (
           <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              Unable to load lesson context. The AI will use its general knowledge to help you.
+              Unable to load lesson context. The AI will use its general
+              knowledge to help you.
             </p>
           </div>
         )}

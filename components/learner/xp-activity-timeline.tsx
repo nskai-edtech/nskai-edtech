@@ -37,11 +37,7 @@ function timeAgo(date: Date): string {
   });
 }
 
-export function XpActivityTimeline({
-  events,
-}: {
-  events: ActivityEvent[];
-}) {
+export function XpActivityTimeline({ events }: { events: ActivityEvent[] }) {
   if (events.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-surface p-8 text-center">
@@ -55,10 +51,7 @@ export function XpActivityTimeline({
   return (
     <div className="rounded-2xl border border-border bg-surface divide-y divide-border">
       {events.map((event) => (
-        <div
-          key={event.id}
-          className="flex items-center gap-3 px-4 py-3"
-        >
+        <div key={event.id} className="flex items-center gap-3 px-4 py-3">
           {/* Dot */}
           <div
             className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT_COLORS[event.reason]}`}

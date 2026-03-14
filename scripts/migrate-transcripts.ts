@@ -26,7 +26,11 @@ dotenv.config({ path: ".env.local" });
   console.log("🔍 Finding lessons with auto-cached transcripts in notes...");
 
   const rows = await db
-    .select({ id: lessons.id, notes: lessons.notes, transcript: lessons.transcript })
+    .select({
+      id: lessons.id,
+      notes: lessons.notes,
+      transcript: lessons.transcript,
+    })
     .from(lessons)
     .where(like(lessons.notes, "[AUTO-TRANSCRIPT]%"));
 

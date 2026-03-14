@@ -38,7 +38,7 @@ export async function CourseInstructor({ tutor }: CourseInstructorProps) {
           {tutor.imageUrl ? (
             <Image
               src={tutor.imageUrl}
-              alt={tutor.firstName || "Tutor"}
+              alt={tutor.firstName ? `${tutor.firstName}'s profile picture` : "Tutor profile picture"}
               fill
               className="object-cover"
             />

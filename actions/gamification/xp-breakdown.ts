@@ -141,7 +141,10 @@ export async function getXpBreakdown(
         count: sql<number>`count(*)`,
       })
       .from(pointTransactions)
-      .innerJoin(lessons, eq(lessons.id, sql`${pointTransactions.referenceId}::uuid`))
+      .innerJoin(
+        lessons,
+        eq(lessons.id, sql`${pointTransactions.referenceId}::uuid`),
+      )
       .innerJoin(chapters, eq(chapters.id, lessons.chapterId))
       .innerJoin(courses, eq(courses.id, chapters.courseId))
       .where(
@@ -150,7 +153,12 @@ export async function getXpBreakdown(
           sql`${pointTransactions.reason} IN ('LESSON_COMPLETED', 'QUIZ_PASSED')`,
         ),
       )
-      .groupBy(courses.id, courses.title, courses.imageUrl, pointTransactions.reason);
+      .groupBy(
+        courses.id,
+        courses.title,
+        courses.imageUrl,
+        pointTransactions.reason,
+      );
 
     // Module-level reasons: JOIN point_transaction → chapter → course
     const moduleReasonRows = await db
@@ -163,7 +171,10 @@ export async function getXpBreakdown(
         count: sql<number>`count(*)`,
       })
       .from(pointTransactions)
-      .innerJoin(chapters, eq(chapters.id, sql`${pointTransactions.referenceId}::uuid`))
+      .innerJoin(
+        chapters,
+        eq(chapters.id, sql`${pointTransactions.referenceId}::uuid`),
+      )
       .innerJoin(courses, eq(courses.id, chapters.courseId))
       .where(
         and(
@@ -171,7 +182,12 @@ export async function getXpBreakdown(
           sql`${pointTransactions.reason} IN ('MODULE_COMPLETED', 'MODULE_QUIZZES_PASSED')`,
         ),
       )
-      .groupBy(courses.id, courses.title, courses.imageUrl, pointTransactions.reason);
+      .groupBy(
+        courses.id,
+        courses.title,
+        courses.imageUrl,
+        pointTransactions.reason,
+      );
 
     // Streak reasons (not tied to a course)
     const streakRows = await db
@@ -181,9 +197,7 @@ export async function getXpBreakdown(
         count: sql<number>`count(*)`,
       })
       .from(pointTransactions)
-      .where(
-        and(dateFilter, eq(pointTransactions.reason, "STREAK_7_DAYS")),
-      )
+      .where(and(dateFilter, eq(pointTransactions.reason, "STREAK_7_DAYS")))
       .groupBy(pointTransactions.reason);
 
     // Merge into course buckets
@@ -249,13 +263,17 @@ export async function getXpBreakdown(
 
     // Resolve labels in bulk
     const lessonIds = rawActivity
-      .filter((r) => r.reason === "LESSON_COMPLETED" || r.reason === "QUIZ_PASSED")
+      .filter(
+        (r) => r.reason === "LESSON_COMPLETED" || r.reason === "QUIZ_PASSED",
+      )
       .map((r) => r.referenceId)
       .filter(Boolean) as string[];
 
     const chapterIds = rawActivity
       .filter(
-        (r) => r.reason === "MODULE_COMPLETED" || r.reason === "MODULE_QUIZZES_PASSED",
+        (r) =>
+          r.reason === "MODULE_COMPLETED" ||
+          r.reason === "MODULE_QUIZZES_PASSED",
       )
       .map((r) => r.referenceId)
       .filter(Boolean) as string[];

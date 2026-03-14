@@ -208,7 +208,8 @@ export default async function LearnerDashboard() {
                               )}
                             {course.enrollmentCount > 0 && (
                               <span className="flex items-center gap-1">
-                                👥 {course.enrollmentCount.toLocaleString()} enrolled
+                                👥 {course.enrollmentCount.toLocaleString()}{" "}
+                                enrolled
                               </span>
                             )}
                           </div>

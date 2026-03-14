@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Target,
-  ArrowLeft,
-  Loader2,
-  ChevronRight,
-  Filter,
-} from "lucide-react";
+import { Target, ArrowLeft, Loader2, ChevronRight, Filter } from "lucide-react";
 import { startDiagnostic } from "@/actions/skills/diagnostic";
 import {
   getAvailableSkillCategories,
@@ -121,7 +115,8 @@ export default function AssessPage() {
             {view === "skills" &&
               `Select skills in ${selectedCategory} to assess`}
             {view === "loading" && "Preparing your assessment..."}
-            {view === "playing" && "Answer each question to the best of your ability"}
+            {view === "playing" &&
+              "Answer each question to the best of your ability"}
             {view === "results" && "Your assessment results"}
           </p>
         </div>
@@ -258,10 +253,7 @@ export default function AssessPage() {
 
       {/* Results */}
       {view === "results" && results && (
-        <AssessmentResults
-          results={results}
-          onRetakeAction={handleRetake}
-        />
+        <AssessmentResults results={results} onRetakeAction={handleRetake} />
       )}
     </div>
   );

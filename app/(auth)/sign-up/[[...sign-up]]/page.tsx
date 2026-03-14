@@ -9,7 +9,7 @@ export default function Page() {
         <div className="h-125 w-90 rounded-xl bg-surface-muted animate-pulse" />
       </ClerkLoading>
       <ClerkLoaded>
-        <SignUp />
+        <SignUp forceRedirectUrl="/onboarding" fallbackRedirectUrl="/onboarding" routing="path" path="/sign-up" />
       </ClerkLoaded>
     </>
   );

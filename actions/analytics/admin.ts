@@ -369,23 +369,44 @@ async function fetchAdminEngagement(): Promise<PlatformEngagement> {
 export async function getAdminAnalytics(): Promise<AdminAnalytics> {
   await checkAdmin();
 
-  const [trends, userGrowth, topCourses, failed, engagement] =
-    await Promise.all([
-      fetchAdminRevenueTrends(),
-      fetchAdminUserGrowth(),
-      fetchAdminTopCourses(),
-      fetchAdminFailedPayments(),
-      fetchAdminEngagement(),
-    ]);
+  try {
+    const [trends, userGrowth, topCourses, failed, engagement] =
+      await Promise.all([
+        fetchAdminRevenueTrends(),
+        fetchAdminUserGrowth(),
+        fetchAdminTopCourses(),
+        fetchAdminFailedPayments(),
+        fetchAdminEngagement(),
+      ]);
 
-  return {
-    revenueByMonth: trends.revenueByMonth,
-    enrollmentsByMonth: trends.enrollmentsByMonth,
-    userGrowth,
-    topCourses,
-    failedPayments: failed.rows,
-    failedPaymentsTotalCount: failed.totalCount,
-    failedPaymentsTotalAmount: failed.totalAmount,
-    engagement,
-  };
+    return {
+      revenueByMonth: trends.revenueByMonth,
+      enrollmentsByMonth: trends.enrollmentsByMonth,
+      userGrowth,
+      topCourses,
+      failedPayments: failed.rows,
+      failedPaymentsTotalCount: failed.totalCount,
+      failedPaymentsTotalAmount: failed.totalAmount,
+      engagement,
+    };
+  } catch (error) {
+    console.error("[ADMIN_ANALYTICS_ERROR]", error);
+    // Return safe fallback data so the page still renders
+    const emptyMonth = buildMonthSlots().map((s) => ({ month: s.label, value: 0 }));
+    return {
+      revenueByMonth: emptyMonth,
+      enrollmentsByMonth: emptyMonth,
+      userGrowth: buildMonthSlots().map((s) => ({ month: s.label, learners: 0, tutors: 0 })),
+      topCourses: [],
+      failedPayments: buildMonthSlots().map((s) => ({ month: s.label, count: 0, totalAmount: 0 })),
+      failedPaymentsTotalCount: 0,
+      failedPaymentsTotalAmount: 0,
+      engagement: {
+        totalWatchMinutes: 0,
+        totalQuizAttempts: 0,
+        totalPointsEarned: 0,
+        activeLearnersLast30d: 0,
+      },
+    };
+  }
 }

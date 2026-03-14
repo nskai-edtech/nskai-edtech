@@ -1,11 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import {
-  skills,
-  skillDependencies,
-  assessments,
-} from "@/drizzle/schema";
+import { skills, skillDependencies, assessments } from "@/drizzle/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";

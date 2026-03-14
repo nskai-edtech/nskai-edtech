@@ -33,9 +33,11 @@ export function AiGenerateButton({
       type="button"
       onClick={handleClick}
       disabled={isGenerating || disabled}
+      aria-busy={isGenerating}
       className={cn(
         "group flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md transition-all",
         "bg-brand/10 text-brand hover:bg-brand/20 border border-brand/20",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-background",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
       )}
