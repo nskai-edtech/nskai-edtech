@@ -38,6 +38,19 @@ export async function createLiveSession(input: {
     const guestInviteCode = generateGuestInviteCode();
     const guestInviteExpiresAt = getGuestInviteExpiryDate();
 
+    // Guard against duplicate channel names with a user-friendly error
+    // instead of letting the DB unique constraint bubble up as a 500.
+    const existing = await db.query.liveSessions.findFirst({
+        where: eq(liveSessions.channelName, parsed.channelName),
+        columns: { id: true },
+    });
+
+    if (existing) {
+        throw new Error(
+            `Channel name "${parsed.channelName}" is already taken. Please choose a different one.`,
+        );
+    }
+
     const [session] = await db
         .insert(liveSessions)
         .values({
@@ -249,6 +262,41 @@ export async function disableGuestAccess(sessionId: string) {
 const cancelSessionSchema = z.object({
     sessionId: z.string().uuid(),
 });
+
+export async function deleteLiveSession(input: { sessionId: string }) {
+    const tutor = await requireTutorUser();
+    const parsed = cancelSessionSchema.parse(input);
+
+    // Only allow deleting sessions that have already ended or been cancelled
+    const existing = await db.query.liveSessions.findFirst({
+        where: and(
+            eq(liveSessions.id, parsed.sessionId),
+            eq(liveSessions.hostId, tutor.id),
+        ),
+        columns: { id: true, status: true, title: true },
+    });
+
+    if (!existing) {
+        throw new Error("Live session not found or unauthorized");
+    }
+
+    if (existing.status !== "ENDED" && existing.status !== "CANCELLED") {
+        throw new Error("Only ended or cancelled sessions can be deleted");
+    }
+
+    await db
+        .delete(liveSessions)
+        .where(
+            and(eq(liveSessions.id, parsed.sessionId), eq(liveSessions.hostId, tutor.id)),
+        );
+
+    revalidatePath("/tutor/live-sessions");
+
+    // Notify all WS clients that this session is gone
+    void pushLiveSessionEvent({ type: "SESSION_REMOVED", sessionId: parsed.sessionId });
+
+    return { id: parsed.sessionId };
+}
 
 export async function cancelLiveSession(input: {
     sessionId: string;

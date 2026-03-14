@@ -7,6 +7,7 @@ interface SessionAnalyticsData {
     totalViewers: number;
     uniqueViewers: number;
     durationMinutes: number;
+    durationSeconds: number;
     avgSessionDuration: number;
 }
 
@@ -57,7 +58,9 @@ export function SessionAnalyticsModal({
                             Duration
                         </p>
                         <p className="mt-2 text-2xl font-bold text-purple-900 dark:text-purple-100">
-                            {data.durationMinutes}m
+                            {data.durationMinutes > 0
+                                ? `${data.durationMinutes}m ${data.durationSeconds}s`
+                                : `${data.durationSeconds}s`}
                         </p>
                     </div>
 

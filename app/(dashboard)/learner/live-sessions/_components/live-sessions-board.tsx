@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useLiveSessionsFeed } from "@/hooks/use-live-sessions-feed";
 import type { LiveSessionsFeedResponse } from "@/lib/live-sessions/types";
 
@@ -63,6 +65,14 @@ export function LiveSessionsBoard({
 
     return (
         <div className="space-y-8">
+            <Link
+                href="/learner"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+            </Link>
+
             <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-2">

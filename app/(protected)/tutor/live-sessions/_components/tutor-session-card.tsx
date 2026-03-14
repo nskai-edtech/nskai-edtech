@@ -6,11 +6,13 @@ import type { LiveSessionListItem, LiveSessionStatus } from "@/lib/live-sessions
 import {
   startLiveSession,
   endLiveSession,
+  cancelLiveSession,
+  deleteLiveSession,
 } from "@/actions/live-sessions/mutations";
-import { cancelLiveSession } from "@/actions/live-sessions/mutations";
 import { getSessionAnalytics } from "@/actions/live-sessions/tutor-queries";
 import { useToast } from "@/components/ui/use-toast";
 import { CancelSessionDialog } from "./cancel-session-dialog";
+import { DeleteSessionDialog } from "./delete-session-dialog";
 import { SessionAnalyticsModal } from "./session-analytics-modal";
 import { GuestInviteModal } from "./guest-invite-modal";
 
@@ -21,6 +23,7 @@ interface SessionAnalyticsData {
   totalViewers: number;
   uniqueViewers: number;
   durationMinutes: number;
+  durationSeconds: number;
   avgSessionDuration: number;
 }
 
@@ -37,6 +40,7 @@ export function TutorSessionCard({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [showGuestInviteModal, setShowGuestInviteModal] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<SessionAnalyticsData | null>(null);
@@ -94,6 +98,28 @@ export function TutorSessionCard({
         title: "Error",
         description:
           error instanceof Error ? error.message : "Failed to cancel session",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async () => {
+    try {
+      setIsLoading(true);
+      await deleteLiveSession({ sessionId: session.id });
+      setShowDeleteDialog(false);
+      toast({
+        title: "Success",
+        description: "Session deleted successfully",
+      });
+      onSessionUpdated?.();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to delete session",
         variant: "destructive",
       });
     } finally {
@@ -251,14 +277,24 @@ export function TutorSessionCard({
             )}
 
             {(session.status === "ENDED" || session.status === "CANCELLED") && (
-              <button
-                type="button"
-                onClick={handleViewAnalytics}
-                disabled={isLoading}
-                className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              >
-                View Analytics
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleViewAnalytics}
+                  disabled={isLoading}
+                  className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                >
+                  View Analytics
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isLoading}
+                  className="rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                >
+                  Delete
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -269,6 +305,14 @@ export function TutorSessionCard({
         onOpenChange={setShowCancelDialog}
         sessionTitle={session.title}
         onConfirm={handleCancelSession}
+        isLoading={isLoading}
+      />
+
+      <DeleteSessionDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        sessionTitle={session.title}
+        onConfirm={handleDeleteSession}
         isLoading={isLoading}
       />
 

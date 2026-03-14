@@ -71,6 +71,11 @@ export function useLiveSessionsFeed({
     const [isSocketConnected, setIsSocketConnected] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
 
+    // Only connect to WS when there are live or upcoming sessions.
+    // Polling (every 30s) handles discovery of new sessions during idle periods.
+    const hasActiveSessions =
+        data.grouped.liveNow.length + data.grouped.upcoming.length > 0;
+
     const refresh = useCallback(async () => {
         setIsPollingRefresh(true);
 
@@ -92,7 +97,7 @@ export function useLiveSessionsFeed({
     }, [apiUrl]);
 
     useEffect(() => {
-        if (!wsUrl) {
+        if (!wsUrl || !hasActiveSessions) {
             return;
         }
 
@@ -155,7 +160,7 @@ export function useLiveSessionsFeed({
             socket.close();
             socketRef.current = null;
         };
-    }, [refresh, wsUrl]);
+    }, [refresh, wsUrl, hasActiveSessions]);
 
     useEffect(() => {
         const interval = window.setInterval(() => {
