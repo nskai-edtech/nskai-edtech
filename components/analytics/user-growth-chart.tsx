@@ -65,9 +65,7 @@ export function UserGrowthChart({ data }: UserGrowthChartProps) {
           allowDecimals={false}
         />
         <Tooltip content={<TooltipContent />} />
-        <Legend
-          wrapperStyle={{ fontSize: "12px" }}
-        />
+        <Legend wrapperStyle={{ fontSize: "12px" }} />
         <Bar
           dataKey="learners"
           name="Learners"

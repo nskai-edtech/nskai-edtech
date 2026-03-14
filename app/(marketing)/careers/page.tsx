@@ -153,8 +153,8 @@ export default function CareersPage() {
         </h2>
         <p className="text-secondary-text mb-6 max-w-xl mx-auto">
           We&apos;re always looking for talented people who are passionate about
-          education and technology. Send us your resume and tell us how you&apos;d
-          like to contribute.
+          education and technology. Send us your resume and tell us how
+          you&apos;d like to contribute.
         </p>
         <Link
           href="mailto:contact@nskai.org"

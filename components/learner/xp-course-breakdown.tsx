@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronDown,
-  BookOpen,
-  Zap,
-  Trophy,
-  Award,
-  Flame,
-} from "lucide-react";
+import { ChevronDown, BookOpen, Zap, Trophy, Award, Flame } from "lucide-react";
 import Image from "next/image";
 import type { CourseXpBreakdown } from "@/actions/gamification/xp-breakdown";
 import type { PointReason } from "@/actions/gamification/types";
@@ -153,10 +146,7 @@ export function XpCourseBreakdown({
   return (
     <div className="space-y-3">
       {courses.map((course) => (
-        <CourseCard
-          key={course.courseId ?? "__streaks__"}
-          course={course}
-        />
+        <CourseCard key={course.courseId ?? "__streaks__"} course={course} />
       ))}
     </div>
   );

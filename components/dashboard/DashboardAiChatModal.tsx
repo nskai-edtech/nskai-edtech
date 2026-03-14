@@ -377,14 +377,17 @@ export function useDashboardChat({ onAutoTitle }: UseDashboardChatOptions) {
     setStreamedResponse("");
 
     try {
-      const historyPayload = messages.map(m => ({ role: m.role, content: m.content }));
-      
+      const historyPayload = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
       const res = await fetch("/api/ai/dashboard-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message: userContent,
-          history: historyPayload
+          history: historyPayload,
         }),
       });
       if (!res.body) throw new Error("No response");
@@ -636,5 +639,3 @@ export default function DashboardAiChatModal() {
     </button>
   );
 }
-
-

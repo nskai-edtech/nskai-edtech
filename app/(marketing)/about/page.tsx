@@ -151,9 +151,7 @@ export default function AboutPage() {
             <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Users className="w-7 h-7 text-green-600 dark:text-green-400" />
             </div>
-            <h3 className="text-lg font-bold text-primary-text mb-2">
-              Tutors
-            </h3>
+            <h3 className="text-lg font-bold text-primary-text mb-2">Tutors</h3>
             <p className="text-secondary-text text-sm leading-relaxed">
               Create structured courses with chapters and lessons, upload
               high-quality videos, build quizzes, track student engagement, and

@@ -25,7 +25,9 @@ async function backfillPoints() {
       .select({ id: schema.chapters.id, title: schema.chapters.title })
       .from(schema.chapters);
 
-    console.log(`\nChecking ${learner.firstName || "Anonymous"} across ${chapters.length} chapters...`);
+    console.log(
+      `\nChecking ${learner.firstName || "Anonymous"} across ${chapters.length} chapters...`,
+    );
 
     for (const chapter of chapters) {
       // --- Module completion check ---
@@ -49,7 +51,9 @@ async function backfillPoints() {
       const completed = Number(stats?.completedCount || 0);
 
       if (total > 0) {
-        console.log(`  "${chapter.title}": ${completed}/${total} lessons completed`);
+        console.log(
+          `  "${chapter.title}": ${completed}/${total} lessons completed`,
+        );
       }
 
       if (total > 0 && total === completed) {

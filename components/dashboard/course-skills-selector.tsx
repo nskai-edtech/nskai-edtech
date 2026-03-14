@@ -23,7 +23,10 @@ interface SkillItem {
   category: string;
 }
 
-export function CourseSkillsSelector({ courseId, maxSkills = MAX_SKILLS }: CourseSkillsSelectorProps) {
+export function CourseSkillsSelector({
+  courseId,
+  maxSkills = MAX_SKILLS,
+}: CourseSkillsSelectorProps) {
   const [linkedSkills, setLinkedSkills] = useState<SkillItem[]>([]);
   const [allSkills, setAllSkills] = useState<SkillItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,11 +43,13 @@ export function CourseSkillsSelector({ courseId, maxSkills = MAX_SKILLS }: Cours
     ]);
     if ("skills" in courseRes) {
       const seen = new Set<string>();
-      setLinkedSkills(courseRes.skills.filter((s) => {
-        if (seen.has(s.id)) return false;
-        seen.add(s.id);
-        return true;
-      }));
+      setLinkedSkills(
+        courseRes.skills.filter((s) => {
+          if (seen.has(s.id)) return false;
+          seen.add(s.id);
+          return true;
+        }),
+      );
     }
     if ("skills" in skillsRes) setAllSkills(skillsRes.skills);
     setIsLoading(false);
@@ -70,9 +75,10 @@ export function CourseSkillsSelector({ courseId, maxSkills = MAX_SKILLS }: Cours
       return;
     }
     const skill = allSkills.find((s) => s.id === skillId);
-    if (skill) setLinkedSkills((prev) =>
-      prev.some((s) => s.id === skillId) ? prev : [...prev, skill]
-    );
+    if (skill)
+      setLinkedSkills((prev) =>
+        prev.some((s) => s.id === skillId) ? prev : [...prev, skill],
+      );
   };
 
   const handleRemove = async (skillId: string) => {

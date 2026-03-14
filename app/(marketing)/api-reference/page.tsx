@@ -22,7 +22,11 @@ const API_SECTIONS = [
     description:
       "Retrieve course catalogs, chapters, and lesson data. Filter by category, tag, tutor, or price.",
     endpoints: [
-      { method: "GET", path: "/api/courses", desc: "List all published courses" },
+      {
+        method: "GET",
+        path: "/api/courses",
+        desc: "List all published courses",
+      },
       { method: "GET", path: "/api/courses/:id", desc: "Get course details" },
       {
         method: "GET",
@@ -42,7 +46,11 @@ const API_SECTIONS = [
     description:
       "Manage user profiles, enrollments, and role assignments across Organization, Tutor, and Learner accounts.",
     endpoints: [
-      { method: "GET", path: "/api/users/me", desc: "Get current user profile" },
+      {
+        method: "GET",
+        path: "/api/users/me",
+        desc: "Get current user profile",
+      },
       {
         method: "GET",
         path: "/api/enrollments",
@@ -195,7 +203,9 @@ export default function APIReferencePage() {
           </code>
         </p>
         <div className="bg-gray-900 text-gray-100 rounded-xl p-5 font-mono text-sm overflow-x-auto">
-          <div className="text-gray-400"># Example: List all published courses</div>
+          <div className="text-gray-400">
+            # Example: List all published courses
+          </div>
           <div className="mt-1">
             curl -X GET https://nskai.org/api/v1/courses \
           </div>
@@ -286,11 +296,9 @@ export default function APIReferencePage() {
           All responses return JSON. Successful requests return a{" "}
           <code className="bg-surface-muted px-2 py-1 rounded">data</code>{" "}
           field. Errors return{" "}
-          <code className="bg-surface-muted px-2 py-1 rounded">error</code>{" "}
-          with a{" "}
-          <code className="bg-surface-muted px-2 py-1 rounded">message</code>{" "}
-          and{" "}
-          <code className="bg-surface-muted px-2 py-1 rounded">code</code>.
+          <code className="bg-surface-muted px-2 py-1 rounded">error</code> with
+          a <code className="bg-surface-muted px-2 py-1 rounded">message</code>{" "}
+          and <code className="bg-surface-muted px-2 py-1 rounded">code</code>.
         </p>
         <div className="grid md:grid-cols-2 gap-4">
           <div>

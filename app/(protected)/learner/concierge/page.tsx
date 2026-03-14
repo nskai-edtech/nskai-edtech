@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Trash2,
-  Loader2,
-  Menu,
-  Sparkles,
-} from "lucide-react";
+import { Trash2, Loader2, Menu, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   ChatSidebar,
@@ -142,102 +137,111 @@ export default function ConciergePage() {
               </p>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-brand animate-bounce" style={{ animationDelay: "0ms" }} />
-              <div className="w-2 h-2 rounded-full bg-brand animate-bounce" style={{ animationDelay: "150ms" }} />
-              <div className="w-2 h-2 rounded-full bg-brand animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div
+                className="w-2 h-2 rounded-full bg-brand animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              />
+              <div
+                className="w-2 h-2 rounded-full bg-brand animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              />
+              <div
+                className="w-2 h-2 rounded-full bg-brand animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              />
             </div>
           </div>
         </div>
       ) : (
-      <div className="w-full h-full flex overflow-hidden">
-        <ChatSidebar
-          conversations={conversations}
-          loadingConversations={loadingConversations}
-          activeConvId={conversationId}
-          isChatLoading={isChatLoading}
-          deletingId={deletingId}
-          isMobileSidebarOpen={mobileSidebarOpen}
-          onCloseMobileSidebar={() => setMobileSidebarOpen(false)}
-          onSelectConversation={(conv) => {
-            loadConversation(conv.id);
-            setMobileSidebarOpen(false);
-          }}
-          onNewChat={(conv) => {
-            setConversations((prev) => [conv, ...prev]);
-            startNewConversation(conv);
-            setMobileSidebarOpen(false);
-          }}
-          onTriggerDelete={(conv) => {
-            setPendingDeleteConv(conv);
-            setMobileSidebarOpen(false);
-          }}
-          onUpdateTitle={(id, title) =>
-            setConversations((prev) =>
-              prev.map((c) => (c.id === id ? { ...c, title } : c)),
-            )
-          }
-        />
-
-        <div className="flex-1 flex flex-col min-w-0 bg-surface">
-          {/* Header */}
-          <div className="px-4 sm:px-6 py-4 border-b border-border flex justify-between items-center bg-surface">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-secondary-text hover:text-primary-text hover:bg-surface-muted transition-colors bg-transparent border-none cursor-pointer"
-                title="Open chat history"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <h2 className="text-lg font-bold text-primary-text flex items-center gap-2">
-                <span className="text-brand">✨</span> Zerra Concierge
-              </h2>
-            </div>
-            <div className="flex items-center gap-3">
-              {conversationId && (
-                <button
-                  onClick={() =>
-                    setPendingDeleteConv(
-                      conversations.find((c) => c.id === conversationId) ||
-                        null,
-                    )
-                  }
-                  className="text-red-500/80 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-red-500/10"
-                  title="Delete current chat"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-              <button
-                onClick={handleNewChatFromHeader}
-                disabled={isCreatingNewChat}
-                className="text-xs font-bold text-brand bg-brand/10 px-3 py-1.5 rounded-lg hover:bg-brand/20 transition-colors border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5"
-              >
-                {isCreatingNewChat ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Creating…
-                  </>
-                ) : (
-                  "New Chat"
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <ChatMessageList
-            messages={messages}
-            streamedResponse={streamedResponse}
-            loading={loading}
+        <div className="w-full h-full flex overflow-hidden">
+          <ChatSidebar
+            conversations={conversations}
+            loadingConversations={loadingConversations}
+            activeConvId={conversationId}
             isChatLoading={isChatLoading}
-            messagesEndRef={messagesEndRef}
+            deletingId={deletingId}
+            isMobileSidebarOpen={mobileSidebarOpen}
+            onCloseMobileSidebar={() => setMobileSidebarOpen(false)}
+            onSelectConversation={(conv) => {
+              loadConversation(conv.id);
+              setMobileSidebarOpen(false);
+            }}
+            onNewChat={(conv) => {
+              setConversations((prev) => [conv, ...prev]);
+              startNewConversation(conv);
+              setMobileSidebarOpen(false);
+            }}
+            onTriggerDelete={(conv) => {
+              setPendingDeleteConv(conv);
+              setMobileSidebarOpen(false);
+            }}
+            onUpdateTitle={(id, title) =>
+              setConversations((prev) =>
+                prev.map((c) => (c.id === id ? { ...c, title } : c)),
+              )
+            }
           />
 
-          {/* Input */}
-          <ChatInput onSend={sendMessage} disabled={loading} />
+          <div className="flex-1 flex flex-col min-w-0 bg-surface">
+            {/* Header */}
+            <div className="px-4 sm:px-6 py-4 border-b border-border flex justify-between items-center bg-surface">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-secondary-text hover:text-primary-text hover:bg-surface-muted transition-colors bg-transparent border-none cursor-pointer"
+                  title="Open chat history"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+                <h2 className="text-lg font-bold text-primary-text flex items-center gap-2">
+                  <span className="text-brand">✨</span> Zerra Concierge
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                {conversationId && (
+                  <button
+                    onClick={() =>
+                      setPendingDeleteConv(
+                        conversations.find((c) => c.id === conversationId) ||
+                          null,
+                      )
+                    }
+                    className="text-red-500/80 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-red-500/10"
+                    title="Delete current chat"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={handleNewChatFromHeader}
+                  disabled={isCreatingNewChat}
+                  className="text-xs font-bold text-brand bg-brand/10 px-3 py-1.5 rounded-lg hover:bg-brand/20 transition-colors border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5"
+                >
+                  {isCreatingNewChat ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Creating…
+                    </>
+                  ) : (
+                    "New Chat"
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <ChatMessageList
+              messages={messages}
+              streamedResponse={streamedResponse}
+              loading={loading}
+              isChatLoading={isChatLoading}
+              messagesEndRef={messagesEndRef}
+            />
+
+            {/* Input */}
+            <ChatInput onSend={sendMessage} disabled={loading} />
+          </div>
         </div>
-      </div>
       )}
     </>
   );

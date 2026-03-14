@@ -158,7 +158,8 @@ export async function getAvailableSkillCategories(): Promise<
 export async function getSkillsByCategory(
   category: string,
 ): Promise<
-  { error: string } | { skills: { id: string; title: string; questionCount: number }[] }
+  | { error: string }
+  | { skills: { id: string; title: string; questionCount: number }[] }
 > {
   try {
     const rows = await db.execute(sql`

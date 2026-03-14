@@ -71,6 +71,27 @@
       "when": 1772478590555,
       "tag": "0009_shiny_changeling",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1773084423159,
+      "tag": "0010_left_amphibian",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1773085839694,
+      "tag": "0011_lonely_kat_farrell",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1742000000000,
+      "tag": "0012_add_live_sessions",
+      "breakpoints": true
     }
   ]
 }

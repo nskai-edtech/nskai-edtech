@@ -112,7 +112,8 @@ export interface GenerateAssetsResponse {
  */
 function getBaseUrl(): string {
   const raw =
-    process.env.PYTHON_AI_CHAT_URL || "http://localhost:8000/api/v1/ai-mentor-chat";
+    process.env.PYTHON_AI_CHAT_URL ||
+    "http://localhost:8000/api/v1/ai-mentor-chat";
   try {
     const url = new URL(raw);
     return `${url.protocol}//${url.host}`;

@@ -75,7 +75,8 @@ export default async function TutorLayout({
             Application Rejected
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Your application as a {expertise} tutor was rejected. Please try again or give more details about your background/expertise.
+            Your application as a {expertise} tutor was rejected. Please try
+            again or give more details about your background/expertise.
           </p>
           <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded mb-6">
             Status:{" "}
@@ -84,7 +85,7 @@ export default async function TutorLayout({
             </span>
           </div>
           <div className="w-full flex items-center justify-center">
-          <ResubmitButton />
+            <ResubmitButton />
           </div>
           <Link
             href="/"
@@ -107,10 +108,10 @@ export default async function TutorLayout({
       {/* Main Content Area */}
       <main className="xl:pl-64 h-full flex flex-col">
         {/* Mobile Header */}
-        <div className="xl:hidden h-15 flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
+        <header className="xl:hidden h-15 flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
           <MobileSidebar role="TUTOR" counts={{ pendingSubmissions }} />
           <div className="font-bold text-xl text-brand ml-4">ZERRA</div>
-        </div>
+        </header>
         <div className="flex-1 p-4" suppressHydrationWarning>
           {children}
         </div>

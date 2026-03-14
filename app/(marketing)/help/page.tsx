@@ -1,5 +1,13 @@
 import { Metadata } from "next";
-import { Search, GraduationCap, Video, Settings, CreditCard, Brain, HelpCircle } from "lucide-react";
+import {
+  Search,
+  GraduationCap,
+  Video,
+  Settings,
+  CreditCard,
+  Brain,
+  HelpCircle,
+} from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -23,7 +31,8 @@ const CATEGORIES = [
   {
     icon: Video,
     title: "Courses & Learning",
-    description: "Enrolling in courses, watching lessons, and tracking progress.",
+    description:
+      "Enrolling in courses, watching lessons, and tracking progress.",
     items: [
       "How do I find and enroll in a course?",
       "How does video playback work?",
@@ -34,7 +43,8 @@ const CATEGORIES = [
   {
     icon: Brain,
     title: "AI Tutor",
-    description: "Using the AI tutor, asking questions, and understanding responses.",
+    description:
+      "Using the AI tutor, asking questions, and understanding responses.",
     items: [
       "How does the AI tutor work?",
       "Why are AI answers based on lesson content?",
@@ -45,7 +55,8 @@ const CATEGORIES = [
   {
     icon: Settings,
     title: "For Tutors",
-    description: "Creating courses, uploading videos, building quizzes, and analytics.",
+    description:
+      "Creating courses, uploading videos, building quizzes, and analytics.",
     items: [
       "How do I create a new course?",
       "How do I upload videos?",
@@ -67,7 +78,8 @@ const CATEGORIES = [
   {
     icon: HelpCircle,
     title: "Troubleshooting",
-    description: "Common issues with login, video playback, and browser support.",
+    description:
+      "Common issues with login, video playback, and browser support.",
     items: [
       "I can't log into my account",
       "Video is not playing properly",
@@ -117,10 +129,7 @@ export default function HelpCenterPage() {
             <ul className="space-y-2">
               {category.items.map((item) => (
                 <li key={item}>
-                  <a
-                    href="#"
-                    className="text-brand hover:underline text-sm"
-                  >
+                  <a href="#" className="text-brand hover:underline text-sm">
                     {item}
                   </a>
                 </li>

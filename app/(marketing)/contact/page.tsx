@@ -61,8 +61,8 @@ export default function ContactPage() {
                   Sales &amp; Institutions
                 </h3>
                 <p className="text-secondary-text text-sm mb-2">
-                  Interested in ZERRA for your school or organization? Let&apos;s
-                  talk.
+                  Interested in ZERRA for your school or organization?
+                  Let&apos;s talk.
                 </p>
                 <a
                   href="mailto:contact@nskai.org"
@@ -82,8 +82,8 @@ export default function ContactPage() {
                   Response Time
                 </h3>
                 <p className="text-secondary-text text-sm">
-                  We typically respond within 24–48 hours on business days.
-                  For urgent matters, please indicate so in the subject line.
+                  We typically respond within 24–48 hours on business days. For
+                  urgent matters, please indicate so in the subject line.
                 </p>
               </div>
             </div>
@@ -96,10 +96,7 @@ export default function ContactPage() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  href="/help"
-                  className="text-brand hover:underline"
-                >
+                <Link href="/help" className="text-brand hover:underline">
                   Help Center — Common questions and guides
                 </Link>
               </li>
@@ -112,10 +109,7 @@ export default function ContactPage() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/community"
-                  className="text-brand hover:underline"
-                >
+                <Link href="/community" className="text-brand hover:underline">
                   Community — Connect with other ZERRA users
                 </Link>
               </li>

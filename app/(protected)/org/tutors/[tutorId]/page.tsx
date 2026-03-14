@@ -78,7 +78,7 @@ export default async function TutorProfilePage({ params }: PageProps) {
       {/* Back Button */}
       <Link
         href="/org/tutors"
-        className="inline-flex items-center gap-2 text-secondary-text hover:text-primary-text transition-colors mb-6"
+        className="inline-flex items-center gap-2 text-secondary-text hover:text-primary-text transition-colors mb-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-md px-1 -ml-1"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Tutors</span>

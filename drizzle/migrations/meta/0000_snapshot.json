@@ -47,12 +47,8 @@
           "name": "chapter_course_id_course_id_fk",
           "tableFrom": "chapter",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -125,12 +121,8 @@
           "name": "course_tutor_id_user_id_fk",
           "tableFrom": "course",
           "tableTo": "user",
-          "columnsFrom": [
-            "tutor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tutor_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -203,12 +195,8 @@
           "name": "lesson_chapter_id_chapter_id_fk",
           "tableFrom": "lesson",
           "tableTo": "chapter",
-          "columnsFrom": [
-            "chapter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -255,12 +243,8 @@
           "name": "mux_data_lesson_id_lesson_id_fk",
           "tableFrom": "mux_data",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -270,9 +254,7 @@
         "mux_data_lesson_id_unique": {
           "name": "mux_data_lesson_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "lesson_id"
-          ]
+          "columns": ["lesson_id"]
         }
       },
       "policies": {},
@@ -335,12 +317,8 @@
           "name": "purchase_user_id_user_id_fk",
           "tableFrom": "purchase",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -348,12 +326,8 @@
           "name": "purchase_course_id_course_id_fk",
           "tableFrom": "purchase",
           "tableTo": "course",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -363,9 +337,7 @@
         "purchase_paystack_reference_unique": {
           "name": "purchase_paystack_reference_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "paystack_reference"
-          ]
+          "columns": ["paystack_reference"]
         }
       },
       "policies": {},
@@ -416,12 +388,8 @@
           "name": "user_progress_user_id_user_id_fk",
           "tableFrom": "user_progress",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -429,12 +397,8 @@
           "name": "user_progress_lesson_id_lesson_id_fk",
           "tableFrom": "user_progress",
           "tableTo": "lesson",
-          "columnsFrom": [
-            "lesson_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lesson_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -503,9 +467,7 @@
         "user_clerk_id_unique": {
           "name": "user_clerk_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_id"
-          ]
+          "columns": ["clerk_id"]
         }
       },
       "policies": {},
@@ -517,11 +479,7 @@
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "ADMIN",
-        "TUTOR",
-        "LEARNER"
-      ]
+      "values": ["ADMIN", "TUTOR", "LEARNER"]
     }
   },
   "schemas": {},

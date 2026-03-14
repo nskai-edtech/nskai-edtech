@@ -75,7 +75,10 @@ export async function startDiagnostic(
 
     // Fetch up to 5 questions per skill, mixing difficulties
     // Uses a window function to select a balanced set
-    const skillIdList = sql.join(targetSkillIds.map(id => sql`${id}::uuid`), sql`, `);
+    const skillIdList = sql.join(
+      targetSkillIds.map((id) => sql`${id}::uuid`),
+      sql`, `,
+    );
     const rows = await db.execute(sql`
       SELECT q.id, q.skill_id AS "skillId", q.question_text AS "questionText",
              q.options, q.difficulty

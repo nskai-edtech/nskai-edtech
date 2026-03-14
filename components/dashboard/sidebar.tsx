@@ -20,10 +20,13 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
   const routes = useSidebarRoutes(role, counts);
 
   return (
-    <div className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm">
+    <nav 
+      aria-label="Dashboard"
+      className="h-full flex flex-col border-r border-border bg-surface text-primary-text overflow-y-auto shadow-sm"
+    >
       {/* Header  */}
       <div className="p-6">
-        <div className="flex items-center gap-2 font-bold text-xl text-brand">
+        <div className="flex items-center gap-2 font-bold text-xl text-brand" aria-hidden="true">
           <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white">
             Z
           </div>
@@ -38,7 +41,7 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
             key={route.href}
             href={route.href}
             className={cn(
-              "flex items-center gap-x-3 px-6 py-4 text-sm font-medium transition-all hover:bg-surface-muted group relative",
+              "flex items-center gap-x-3 px-6 py-4 text-sm font-medium transition-all hover:bg-surface-muted group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset",
               route.active
                 ? "text-brand bg-surface-muted border-r-4 border-brand"
                 : "text-secondary-text hover:text-primary-text",
@@ -51,10 +54,12 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
                   ? "text-brand"
                   : "text-secondary-text group-hover:text-primary-text",
               )}
+              aria-hidden="true"
             />
             {route.label}
             {route.badgeCount !== undefined && route.badgeCount > 0 && (
               <span className="ml-auto bg-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                <span className="sr-only">Notifications: </span>
                 {route.badgeCount}
               </span>
             )}
@@ -71,6 +76,6 @@ export const Sidebar = ({ role, counts }: SidebarProps) => {
           <ThemeToggle />
         </div>
       </div>
-    </div>
+    </nav>
   );
 };

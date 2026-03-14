@@ -41,9 +41,10 @@ export const MobileSidebar = ({ role, counts }: MobileSidebarProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 hover:bg-surface-muted rounded-lg transition-colors"
+        className="p-2 hover:bg-surface-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        aria-label="Open menu"
       >
-        <Menu className="w-6 h-6 text-primary-text" />
+        <Menu className="w-6 h-6 text-primary-text" aria-hidden="true" />
       </button>
 
       {/* Sheet / Drawer */}
@@ -53,6 +54,15 @@ export const MobileSidebar = ({ role, counts }: MobileSidebarProps) => {
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
+            role="button"
+            tabIndex={0}
+            aria-label="Close menu"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsOpen(false);
+              }
+            }}
           />
 
           {/* Sidebar */}
@@ -60,9 +70,10 @@ export const MobileSidebar = ({ role, counts }: MobileSidebarProps) => {
             <div className="h-full relative">
               <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-surface-muted rounded-lg z-110"
+                className="absolute top-4 right-4 p-2 hover:bg-surface-muted rounded-lg z-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                aria-label="Close menu"
               >
-                <X className="w-5 h-5 text-primary-text" />
+                <X className="w-5 h-5 text-primary-text" aria-hidden="true" />
               </button>
               <Sidebar role={role} counts={counts} />
             </div>

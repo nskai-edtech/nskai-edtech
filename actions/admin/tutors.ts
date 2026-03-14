@@ -137,9 +137,9 @@ export async function rejectTutor(tutorId: string) {
     sendEmail({
       to: result.tutor.email,
       subject: "Update on your NSKAI tutor application",
-      react: TutorRejectedEmail({ 
-        name: result.tutor.firstName || "Tutor", 
-        expertise: result.tutor.expertise || undefined 
+      react: TutorRejectedEmail({
+        name: result.tutor.firstName || "Tutor",
+        expertise: result.tutor.expertise || undefined,
       }),
     }).catch(() => {});
   }

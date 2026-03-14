@@ -14,7 +14,7 @@ import { BASE_URL, PLATFORM_NAME, TAGLINE, CONTACT_EMAIL } from "./config";
 
 interface WelcomeEmailProps {
   name: string;
-  role?: "TUTOR" | "LEARNER";
+  role?: "TUTOR" | "LEARNER" | "SCHOOL_ADMIN" | "TEACHER" | "STUDENT" | "ADMIN";
 }
 
 export default function WelcomeEmail({
@@ -77,9 +77,7 @@ export default function WelcomeEmail({
           {/* Footer */}
           <Hr style={styles.hr} />
           <Section style={styles.footer}>
-            <Text style={styles.footerText}>
-              {TAGLINE}
-            </Text>
+            <Text style={styles.footerText}>{TAGLINE}</Text>
             <Text style={styles.footerSmall}>{CONTACT_EMAIL}</Text>
           </Section>
         </Container>

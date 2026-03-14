@@ -53,7 +53,7 @@ export default async function TutorsPage() {
           </p>
         </div>
         <div>
-          <button className="px-6 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2">
+          <button className="px-6 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand/20 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
             <span>Invite New Tutor</span>
           </button>
         </div>
@@ -67,9 +67,9 @@ export default async function TutorsPage() {
             className="group relative bg-surface border border-border rounded-2xl p-6 hover:shadow-xl hover:border-brand/30 transition-all duration-300 flex flex-col"
           >
             {/* Action Menu */}
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="p-2 hover:bg-surface-muted rounded-full">
-                <MoreVertical className="w-4 h-4 text-secondary-text" />
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+              <button aria-label="More options" className="p-2 hover:bg-surface-muted rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+                <MoreVertical aria-hidden="true" className="w-4 h-4 text-secondary-text" />
               </button>
             </div>
 
@@ -160,9 +160,9 @@ export default async function TutorsPage() {
         ))}
 
         {/* Add New Card (Dotted) */}
-        <button className="group flex flex-col items-center justify-center gap-4 p-6 border-2 border-dashed border-border rounded-2xl hover:border-brand/50 hover:bg-surface-muted/50 transition-all duration-300 min-h-[350px]">
+        <button className="group flex flex-col items-center justify-center gap-4 p-6 border-2 border-dashed border-border rounded-2xl hover:border-brand/50 hover:bg-surface-muted/50 transition-all duration-300 min-h-[350px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-transparent">
           <div className="w-16 h-16 rounded-full bg-surface-muted group-hover:bg-brand/10 flex items-center justify-center transition-colors">
-            <Users className="w-8 h-8 text-secondary-text group-hover:text-brand" />
+            <Users className="w-8 h-8 text-secondary-text group-hover:text-brand" aria-hidden="true" />
           </div>
           <div className="text-center">
             <h3 className="font-bold text-lg text-primary-text mb-1">

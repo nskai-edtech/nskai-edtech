@@ -66,8 +66,8 @@ export default function SecurityPage() {
         </h1>
         <p className="text-lg text-secondary-text max-w-3xl mx-auto">
           Security is not an afterthought at NSKAI. ZERRA is built from the
-          ground up with enterprise-grade security measures to ensure your
-          data, content, and transactions are always safe.
+          ground up with enterprise-grade security measures to ensure your data,
+          content, and transactions are always safe.
         </p>
       </div>
 

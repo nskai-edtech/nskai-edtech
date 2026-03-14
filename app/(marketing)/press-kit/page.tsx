@@ -128,9 +128,7 @@ export default function PressKitPage() {
           <li>
             <strong>NSKAI</strong> refers to the organization behind ZERRA.
           </li>
-          <li>
-            Do not alter the logo colors, proportions, or add effects.
-          </li>
+          <li>Do not alter the logo colors, proportions, or add effects.</li>
           <li>
             Maintain clear space around the logo — at minimum, the width of the
             icon on all sides.
@@ -144,9 +142,7 @@ export default function PressKitPage() {
 
       {/* Key Facts */}
       <div className="bg-surface border border-border rounded-2xl p-8 mb-16">
-        <h2 className="text-2xl font-bold text-primary-text mb-6">
-          Key Facts
-        </h2>
+        <h2 className="text-2xl font-bold text-primary-text mb-6">Key Facts</h2>
         <div className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-bold text-primary-text">Platform Name:</span>{" "}

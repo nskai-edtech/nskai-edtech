@@ -17,7 +17,10 @@ export async function GET() {
     });
 
     if (!profile) {
-      return new NextResponse("Profile not found. Webhook sync might be pending.", { status: 404 });
+      return new NextResponse(
+        "Profile not found. Webhook sync might be pending.",
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(profile);

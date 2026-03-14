@@ -58,7 +58,13 @@ export async function POST(req: Request) {
     } = evt.data;
 
     const role =
-      (public_metadata?.role as "LEARNER" | "TUTOR" | "ADMIN") || "LEARNER";
+      (public_metadata?.role as
+        | "LEARNER"
+        | "TUTOR"
+        | "ADMIN"
+        | "SCHOOL_ADMIN"
+        | "TEACHER"
+        | "STUDENT") || "LEARNER";
     const status =
       (public_metadata?.status as
         | "ACTIVE"
@@ -66,6 +72,8 @@ export async function POST(req: Request) {
         | "REJECTED"
         | "SUSPENDED"
         | "BANNED") || "ACTIVE";
+
+    const schoolId = (public_metadata?.schoolId as string) || null;
 
     await db
       .insert(users)
@@ -77,6 +85,7 @@ export async function POST(req: Request) {
         lastName: last_name,
         role,
         status,
+        schoolId,
       })
       .onConflictDoUpdate({
         target: [users.clerkId],
@@ -87,6 +96,7 @@ export async function POST(req: Request) {
           lastName: last_name,
           role,
           status,
+          schoolId,
         },
       });
 
@@ -115,17 +125,60 @@ export async function POST(req: Request) {
   }
 
   if (eventType === "user.updated") {
-    const { id, image_url, email_addresses, first_name, last_name } = evt.data;
+    const {
+      id,
+      image_url,
+      email_addresses,
+      first_name,
+      last_name,
+      public_metadata,
+    } = evt.data;
 
-    await db
-      .update(users)
-      .set({
-        imageUrl: image_url,
+    const role = public_metadata?.role as
+      | "LEARNER"
+      | "TUTOR"
+      | "ADMIN"
+      | "SCHOOL_ADMIN"
+      | "TEACHER"
+      | "STUDENT"
+      | undefined;
+    const status = public_metadata?.status as
+      | "ACTIVE"
+      | "PENDING"
+      | "REJECTED"
+      | "SUSPENDED"
+      | "BANNED"
+      | undefined;
+    const schoolId = public_metadata?.schoolId as string | undefined;
+
+    const [updatedUsers] = await Promise.all([
+      db
+        .update(users)
+        .set({
+          imageUrl: image_url,
+          email: email_addresses?.[0]?.email_address || "",
+          firstName: first_name,
+          lastName: last_name,
+          ...(role !== undefined && { role }),
+          ...(status !== undefined && { status }),
+          ...(schoolId !== undefined && { schoolId }),
+        })
+        .where(eq(users.clerkId, id))
+        .returning({ id: users.id }),
+    ]);
+
+    if (updatedUsers.length === 0) {
+      await db.insert(users).values({
+        clerkId: id,
         email: email_addresses?.[0]?.email_address || "",
+        imageUrl: image_url,
         firstName: first_name,
         lastName: last_name,
-      })
-      .where(eq(users.clerkId, id));
+        role: role || "LEARNER",
+        status: status || "ACTIVE",
+        schoolId: schoolId || null,
+      });
+    }
 
     return NextResponse.json({ message: "User updated in DB", user: id });
   }
@@ -139,6 +192,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "User deleted from DB", user: id });
   }
+
+
 
   return new Response("Webhook processed", { status: 200 });
 }

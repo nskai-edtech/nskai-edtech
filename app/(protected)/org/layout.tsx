@@ -15,10 +15,10 @@ export default async function OrgLayout({
         <Sidebar role="ORG_ADMIN" counts={counts} />
       </div>
       <main className="xl:pl-64 h-full flex flex-col">
-        <div className="xl:hidden h-15 flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
+        <header className="xl:hidden h-15 flex items-center p-4 bg-surface border-b border-border sticky top-0 z-50">
           <MobileSidebar role="ORG_ADMIN" counts={counts} />
           <div className="font-bold text-xl text-brand ml-4">ZERRA</div>
-        </div>
+        </header>
         <div className="flex-1 p-4" suppressHydrationWarning>
           {children}
         </div>

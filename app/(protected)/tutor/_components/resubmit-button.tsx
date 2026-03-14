@@ -19,7 +19,7 @@ export function ResubmitButton() {
         setIsLoading(false);
         return;
       }
-      
+
       await user?.reload();
       window.location.href = "/onboarding";
     } catch (error) {

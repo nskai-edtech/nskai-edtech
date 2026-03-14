@@ -39,7 +39,8 @@ const TooltipContent = ({
     <div className="bg-slate-900 dark:bg-slate-800 p-3 rounded-lg border border-slate-700 dark:border-slate-600 shadow-lg">
       <p className="text-sm text-slate-300 font-medium">{data.name}</p>
       <p className="text-base font-bold text-blue-400">
-        ₦{(data.value / 100).toLocaleString("en-NG", {
+        ₦
+        {(data.value / 100).toLocaleString("en-NG", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}

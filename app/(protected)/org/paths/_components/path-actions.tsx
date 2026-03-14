@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Loader2,
-  Power,
-  PowerOff,
-  AlertTriangle,
-  X,
-} from "lucide-react";
+import { Loader2, Power, PowerOff, AlertTriangle, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   publishLearningPath,
@@ -137,12 +131,20 @@ export function PathActions({
 
             <div className="bg-surface-muted/50 border border-border rounded-xl p-4 mb-6 space-y-3">
               <div className="flex justify-between items-end">
-                <span className="text-xs font-bold text-secondary-text">Total Value</span>
-                <span className="text-sm font-bold line-through text-secondary-text/50">{totalPrice}</span>
+                <span className="text-xs font-bold text-secondary-text">
+                  Total Value
+                </span>
+                <span className="text-sm font-bold line-through text-secondary-text/50">
+                  {totalPrice}
+                </span>
               </div>
               <div className="flex justify-between items-end">
-                <span className="text-xs font-bold text-primary-text">Bundle Price</span>
-                <span className="text-xl font-black text-brand">{bundlePrice}</span>
+                <span className="text-xs font-bold text-primary-text">
+                  Bundle Price
+                </span>
+                <span className="text-xl font-black text-brand">
+                  {bundlePrice}
+                </span>
               </div>
             </div>
 

@@ -9,7 +9,8 @@ async function main() {
   console.log("Adding tags column to course table...");
   await sql`ALTER TABLE "course" ADD COLUMN IF NOT EXISTS "tags" text[] DEFAULT '{}'`;
   console.log("Done. Verifying...");
-  const result = await sql`SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'course' AND column_name = 'tags'`;
+  const result =
+    await sql`SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'course' AND column_name = 'tags'`;
   console.log("Column:", result);
 }
 
