@@ -1,6 +1,4 @@
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { getGroq } from "@/lib/groq";
 
 export interface LocalChatMessage {
   role: "system" | "user" | "ai";
@@ -19,7 +17,7 @@ export async function localMentorChat(
     content: msg.content,
   }));
 
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0.6,
     max_tokens: 2048,
@@ -41,12 +39,12 @@ export async function localMentorChatStream(
     content: msg.content,
   }));
 
-  const stream = await groq.chat.completions.create({
+  const stream = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0.6,
     max_tokens: 2048,
     stream: true,
-    messages: formattedMessages, // Send the translated messages
+    messages: formattedMessages,
   });
 
   const encoder = new TextEncoder();

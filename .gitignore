@@ -73,3 +73,6 @@ public/_next-video
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# debug logs
+/.kombai/

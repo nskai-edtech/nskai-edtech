@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Calendar, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { ContinueLearningWidget } from "@/components/learner/continue-learning-widget";
@@ -9,42 +9,7 @@ import { getRecommendedCourses } from "@/actions/recommendations/actions";
 import { getUserSkillProfile } from "@/actions/skills/queries";
 import { SkillSummaryWidget } from "@/components/skills/skill-mastery";
 import DashboardAiChatModal from "@/components/dashboard/DashboardAiChatModal";
-
-interface Session {
-  id: string;
-  title: string;
-  time: string;
-  type: "Online Session" | "Group Workshop" | "Critical Deadline";
-  date: { day: string; date: number };
-  color: string;
-}
-
-const UPCOMING_SESSIONS: Session[] = [
-  {
-    id: "1",
-    title: "AI Ethics Seminar",
-    time: "2:00 PM - 3:30 PM",
-    type: "Online Session",
-    date: { day: "OCT", date: 12 },
-    color: "border-blue-500 text-blue-500",
-  },
-  {
-    id: "2",
-    title: "Project Review: Chatbots",
-    time: "10:00 AM - 11:00 AM",
-    type: "Group Workshop",
-    date: { day: "OCT", date: 14 },
-    color: "border-purple-500 text-purple-500",
-  },
-  {
-    id: "3",
-    title: "Python Basics Quiz",
-    time: "Deadline: 11:59 PM",
-    type: "Critical Deadline",
-    date: { day: "OCT", date: 15 },
-    color: "border-orange-500 text-orange-500",
-  },
-];
+import { LiveSessionsFab } from "@/components/dashboard/LiveSessionsFab";
 
 export default async function LearnerDashboard() {
   const user = await currentUser();
@@ -227,57 +192,11 @@ export default async function LearnerDashboard() {
         <div className="space-y-8">
           {/* Skills Summary */}
           <SkillSummaryWidget skills={skillsList} />
-          {/* Upcoming Sessions */}
-          <div className="bg-surface border border-border rounded-4xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-primary-text flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-brand" />
-                Upcoming Sessions
-              </h2>
-            </div>
-
-            <div className="space-y-6">
-              {UPCOMING_SESSIONS.map((session) => (
-                <div
-                  key={session.id}
-                  className="flex gap-4 group cursor-pointer"
-                >
-                  <div
-                    className={`w-12 h-14 rounded-2xl border-2 ${session.color} flex flex-col items-center justify-center shrink-0 bg-surface`}
-                  >
-                    <span className="text-[10px] font-bold uppercase opacity-80">
-                      {session.date.day}
-                    </span>
-                    <span className={`text-lg font-black leading-none`}>
-                      {session.date.date}
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-primary-text group-hover:text-brand transition-colors">
-                      {session.title}
-                    </h4>
-                    <p className="text-xs text-secondary-text font-medium mb-1">
-                      {session.type}
-                    </p>
-                    <div className="flex items-center gap-1 text-[11px] text-green-600 font-bold">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      {session.time}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8">
-              <button className="w-full py-3 border border-border rounded-xl font-bold text-sm text-primary-text hover:bg-surface-muted transition-colors">
-                View Full Calendar
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* CONCIERGE MODAL HERE */}
+      {/* FABs — Live Sessions FAB stacked above Chat with Zerra */}
+      <LiveSessionsFab />
       <DashboardAiChatModal />
     </div>
   );

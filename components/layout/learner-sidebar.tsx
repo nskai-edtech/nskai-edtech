@@ -16,14 +16,21 @@ import {
   Trophy,
   Briefcase,
   Target,
+  Radio,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLiveSessionsBadge } from "@/hooks/use-live-sessions-badge";
 
 const navItems = [
   {
     label: "Dashboard",
     href: "/learner",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Live Sessions",
+    href: "/learner/live-sessions",
+    icon: Radio,
   },
   {
     label: "Portfolio",
@@ -72,9 +79,13 @@ const navItems = [
   },
 ];
 
+const LIVE_SESSIONS_HREF = "/learner/live-sessions";
+
 export function LearnerSidebar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { liveCount, totalCount } = useLiveSessionsBadge();
+  const isLive = liveCount > 0;
 
   return (
     <>
@@ -134,6 +145,9 @@ export function LearnerSidebar() {
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
+              const isLiveSessions = item.href === LIVE_SESSIONS_HREF;
+              const showBadge = isLiveSessions && totalCount > 0;
+              const badgeLabel = totalCount > 99 ? "99+" : String(totalCount);
 
               return (
                 <Link
@@ -149,8 +163,49 @@ export function LearnerSidebar() {
                   )}
                   title={item.label}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  <span className="block md:hidden lg:block">{item.label}</span>
+                  {/* Icon with badge for collapsed state */}
+                  <span className="relative shrink-0">
+                    <Icon className="h-5 w-5" />
+                    {showBadge && (
+                      <span
+                        className={cn(
+                          "absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold text-white",
+                          isLive ? "bg-red-500" : "bg-brand",
+                          // Only visible in collapsed (md) state; hidden in expanded (lg) state
+                          "lg:hidden",
+                        )}
+                        aria-label={`${totalCount} live or upcoming sessions`}
+                      >
+                        {isLive && (
+                          <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
+                        )}
+                        <span className="relative">{badgeLabel}</span>
+                      </span>
+                    )}
+                  </span>
+
+                  {/* Label + badge for expanded state */}
+                  <span className="flex-1 items-center justify-between block md:hidden lg:flex">
+                    <span>{item.label}</span>
+                    {showBadge && (
+                      <span
+                        className={cn(
+                          "relative ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white",
+                          isActive
+                            ? "bg-white/30"
+                            : isLive
+                              ? "bg-red-500"
+                              : "bg-brand",
+                        )}
+                        aria-label={`${totalCount} live or upcoming sessions`}
+                      >
+                        {isLive && !isActive && (
+                          <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
+                        )}
+                        <span className="relative">{badgeLabel}</span>
+                      </span>
+                    )}
+                  </span>
                 </Link>
               );
             })}

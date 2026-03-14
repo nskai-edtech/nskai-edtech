@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import Groq from "groq-sdk";
+import { getGroq } from "@/lib/groq";
 import { createRateLimiter } from "@/lib/rate-limit";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // 10 enhance requests per 60-second window per user
 const rateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 });
@@ -42,7 +40,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 1024,
