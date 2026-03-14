@@ -120,6 +120,10 @@ export function useAgoraBroadcaster({ sessionId }: UseBroadcasterOptions) {
                 // 8. Publish tracks to the channel
                 await client.publish([audioTrack, videoTrack]);
 
+                // 9. Enable dual stream so viewers on poor connections can request
+                //    a lower-resolution, lower-bitrate track automatically.
+                client.enableDualStream().catch(() => undefined);
+
                 // 9. Play local preview
                 if (localVideoRef.current) {
                     videoTrack.play(localVideoRef.current);

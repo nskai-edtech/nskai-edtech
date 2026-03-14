@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getGroq } from "@/lib/groq";
-import { createRateLimiter } from "@/lib/rate-limit";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { createRateLimiter, createIpRateLimiter } from "@/lib/rate-limit";
 
 // ── Types ──
 interface QuizQuestion {
@@ -13,35 +11,23 @@ interface QuizQuestion {
 }
 
 // ── Initializations ──
-const userRateLimiter = createRateLimiter({
-  maxRequests: 10,
-  windowMs: 60_000,
-});
-const redis = Redis.fromEnv();
-const ipRateLimiter = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(20, "10 s"),
-});
+// 10 user requests per 60-second window
+const userRateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 });
+// 20 IP requests per 10-second window (matches previous Upstash config)
+const ipRateLimiter = createIpRateLimiter({ maxRequests: 20, windowMs: 10_000 });
 
 export async function POST(req: Request) {
   try {
     // IP Rate Limiting (Block bots instantly)
-    const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
-    const {
-      success: ipSuccess,
-      limit: ipLimit,
-      reset: ipReset,
-      remaining: ipRemaining,
-    } = await ipRateLimiter.limit(ip);
-
-    if (!ipSuccess) {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+    const { allowed: ipAllowed, remaining: ipRemaining, resetInMs: ipResetInMs } = ipRateLimiter(ip);
+    if (!ipAllowed) {
       return NextResponse.json(
         { error: "Too many requests from your IP. Please wait a moment." },
         {
           status: 429,
           headers: {
-            "Retry-After": String(Math.ceil((ipReset - Date.now()) / 1000)),
-            "X-RateLimit-Limit": String(ipLimit),
+            "Retry-After": String(Math.ceil(ipResetInMs / 1000)),
             "X-RateLimit-Remaining": String(ipRemaining),
           },
         },

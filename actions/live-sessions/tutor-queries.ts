@@ -1,6 +1,6 @@
 "use server";
 
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNull } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 import { liveSessions } from "@/drizzle/schema/live-sessions";
@@ -82,14 +82,24 @@ export async function getTutorLiveSessionsFeed(): Promise<LiveSessionsFeedRespon
         .where(eq(liveSessions.hostId, user.id))
         .orderBy(desc(liveSessions.startsAt));
 
-    // Get viewer counts for each session
+    // Active count for LIVE sessions; total historical count for ended/scheduled sessions
+    const activeThreshold = new Date(Date.now() - 2 * 60 * 1000);
     const sessions = await Promise.all(
         rows.map(async (row) => {
+            const isLive = row.status === "LIVE";
             const viewerCount = await db
                 .select({ count: count() })
                 .from(liveSessionViewers)
-                .where(eq(liveSessionViewers.sessionId, row.id))
-                .then((result) => result[0]?.count || 0);
+                .where(
+                    isLive
+                        ? and(
+                              eq(liveSessionViewers.sessionId, row.id),
+                              isNull(liveSessionViewers.leftAt),
+                              gt(liveSessionViewers.lastSeenAt, activeThreshold),
+                          )
+                        : eq(liveSessionViewers.sessionId, row.id),
+                )
+                .then((result) => result[0]?.count ?? 0);
 
             return toLiveSessionListItem(row, viewerCount);
         }),
@@ -122,11 +132,21 @@ export async function getTutorLiveSessionById(sessionId: string) {
         return null;
     }
 
+    const isLive = session.status === "LIVE";
+    const activeThreshold = new Date(Date.now() - 2 * 60 * 1000);
     const viewerCount = await db
         .select({ count: count() })
         .from(liveSessionViewers)
-        .where(eq(liveSessionViewers.sessionId, sessionId))
-        .then((result) => result[0]?.count || 0);
+        .where(
+            isLive
+                ? and(
+                      eq(liveSessionViewers.sessionId, sessionId),
+                      isNull(liveSessionViewers.leftAt),
+                      gt(liveSessionViewers.lastSeenAt, activeThreshold),
+                  )
+                : eq(liveSessionViewers.sessionId, sessionId),
+        )
+        .then((result) => result[0]?.count ?? 0);
 
     return toLiveSessionListItem(session, viewerCount);
 }
@@ -157,13 +177,24 @@ export async function getSessionAnalytics(sessionId: string) {
         where: eq(liveSessionViewers.sessionId, sessionId),
     });
 
-    // Calculate duration if session has ended
+    // Calculate duration: for LIVE sessions use now; for ended sessions
+    // only use actualEndedAt (never fall back to new Date() to avoid
+    // showing time-since-start-until-now for old ended sessions).
     let durationMinutes = 0;
-    if (session.actualStartedAt && session.actualEndedAt) {
-        durationMinutes = Math.round(
-            (session.actualEndedAt.getTime() - session.actualStartedAt.getTime()) / 60000,
-        );
+    let durationSeconds = 0;
+    if (session.actualStartedAt) {
+        const isLive = session.status === "LIVE";
+        const end = isLive ? new Date() : session.actualEndedAt;
+        if (end) {
+            const diffMs = end.getTime() - session.actualStartedAt.getTime();
+            durationMinutes = Math.floor(diffMs / 60_000);
+            durationSeconds = Math.floor((diffMs % 60_000) / 1_000);
+        }
     }
+
+    // For viewers still watching (no leftAt), use lastSeenAt as the end time
+    const now = new Date();
+    const viewersWithDuration = viewers.filter((v) => v.joinedAt !== null);
 
     return {
         sessionId: session.id,
@@ -172,15 +203,14 @@ export async function getSessionAnalytics(sessionId: string) {
         totalViewers: viewers.length,
         uniqueViewers: new Set(viewers.map((v) => v.learnerId)).size,
         durationMinutes,
+        durationSeconds,
         avgSessionDuration:
-            viewers.length > 0
+            viewersWithDuration.length > 0
                 ? Math.round(
-                    viewers.reduce((sum, v) => {
-                        if (v.joinedAt && v.leftAt) {
-                            return sum + (v.leftAt.getTime() - v.joinedAt.getTime());
-                        }
-                        return sum;
-                    }, 0) / viewers.length / 60000,
+                    viewersWithDuration.reduce((sum, v) => {
+                        const end = v.leftAt ?? v.lastSeenAt ?? now;
+                        return sum + (end.getTime() - v.joinedAt!.getTime());
+                    }, 0) / viewersWithDuration.length / 60000,
                 )
                 : 0,
     };

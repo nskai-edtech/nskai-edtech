@@ -4,6 +4,28 @@ interface RateLimitResult {
   resetInMs: number;
 }
 
+/**
+ * In-memory sliding-window IP rate limiter.
+ *
+ * Designed as a drop-in replacement for the Upstash/Redis IP limiter.
+ * When budget allows, swap this back to Upstash by replacing the returned
+ * function with an Upstash `Ratelimit.slidingWindow` call — the
+ * RateLimitResult interface is identical.
+ *
+ * NOTE: Because Next.js may run multiple serverless instances, limits are
+ * per-instance. This is acceptable for cost-free bot protection; for
+ * distributed-exact counting, restore Upstash.
+ */
+export function createIpRateLimiter({
+  maxRequests,
+  windowMs,
+}: {
+  maxRequests: number;
+  windowMs: number;
+}) {
+  return createRateLimiter({ maxRequests, windowMs });
+}
+
 export function createRateLimiter({
   maxRequests,
   windowMs,

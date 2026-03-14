@@ -366,11 +366,20 @@ export default function CourseEditor({
                   {expandedChapters.has(chapter.id) && (
                     <div className="ml-6 mt-1 space-y-1">
                       {chapter.lessons.map((lesson, lessonIndex) => (
-                        <button
+                        <div
                           key={lesson.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => {
                             setSelectedLesson(lesson);
                             setIsSidebarOpen(false);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedLesson(lesson);
+                              setIsSidebarOpen(false);
+                            }
                           }}
                           className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                             selectedLesson?.id === lesson.id
@@ -393,7 +402,7 @@ export default function CourseEditor({
                           >
                             <Trash2 className="w-3 h-3 text-red-500" aria-hidden="true" />
                           </button>
-                        </button>
+                        </div>
                       ))}
 
                       <button

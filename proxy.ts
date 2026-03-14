@@ -13,13 +13,14 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 function generateCspHeaders(nonce: string) {
+  const isDev = process.env.NODE_ENV === "development";
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' https://*.clerk.com https://*.clerk.accounts.dev https://*.sentry.io https://challenges.cloudflare.com https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.clerk.com https://api.dicebear.com https://*.utfs.io https://utfs.io https://*.ufs.sh https://ufs.sh https://image.mux.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "connect-src 'self' blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.sentry.io https://*.mux.com https://*.uploadthing.com https://uploadthing.com https://*.ingest.uploadthing.com https://*.utfs.io https://utfs.io https://*.ufs.sh https://ufs.sh https://*.amazonaws.com wss://*.clerk.com wss://*.clerk.accounts.dev https://*.sd-rtn.com:* wss://*.sd-rtn.com:* https://*.agora.io:* wss://*.agora.io:*",
+    `connect-src 'self' blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.sentry.io https://*.mux.com https://*.uploadthing.com https://uploadthing.com https://*.ingest.uploadthing.com https://*.utfs.io https://utfs.io https://*.ufs.sh https://ufs.sh https://*.amazonaws.com wss://*.clerk.com wss://*.clerk.accounts.dev https://*.sd-rtn.com:* wss://*.sd-rtn.com:* https://*.agora.io:* wss://*.agora.io:* https://*.up.railway.app wss://*.up.railway.app${isDev ? " ws://localhost:*" : ""}`,
     "media-src 'self' blob: https://stream.mux.com https://*.mux.com",
     "frame-src 'self' https://*.clerk.com https://challenges.cloudflare.com",
     "worker-src 'self' blob:",

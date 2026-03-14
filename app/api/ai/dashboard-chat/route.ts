@@ -1,35 +1,29 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { users, userProgress } from "@/drizzle/schema";
 import { localMentorChatStream, type LocalChatMessage } from "@/lib/chat-local";
+import { createIpRateLimiter } from "@/lib/rate-limit";
 
-const redis = Redis.fromEnv();
-const ratelimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(10, "10 s"),
-});
+// 10 requests per 10-second window per IP (matches previous Upstash config)
+const ipRateLimiter = createIpRateLimiter({ maxRequests: 10, windowMs: 10_000 });
 
 export async function POST(req: Request) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) return new NextResponse("Unauthorized", { status: 401 });
 
-    const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
-    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
-
-    if (!success) {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+    const { allowed, remaining, resetInMs } = ipRateLimiter(ip);
+    if (!allowed) {
       return NextResponse.json(
         { error: "Too many requests." },
         {
           status: 429,
           headers: {
-            "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)),
-            "X-RateLimit-Limit": String(limit),
-            "X-RateLimit-Remaining": String(remaining),
+            "Retry-After": String(Math.ceil(resetInMs / 1000)),
+            "X-RateLimit-Remaining": "0",
           },
         },
       );

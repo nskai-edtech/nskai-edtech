@@ -1,8 +1,6 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis"; // <-- NEW IMPORT
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createRateLimiter, createIpRateLimiter } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
 import {
   aiChatConversations,
@@ -18,35 +16,23 @@ import { aiMentorChatStream, type ChatRequest } from "@/lib/ai-service";
 import { fetchMuxTranscript } from "@/lib/mux-transcript";
 import { localMentorChatStream, type LocalChatMessage } from "@/lib/chat-local";
 
-const redis = Redis.fromEnv();
-
-const ratelimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(10, "10 s"), // max 10 requests per 10 seconds
-});
-
+// 10 IP requests per 10-second window (matches previous Upstash config)
+const ipRateLimiter = createIpRateLimiter({ maxRequests: 10, windowMs: 10_000 });
 // 20 messages per 60-second window per user
 const rateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000 });
 
 export async function POST(req: Request) {
   try {
-    // ── Upstash IP Rate limit ──
-    const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
-    const {
-      success,
-      limit,
-      reset,
-      remaining: ipRemaining,
-    } = await ratelimit.limit(ip);
-
-    if (!success) {
+    // ── IP Rate limit ──
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+    const { allowed: ipAllowed, remaining: ipRemaining, resetInMs: ipResetInMs } = ipRateLimiter(ip);
+    if (!ipAllowed) {
       return NextResponse.json(
         { error: "Too many requests from your IP. Please wait a moment." },
         {
           status: 429,
           headers: {
-            "Retry-After": String(Math.ceil((reset - Date.now()) / 1000)),
-            "X-RateLimit-Limit": String(limit),
+            "Retry-After": String(Math.ceil(ipResetInMs / 1000)),
             "X-RateLimit-Remaining": String(ipRemaining),
           },
         },

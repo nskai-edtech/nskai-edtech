@@ -10,6 +10,9 @@ interface UseViewerOptions {
     enabled?: boolean;
 }
 
+/** How often (ms) to send a heartbeat to keep the viewer marked as active. */
+const HEARTBEAT_INTERVAL_MS = 30_000;
+
 export function useAgoraViewer({ sessionId, enabled = true }: UseViewerOptions) {
     const store = useLiveStreamStore();
 
@@ -28,6 +31,7 @@ export function useAgoraViewer({ sessionId, enabled = true }: UseViewerOptions) 
         if (!enabled) return;
 
         let isMounted = true;
+        let heartbeatId: number | null = null;
 
         async function init() {
             store.setConnectionState("connecting");
@@ -56,6 +60,7 @@ export function useAgoraViewer({ sessionId, enabled = true }: UseViewerOptions) 
 
                 if (!isMounted) return;
 
+                // Live broadcast mode with explicit low-latency audience level
                 const client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
                 clientRef.current = client;
 
@@ -92,10 +97,37 @@ export function useAgoraViewer({ sessionId, enabled = true }: UseViewerOptions) 
                     }
                 });
 
-                await client.setClientRole("audience");
+                // Adaptive quality: when downlink quality degrades (≥4 on Agora's 0–6 scale,
+                // where 0=unknown, 1=excellent, 6=disconnected) switch to the low-quality
+                // dual-stream track published by the broadcaster. Recover to high when stable.
+                client.on("network-quality", (stats) => {
+                    if (!isMounted || !clientRef.current) return;
+                    const streamType = stats.downlinkNetworkQuality >= 4 ? 1 : 0;
+                    for (const user of clientRef.current.remoteUsers) {
+                        if (user.hasVideo) {
+                            clientRef.current
+                                .setRemoteVideoStreamType(user.uid, streamType)
+                                .catch(() => undefined);
+                        }
+                    }
+                });
+
+                // Join as audience with LOW_LATENCY (level 1, 2-8 s, default but explicit)
+                await client.setClientRole("audience", { level: 1 });
                 await client.join(appId, channelName, token, uid);
 
                 if (!isMounted) return;
+
+                // Register this viewer in the DB and broadcast VIEWER_COUNT_CHANGED
+                fetch(`/api/live-sessions/${sessionId}/viewer`, { method: "POST" })
+                    .catch(() => undefined);
+
+                // Keep viewer record alive with periodic heartbeats
+                heartbeatId = window.setInterval(() => {
+                    if (!isMounted) return;
+                    fetch(`/api/live-sessions/${sessionId}/viewer`, { method: "PATCH" })
+                        .catch(() => undefined);
+                }, HEARTBEAT_INTERVAL_MS);
 
                 store.setConnectionState("connected");
             } catch (error) {
@@ -109,6 +141,15 @@ export function useAgoraViewer({ sessionId, enabled = true }: UseViewerOptions) 
 
         return () => {
             isMounted = false;
+
+            if (heartbeatId !== null) window.clearInterval(heartbeatId);
+
+            // Best-effort leave notification (keepalive keeps the request alive through unload)
+            fetch(`/api/live-sessions/${sessionId}/viewer`, {
+                method: "DELETE",
+                keepalive: true,
+            }).catch(() => undefined);
+
             void cleanup();
             store.reset();
         };
